@@ -64,7 +64,7 @@ function App() {
         {/* Header */}
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-800 mb-2">
-            🍽️ Check Eat
+            🍽️ Kalloriya Hisoblagich
           </h1>
           <p className="text-lg text-gray-600">
             Sun'iy intellekt asosida ovqat kaloriyalarini tahlil qilish
@@ -121,7 +121,8 @@ function App() {
         {/* Footer */}
         <footer className="text-center mt-8 text-gray-500 text-sm">
           <p>
-            Ovqat rasmini yuklab, 100g uchun darhol kaloriya ma'lumotlarini oling
+            Ovqat rasmini yuklab, 100g uchun darhol kaloriya ma'lumotlarini
+            oling
           </p>
           <p className="mt-1">
             Natijalar taxminiy va tayyorlash usuliga qarab farq qilishi mumkin
