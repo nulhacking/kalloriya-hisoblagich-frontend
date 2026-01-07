@@ -64,7 +64,7 @@ function App() {
         {/* Header */}
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-800 mb-2">
-            🍽️ Kalloriya Hisoblagich
+            🍽️ Kaloriya Hisoblagich
           </h1>
           <p className="text-lg text-gray-600">
             Sun'iy intellekt asosida ovqat kaloriyalarini tahlil qilish

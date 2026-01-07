@@ -86,7 +86,9 @@ const ImageUpload = ({
               alt="Preview"
               className="max-h-64 mx-auto rounded-lg shadow-md object-contain"
             />
-            <p className="text-sm text-gray-600">Rasmni o'zgartirish uchun bosing</p>
+            <p className="text-sm text-gray-600">
+              Rasmni o'zgartirish uchun bosing
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
