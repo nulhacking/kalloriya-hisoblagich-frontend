@@ -73,7 +73,6 @@ const ImageUpload = ({
       }
     } catch (error) {
       console.error("Kamera xatosi:", error);
-      alert("Kameraga kirish imkoni yo'q. Iltimos, ruxsat bering.");
       setCameraActive(false);
     }
   };
@@ -120,19 +119,22 @@ const ImageUpload = ({
   }, [disabled, imagePreview]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Camera View or Image Preview */}
       {imagePreview ? (
-        <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
+        <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-food-green-50">
           <img
             src={imagePreview}
             alt="Preview"
-            className="w-full h-auto max-h-[60vh] object-cover mx-auto"
+            className="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-contain mx-auto bg-white"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
+          {/* Success indicator */}
+          <div className="absolute top-3 right-3 bg-food-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+            <span>✓</span> Tayyor
+          </div>
         </div>
       ) : (
-        <div className="relative h-[60vh] w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
+        <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-gray-900">
           <video
             ref={videoRef}
             autoPlay
@@ -140,7 +142,32 @@ const ImageUpload = ({
             muted
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
+
+          {/* Camera overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+
+          {/* Camera frame corners */}
+          <div className="absolute inset-8 md:inset-12 pointer-events-none">
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-food-green-400 rounded-tl-lg"></div>
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-food-green-400 rounded-tr-lg"></div>
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-food-green-400 rounded-bl-lg"></div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-food-green-400 rounded-br-lg"></div>
+          </div>
+
+          {/* Camera status indicator */}
+          {cameraActive && (
+            <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
+              <div className="w-2 h-2 bg-food-red-500 rounded-full animate-pulse"></div>
+              <span className="text-white text-xs font-medium">LIVE</span>
+            </div>
+          )}
+
+          {/* Instruction text */}
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+            <p className="text-white text-sm font-medium bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full">
+              🍽️ Ovqatni kadrga oling
+            </p>
+          </div>
 
           {/* Hidden canvas for capturing photo */}
           <canvas ref={canvasRef} className="hidden" />
@@ -148,61 +175,25 @@ const ImageUpload = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex gap-2">
         {/* Capture Photo Button */}
         <button
           onClick={capturePhoto}
-          disabled={disabled || !cameraActive}
-          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3"
+          disabled={disabled || !cameraActive || !!imagePreview}
+          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
         >
-          <span className="relative z-10 flex items-center gap-2">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            Rasm olish
-          </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span className="text-xl">📸</span>
+          <span className="text-sm md:text-base">Rasm olish</span>
         </button>
 
         {/* File Upload Button */}
         <button
           onClick={handleClick}
           disabled={disabled}
-          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3"
+          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-yellow-500 to-food-orange-500 hover:from-food-yellow-600 hover:to-food-orange-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
         >
-          <span className="relative z-10 flex items-center gap-2">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-            Fayldan yuklash
-          </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span className="text-xl">📁</span>
+          <span className="text-sm md:text-base">Fayldan</span>
         </button>
       </div>
 

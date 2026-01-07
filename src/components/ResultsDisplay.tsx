@@ -16,9 +16,9 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
   } = results;
 
   const getConfidenceColor = (conf: number): string => {
-    if (conf >= 0.7) return "text-green-600 bg-green-50";
-    if (conf >= 0.4) return "text-yellow-600 bg-yellow-50";
-    return "text-red-600 bg-red-50";
+    if (conf >= 0.7) return "text-food-green-700 bg-food-green-100 border-food-green-300";
+    if (conf >= 0.4) return "text-food-yellow-700 bg-food-yellow-100 border-food-yellow-300";
+    return "text-food-red-700 bg-food-red-100 border-food-red-300";
   };
 
   const getConfidenceLabel = (conf: number): string => {
@@ -32,6 +32,7 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
     value: number | undefined;
     unit: string;
     icon: string;
+    color: string;
   }
 
   const nutritionItems: NutritionItem[] = [
@@ -40,48 +41,52 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
       value: nutrition_per_100g.calories,
       unit: "kkal",
       icon: "🔥",
+      color: "from-food-red-400 to-food-orange-500",
     },
     {
       label: "Oqsil",
       value: nutrition_per_100g.oqsil,
       unit: "g",
       icon: "🥩",
+      color: "from-food-red-500 to-food-red-600",
     },
     {
       label: "Uglevodlar",
       value: nutrition_per_100g.carbs,
       unit: "g",
       icon: "🍞",
+      color: "from-food-yellow-400 to-food-orange-500",
     },
-    { label: "Yog'", value: nutrition_per_100g.fat, unit: "g", icon: "🧈" },
+    {
+      label: "Yog'",
+      value: nutrition_per_100g.fat,
+      unit: "g",
+      icon: "🧈",
+      color: "from-food-yellow-500 to-food-yellow-600",
+    },
   ];
 
   return (
-    <div className="mt-8 space-y-6 animate-fade-in-up">
+    <div className="space-y-4">
       {/* Food Name and Confidence */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-primary-500 via-blue-500 to-primary-600 rounded-2xl p-6 md:p-8 text-white shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-600/50 to-transparent opacity-50"></div>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold capitalize mb-3 drop-shadow-lg">
-              {food === "noma'lum" || food === "unknown"
-                ? "❓ Noma'lum ovqat"
-                : `🍽️ ${food}`}
-            </h2>
-            {food !== "noma'lum" && food !== "unknown" && (
-              <p className="text-primary-100 text-base font-medium">
-                AI ishonch darajasi: <span className="font-bold text-white">{Math.round(confidence * 100)}%</span>
-              </p>
-            )}
-          </div>
+      <div className="relative overflow-hidden bg-gradient-to-r from-food-green-500 via-food-green-600 to-food-green-500 rounded-2xl p-4 md:p-5 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+        <div className="relative z-10">
+          <h2 className="text-xl md:text-2xl font-extrabold capitalize mb-2">
+            {food === "noma'lum" || food === "unknown"
+              ? "❓ Noma'lum ovqat"
+              : `🍽️ ${food}`}
+          </h2>
           {food !== "noma'lum" && food !== "unknown" && (
-            <div
-              className={`px-5 py-3 rounded-full font-bold text-sm shadow-lg transform hover:scale-110 transition-transform ${getConfidenceColor(
-                confidence
-              )}`}
-            >
-              {getConfidenceLabel(confidence)} ishonch
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-food-green-100 text-sm">
+                AI ishonch: <span className="font-bold text-white">{Math.round(confidence * 100)}%</span>
+              </span>
+              <span
+                className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getConfidenceColor(confidence)}`}
+              >
+                {getConfidenceLabel(confidence)}
+              </span>
             </div>
           )}
         </div>
@@ -89,16 +94,15 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
 
       {/* Ingredients */}
       {ingredients && ingredients.length > 0 && (
-        <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200 shadow-lg">
-          <h3 className="text-2xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="text-3xl">🥗</span>
-            Ingredientlar
+        <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
+          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>🥗</span> Ingredientlar
           </h3>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {ingredients.map((ingredient, index) => (
               <span
                 key={index}
-                className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-blue-500 text-white rounded-full text-sm font-semibold capitalize shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="px-3 py-1.5 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white rounded-full text-xs font-bold capitalize shadow-sm"
               >
                 {ingredient}
               </span>
@@ -109,78 +113,44 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
 
       {/* Estimated Weight */}
       {estimated_weight_grams && estimated_weight_grams > 0 && (
-        <div className="bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-300 rounded-xl p-5 shadow-lg">
-          <p className="text-purple-900 font-bold text-lg flex items-center gap-2">
-            <span className="text-2xl">📏</span>
+        <div className="bg-gradient-to-r from-food-orange-100 to-food-yellow-100 border-2 border-food-orange-300 rounded-2xl p-4">
+          <p className="text-food-brown-800 font-bold text-sm md:text-base flex items-center gap-2">
+            <span className="text-xl">📏</span>
             Taxminiy og'irlik:{" "}
-            <span className="text-2xl text-purple-700">
-              {Math.round(estimated_weight_grams)} gramm
+            <span className="text-food-orange-600 text-lg">
+              {Math.round(estimated_weight_grams)}g
             </span>
           </p>
         </div>
       )}
 
-      {/* Total Nutrition (for the full portion) */}
+      {/* Total Nutrition */}
       {total_nutrition && Object.keys(total_nutrition).length > 0 && (
-        <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 border-2 border-orange-200 shadow-xl">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <span className="text-3xl">📊</span>
-            Umumiy kaloriya (taxminiy{" "}
-            {estimated_weight_grams
-              ? Math.round(estimated_weight_grams) + "g"
-              : "porsiya"}{" "}
-            uchun)
+        <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
+          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>📊</span>
+            Umumiy ({estimated_weight_grams ? Math.round(estimated_weight_grams) + "g" : "porsiya"})
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              {
-                label: "Kaloriya",
-                value: total_nutrition.calories,
-                unit: "kkal",
-                icon: "🔥",
-                gradient: "from-red-400 to-orange-500",
-              },
-              {
-                label: "Oqsil",
-                value: total_nutrition.oqsil,
-                unit: "g",
-                icon: "🥩",
-                gradient: "from-purple-400 to-pink-500",
-              },
-              {
-                label: "Uglevodlar",
-                value: total_nutrition.carbs,
-                unit: "g",
-                icon: "🍞",
-                gradient: "from-yellow-400 to-orange-500",
-              },
-              {
-                label: "Yog'",
-                value: total_nutrition.fat,
-                unit: "g",
-                icon: "🧈",
-                gradient: "from-blue-400 to-cyan-500",
-              },
-            ].map((item, index) => (
+              { label: "Kaloriya", value: total_nutrition.calories, unit: "kkal", icon: "🔥" },
+              { label: "Oqsil", value: total_nutrition.oqsil, unit: "g", icon: "🥩" },
+              { label: "Uglevodlar", value: total_nutrition.carbs, unit: "g", icon: "🍞" },
+              { label: "Yog'", value: total_nutrition.fat, unit: "g", icon: "🧈" },
+            ].map((item) => (
               <div
                 key={item.label}
-                className="group relative overflow-hidden bg-white rounded-xl p-5 text-center border-2 border-gray-200 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="bg-white rounded-xl p-3 text-center border-2 border-food-orange-200 shadow-sm"
               >
-                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                  {item.icon}
-                </div>
-                <div className="text-3xl font-extrabold bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl mb-1">{item.icon}</div>
+                <div className="text-xl md:text-2xl font-extrabold text-food-green-600">
                   {item.value !== undefined ? item.value : "N/A"}
                 </div>
-                <div className="text-sm text-gray-700 mt-1 font-bold uppercase tracking-wide">
+                <div className="text-xs text-food-brown-600 font-bold uppercase">
                   {item.label}
                 </div>
                 {item.value !== undefined && (
-                  <div className="text-xs text-gray-500 mt-1 font-medium">
-                    {item.unit}
-                  </div>
+                  <div className="text-xs text-food-brown-400">{item.unit}</div>
                 )}
               </div>
             ))}
@@ -188,52 +158,46 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
         </div>
       )}
 
-      {/* Nutrition Information per 100g */}
+      {/* Nutrition per 100g */}
       {Object.keys(nutrition_per_100g).length > 0 ? (
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200 shadow-xl">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <span className="text-3xl">⚖️</span>
-            100g uchun kaloriya
+        <div className="bg-gradient-to-br from-food-green-50 to-food-green-100 rounded-2xl p-4 border-2 border-food-green-200">
+          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>⚖️</span> 100g uchun
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {nutritionItems.map((item, index) => (
+          <div className="grid grid-cols-2 gap-2">
+            {nutritionItems.map((item) => (
               <div
                 key={item.label}
-                className="group relative overflow-hidden bg-white rounded-xl p-5 text-center border-2 border-gray-200 shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="bg-white rounded-xl p-3 text-center border-2 border-food-green-200 shadow-sm"
               >
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                  {item.icon}
-                </div>
-                <div className="text-3xl font-extrabold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl mb-1">{item.icon}</div>
+                <div className="text-xl md:text-2xl font-extrabold text-food-green-600">
                   {item.value !== undefined ? item.value : "N/A"}
                 </div>
-                <div className="text-sm text-gray-700 mt-1 font-bold uppercase tracking-wide">
+                <div className="text-xs text-food-brown-600 font-bold uppercase">
                   {item.label}
                 </div>
                 {item.value !== undefined && (
-                  <div className="text-xs text-gray-500 mt-1 font-medium">
-                    {item.unit}
-                  </div>
+                  <div className="text-xs text-food-brown-400">{item.unit}</div>
                 )}
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-5 shadow-lg">
-          <p className="text-yellow-900 font-semibold flex items-center gap-2 text-lg">
-            <span className="text-2xl">⚠️</span>
-            Bu ovqat uchun kaloriya ma'lumotlari mavjud emas.
+        <div className="bg-gradient-to-r from-food-yellow-100 to-food-orange-100 border-2 border-food-yellow-300 rounded-2xl p-4">
+          <p className="text-food-brown-700 font-bold text-sm flex items-center gap-2">
+            <span className="text-xl">⚠️</span>
+            Kaloriya ma'lumotlari mavjud emas.
           </p>
         </div>
       )}
 
       {/* Note */}
       {note && (
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-5 shadow-lg">
-          <p className="text-blue-900 font-medium flex items-start gap-2">
-            <span className="text-xl">ℹ️</span>
+        <div className="bg-gradient-to-r from-food-green-100 to-food-yellow-100 border-2 border-food-green-300 rounded-2xl p-4">
+          <p className="text-food-brown-700 font-medium text-sm flex items-start gap-2">
+            <span className="text-lg">ℹ️</span>
             <span>{note}</span>
           </p>
         </div>
