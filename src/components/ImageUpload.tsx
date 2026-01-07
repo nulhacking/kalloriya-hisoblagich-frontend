@@ -127,19 +127,18 @@ const ImageUpload = ({
           <img
             src={imagePreview}
             alt="Preview"
-            className="w-full h-auto max-h-[60vh] object-contain mx-auto"
+            className="w-full h-auto max-h-[60vh] object-cover mx-auto"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
         </div>
       ) : (
-        <div className="relative min-h-[40vh] w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
+        <div className="relative h-[60vh] w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className="w-full h-auto max-h-[60vh] object-cover"
-            style={{ transform: "scaleX(-1)" }} // Mirror effect
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
 
