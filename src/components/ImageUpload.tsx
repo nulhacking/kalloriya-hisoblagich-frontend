@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface ImageUploadProps {
   onImageSelect: (file: File) => void;
@@ -15,7 +15,6 @@ const ImageUpload = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
 
   const validateAndSelectFile = (file: File) => {
@@ -51,47 +50,7 @@ const ImageUpload = ({
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (disabled) return;
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      validateAndSelectFile(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  // Check if mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      const isMobileDevice =
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent
-        ) || window.innerWidth <= 768;
-      setIsMobile(isMobileDevice);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setCameraActive(false);
-  }, []);
-
-  const startCamera = useCallback(async () => {
+  const startCamera = async () => {
     try {
       // Stop any existing stream
       if (streamRef.current) {
@@ -114,22 +73,10 @@ const ImageUpload = ({
       }
     } catch (error) {
       console.error("Kamera xatosi:", error);
+      alert("Kameraga kirish imkoni yo'q. Iltimos, ruxsat bering.");
       setCameraActive(false);
     }
-  }, []);
-
-  // Start camera on mobile devices
-  useEffect(() => {
-    if (isMobile && !disabled && !imagePreview) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-
-    return () => {
-      stopCamera();
-    };
-  }, [isMobile, disabled, imagePreview, startCamera, stopCamera]);
+  };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current && streamRef.current) {
@@ -158,11 +105,34 @@ const ImageUpload = ({
     }
   };
 
+  // Start camera automatically on mount
+  useEffect(() => {
+    if (!disabled && !imagePreview) {
+      startCamera();
+    }
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, [disabled, imagePreview]);
+
   return (
     <div className="space-y-4">
-      {/* Camera View - Mobile */}
-      {isMobile && cameraActive && !imagePreview && !disabled && (
-        <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+      {/* Camera View or Image Preview */}
+      {imagePreview ? (
+        <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-full h-auto max-h-[60vh] object-contain mx-auto"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
+        </div>
+      ) : (
+        <div className="relative min-h-[40vh] w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-black">
           <video
             ref={videoRef}
             autoPlay
@@ -173,115 +143,79 @@ const ImageUpload = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
 
-          {/* Capture Button */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
-            <button
-              onClick={capturePhoto}
-              disabled={disabled}
-              className="bg-white hover:bg-gray-100 active:scale-95 rounded-full p-5 shadow-2xl transition-all duration-200 border-4 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="w-16 h-16 bg-white rounded-full border-4 border-gray-400"></div>
-            </button>
-          </div>
-
-          {/* File upload button overlay */}
-          <div className="absolute top-4 right-4 z-20">
-            <button
-              onClick={handleClick}
-              disabled={disabled}
-              className="bg-white/90 hover:bg-white text-gray-700 rounded-full p-3 shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Upload Area - Desktop or when camera is not active */}
-      {(!isMobile || !cameraActive || imagePreview) && (
-        <div
-          onClick={handleClick}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          className={`
-            relative border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer
-            transition-all duration-300 overflow-hidden
-            ${
-              disabled
-                ? "border-gray-200 bg-gray-50 cursor-not-allowed"
-                : imagePreview
-                ? "border-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 shadow-lg"
-                : "border-primary-300 bg-gradient-to-br from-white via-primary-50 to-primary-100 hover:border-primary-500 hover:shadow-xl hover:scale-[1.02]"
-            }
-          `}
-        >
-          {/* Animated background gradient */}
-          {!imagePreview && !disabled && (
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-0 w-64 h-64 bg-primary-400 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            </div>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/*"
-            capture="environment"
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={disabled}
-          />
-
           {/* Hidden canvas for capturing photo */}
           <canvas ref={canvasRef} className="hidden" />
-
-          {imagePreview ? (
-            <div className="relative space-y-4 z-10">
-              <div className="relative inline-block">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="max-h-80 mx-auto rounded-2xl shadow-2xl object-contain border-4 border-white"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
-              </div>
-              <p className="text-sm text-gray-600 font-medium">
-                Rasmni o'zgartirish uchun bosing
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6 z-10 relative">
-              <div className="flex justify-center">
-                <div className="relative">
-                  <div className="text-7xl animate-bounce">📸</div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary-500 rounded-full animate-ping"></div>
-                </div>
-              </div>
-              <div>
-                <p className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
-                  Rasm yuklang yoki sudrab tashlang
-                </p>
-                <p className="text-sm md:text-base text-gray-600">
-                  JPEG yoki PNG (maksimal 10MB)
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       )}
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Capture Photo Button */}
+        <button
+          onClick={capturePhoto}
+          disabled={disabled || !cameraActive}
+          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3"
+        >
+          <span className="relative z-10 flex items-center gap-2">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            Rasm olish
+          </span>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+
+        {/* File Upload Button */}
+        <button
+          onClick={handleClick}
+          disabled={disabled}
+          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3"
+        >
+          <span className="relative z-10 flex items-center gap-2">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            Fayldan yuklash
+          </span>
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+      </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/*"
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={disabled}
+      />
     </div>
   );
 };
