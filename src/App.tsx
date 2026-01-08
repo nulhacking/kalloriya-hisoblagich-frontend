@@ -3,6 +3,7 @@ import { analyzeFood } from "./services/api";
 import ImageUpload from "./components/ImageUpload";
 import ResultsDisplay from "./components/ResultsDisplay";
 import LoadingSpinner from "./components/LoadingSpinner";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import type { AnalysisResults } from "./types";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
   const handleImageSelect = (file: File) => {
     if (file) {
@@ -167,9 +169,21 @@ function App() {
             <p className="text-food-brown-500 mt-1 text-xs">
               ⚠️ Natijalar taxminiy
             </p>
+            <button
+              onClick={() => setShowPrivacyPolicy(true)}
+              className="mt-2 text-food-green-600 hover:text-food-green-700 font-medium underline underline-offset-2 flex items-center justify-center gap-1 mx-auto transition-colors"
+            >
+              <span>🔒</span> Maxfiylik siyosati
+            </button>
           </div>
         </footer>
       </div>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicy
+        isOpen={showPrivacyPolicy}
+        onClose={() => setShowPrivacyPolicy(false)}
+      />
     </div>
   );
 }

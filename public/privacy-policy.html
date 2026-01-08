@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maxfiylik siyosati - Kaloriya Hisoblagich</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ecfdf5 0%,
+          #fefce8 50%,
+          #fff7ed 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+        color: #44403c;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border: 2px solid #bbf7d0;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #bbf7d0;
+      }
+
+      .logo {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-size: 28px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        color: #78716c;
+        font-size: 14px;
+      }
+
+      .last-updated {
+        color: #a8a29e;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      section {
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        font-size: 18px;
+        color: #15803d;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      h2 .icon {
+        font-size: 20px;
+      }
+
+      p {
+        margin-bottom: 12px;
+        font-size: 15px;
+      }
+
+      ul {
+        margin-left: 24px;
+        margin-bottom: 12px;
+      }
+
+      li {
+        margin-bottom: 6px;
+        font-size: 15px;
+      }
+
+      .info-box {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+      }
+
+      .info-box.green {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+      }
+
+      .info-box.yellow {
+        background: #fefce8;
+        border: 1px solid #fde68a;
+      }
+
+      .info-box h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .info-box.green h3 {
+        color: #166534;
+      }
+
+      .info-box.yellow h3 {
+        color: #854d0e;
+      }
+
+      .info-box p {
+        margin-bottom: 0;
+        font-size: 14px;
+        color: #57534e;
+      }
+
+      .contact {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+      }
+
+      .contact p {
+        color: white;
+        margin-bottom: 8px;
+      }
+
+      .contact a {
+        color: white;
+        font-weight: bold;
+        text-decoration: underline;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 2px solid #bbf7d0;
+        color: #78716c;
+        font-size: 13px;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+        color: #16a34a;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 12px;
+        }
+
+        .container {
+          padding: 20px;
+          border-radius: 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        h2 {
+          font-size: 16px;
+        }
+
+        p,
+        li {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">🍽️</div>
+        <h1>Maxfiylik siyosati</h1>
+        <p class="subtitle">Kaloriya Hisoblagich ilovasi</p>
+        <p class="last-updated">Oxirgi yangilanish: 2026-yil yanvar</p>
+      </header>
+
+      <section>
+        <h2><span class="icon">📋</span> Kirish</h2>
+        <p>
+          Kaloriya Hisoblagich ilovasiga xush kelibsiz. Biz sizning
+          maxfiyligingizni hurmat qilamiz va shaxsiy ma'lumotlaringizni himoya
+          qilishga intilamiz. Ushbu Maxfiylik siyosati ilovamizdan
+          foydalanganingizda ma'lumotlaringizni qanday to'plashimiz,
+          ishlatishimiz va himoya qilishimizni tushuntiradi.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">📷</span> Biz to'playdigan ma'lumotlar</h2>
+        <div class="info-box green">
+          <h3>Rasmlar</h3>
+          <p>
+            Siz yuklagan ovqat rasmlari faqat kaloriya tahlili uchun
+            ishlatiladi. Rasmlar serverimizda doimiy saqlanmaydi va tahlil
+            tugagandan so'ng o'chiriladi.
+          </p>
+        </div>
+        <div class="info-box yellow">
+          <h3>Qurilma ma'lumotlari</h3>
+          <p>
+            Ilovaning to'g'ri ishlashi uchun asosiy qurilma ma'lumotlari
+            (brauzer turi, ekran o'lchami) yig'ilishi mumkin.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="icon">🎯</span> Ma'lumotlardan foydalanish</h2>
+        <p>To'plangan ma'lumotlar quyidagi maqsadlarda ishlatiladi:</p>
+        <ul>
+          <li>Ovqat rasmlarini tahlil qilish va kaloriya hisoblash</li>
+          <li>Ilova xizmatlarini takomillashtirish</li>
+          <li>Texnik muammolarni aniqlash va tuzatish</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2><span class="icon">🔐</span> Ma'lumotlar xavfsizligi</h2>
+        <p>
+          Biz sizning ma'lumotlaringizni himoya qilish uchun sanoat
+          standartlaridagi xavfsizlik choralaridan foydalanamiz. Barcha
+          ma'lumotlar shifrlangan aloqa (HTTPS) orqali uzatiladi.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">🚫</span> Biz nima qilmaymiz</h2>
+        <ul>
+          <li>Shaxsiy ma'lumotlaringizni uchinchi shaxslarga sotmaymiz</li>
+          <li>Rasmlaringizni doimiy saqlamaymiz</li>
+          <li>Reklama maqsadlarida ma'lumot to'plamaymiz</li>
+          <li>Sizning roziligisiz ma'lumot ulashmaymiz</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2><span class="icon">👶</span> Bolalar maxfiyligi</h2>
+        <p>
+          Ilovamiz 13 yoshdan kichik bolalardan ataylab ma'lumot to'plamaydi.
+          Agar bolangiz bizga shaxsiy ma'lumot berganini bilsangiz, biz bilan
+          bog'laning.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">📝</span> Siyosat o'zgarishlari</h2>
+        <p>
+          Biz vaqti-vaqti bilan ushbu Maxfiylik siyosatini yangilashimiz mumkin.
+          O'zgarishlar ilovada e'lon qilinadi va yangi siyosat darhol kuchga
+          kiradi.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">📧</span> Bog'lanish</h2>
+        <div class="contact">
+          <p>
+            Maxfiylik siyosati haqida savollaringiz bo'lsa, biz bilan
+            bog'laning:
+          </p>
+          <a href="mailto:murodullohcholiyav@gmail.com"
+            >murodullohcholiyav@gmail.com</a
+          >
+        </div>
+      </section>
+
+      <footer>
+        <p>© 2026 Kaloriya Hisoblagich. Barcha huquqlar himoyalangan.</p>
+        <a href="/" class="back-link"> <span>←</span> Ilovaga qaytish </a>
+      </footer>
+    </div>
+  </body>
+</html>
