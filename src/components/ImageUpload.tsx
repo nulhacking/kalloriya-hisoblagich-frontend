@@ -135,24 +135,61 @@ const ImageUpload = ({
         </div>
       ) : (
         <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-gray-900">
+          {/* Skeleton Loader - shown while camera is loading */}
+          {!cameraActive && (
+            <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center">
+              {/* Animated skeleton */}
+              <div className="relative">
+                {/* Camera icon skeleton */}
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 animate-pulse flex items-center justify-center">
+                  <div className="text-4xl md:text-5xl animate-bounce-soft">
+                    📷
+                  </div>
+                </div>
+                {/* Pulsing ring */}
+                <div className="absolute inset-0 rounded-full border-4 border-food-green-400 animate-ping opacity-30"></div>
+              </div>
+
+              {/* Loading text */}
+              <div className="mt-6 text-center">
+                <p className="text-food-green-700 font-bold text-base md:text-lg">
+                  Kamera yuklanmoqda...
+                </p>
+              </div>
+
+              {/* Skeleton bars */}
+              <div className="mt-6 space-y-2 w-48">
+                <div className="h-2 bg-food-green-200 rounded-full animate-pulse"></div>
+                <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-3/4 mx-auto"></div>
+                <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-1/2 mx-auto"></div>
+              </div>
+            </div>
+          )}
+
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover transition-opacity duration-500 ${
+              cameraActive ? "opacity-100" : "opacity-0"
+            }`}
           />
 
           {/* Camera overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+          {cameraActive && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+          )}
 
           {/* Camera frame corners */}
-          <div className="absolute inset-8 md:inset-12 pointer-events-none">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-food-green-400 rounded-tl-lg"></div>
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-food-green-400 rounded-tr-lg"></div>
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-food-green-400 rounded-bl-lg"></div>
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-food-green-400 rounded-br-lg"></div>
-          </div>
+          {cameraActive && (
+            <div className="absolute inset-8 md:inset-12 pointer-events-none">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-food-green-400 rounded-tl-lg"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-food-green-400 rounded-tr-lg"></div>
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-food-green-400 rounded-bl-lg"></div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-food-green-400 rounded-br-lg"></div>
+            </div>
+          )}
 
           {/* Camera status indicator */}
           {cameraActive && (
@@ -163,11 +200,13 @@ const ImageUpload = ({
           )}
 
           {/* Instruction text */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-            <p className="text-white text-sm font-medium bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full">
-              🍽️ Ovqatni kadrga oling
-            </p>
-          </div>
+          {cameraActive && (
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+              <p className="text-white text-sm font-medium bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full">
+                🍽️ Ovqatni kadrga oling
+              </p>
+            </div>
+          )}
 
           {/* Hidden canvas for capturing photo */}
           <canvas ref={canvasRef} className="hidden" />
@@ -190,7 +229,7 @@ const ImageUpload = ({
         <button
           onClick={handleClick}
           disabled={disabled}
-          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-yellow-500 to-food-orange-500 hover:from-food-yellow-600 hover:to-food-orange-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
         >
           <span className="text-xl">📁</span>
           <span className="text-sm md:text-base">Fayldan</span>
