@@ -1,10 +1,20 @@
+import { useState } from "react";
 import type { AnalysisResults } from "../types";
 
 interface ResultsDisplayProps {
   results: AnalysisResults;
+  onAddMeal?: (results: AnalysisResults) => void;
 }
 
-const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
+const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
+  const [added, setAdded] = useState(false);
+
+  const handleAddMeal = () => {
+    if (onAddMeal && !added) {
+      onAddMeal(results);
+      setAdded(true);
+    }
+  };
   const {
     food,
     confidence,
@@ -201,6 +211,31 @@ const ResultsDisplay = ({ results }: ResultsDisplayProps) => {
             <span>{note}</span>
           </p>
         </div>
+      )}
+
+      {/* Tanovul qildim tugmasi */}
+      {onAddMeal && (
+        <button
+          onClick={handleAddMeal}
+          disabled={added}
+          className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
+            added
+              ? "bg-gradient-to-r from-food-green-500 to-food-green-600 cursor-default"
+              : "bg-gradient-to-r from-food-orange-500 via-food-orange-600 to-food-red-500 hover:from-food-orange-600 hover:via-food-red-500 hover:to-food-red-600 animate-pulse-glow"
+          }`}
+        >
+          {added ? (
+            <>
+              <span className="text-xl">✓</span>
+              <span>Kunlik hisobga qo'shildi!</span>
+            </>
+          ) : (
+            <>
+              <span className="text-xl">🍴</span>
+              <span>Tanovul qildim</span>
+            </>
+          )}
+        </button>
       )}
     </div>
   );
