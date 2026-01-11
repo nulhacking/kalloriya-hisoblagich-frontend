@@ -66,6 +66,43 @@ export interface DailyLogResponse {
   meals: MealEntryResponse[];
 }
 
+// DailyLog Summary (without meals)
+export interface DailyLogSummary {
+  id: string;
+  date: string;
+  total_calories: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+  meal_count: number;
+}
+
+// Date Range Stats
+export interface DateRangeStats {
+  start_date: string;
+  end_date: string;
+  days: DailyLogSummary[];
+  total_calories: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+  avg_calories: number;
+  avg_protein: number;
+  avg_carbs: number;
+  avg_fat: number;
+  total_meals: number;
+  days_count: number;
+}
+
+// Food Stats
+export interface FoodStats {
+  food_name: string;
+  times_eaten: number;
+  total_calories: number;
+  total_weight: number;
+  avg_calories_per_meal: number;
+}
+
 // Foydalanuvchi sozlamalari
 export interface UserSettings {
   dailyCalorieGoal: number;
@@ -95,4 +132,4 @@ export interface AuthResponse {
 }
 
 // Tab turlari
-export type TabType = 'home' | 'daily' | 'settings' | 'auth';
+export type TabType = 'home' | 'daily' | 'history' | 'stats' | 'settings' | 'auth';

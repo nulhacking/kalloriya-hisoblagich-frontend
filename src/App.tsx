@@ -6,6 +6,8 @@ import ResultsDisplay from "./components/ResultsDisplay";
 import LoadingSpinner from "./components/LoadingSpinner";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import DailyLogComponent from "./components/DailyLog";
+import History from "./components/History";
+import Stats from "./components/Stats";
 import Settings from "./components/Settings";
 import AuthScreen from "./components/AuthScreen";
 import BottomNavigation from "./components/BottomNavigation";
@@ -112,24 +114,24 @@ function App() {
       const mealData = {
         food_name: analysisResults.food,
         weight_grams: analysisResults.estimated_weight_grams || 100,
-        calories:
-          analysisResults.total_nutrition?.calories ||
-          analysisResults.nutrition_per_100g.calories ||
-          0,
+      calories:
+        analysisResults.total_nutrition?.calories ||
+        analysisResults.nutrition_per_100g.calories ||
+        0,
         protein:
-          analysisResults.total_nutrition?.oqsil ||
-          analysisResults.nutrition_per_100g.oqsil ||
-          0,
-        carbs:
-          analysisResults.total_nutrition?.carbs ||
-          analysisResults.nutrition_per_100g.carbs ||
-          0,
-        fat:
-          analysisResults.total_nutrition?.fat ||
-          analysisResults.nutrition_per_100g.fat ||
-          0,
+        analysisResults.total_nutrition?.oqsil ||
+        analysisResults.nutrition_per_100g.oqsil ||
+        0,
+      carbs:
+        analysisResults.total_nutrition?.carbs ||
+        analysisResults.nutrition_per_100g.carbs ||
+        0,
+      fat:
+        analysisResults.total_nutrition?.fat ||
+        analysisResults.nutrition_per_100g.fat ||
+        0,
         image_preview: imagePreview || undefined,
-      };
+    };
 
       const newMeal = await addMeal(token, mealData);
 
@@ -384,8 +386,16 @@ function App() {
           />
         )}
 
+        {activeTab === "history" && <History />}
+
+        {activeTab === "stats" && <Stats />}
+
         {activeTab === "settings" && (
-          <Settings settings={settings} onSaveSettings={handleSaveSettings} />
+          <Settings 
+            settings={settings} 
+            onSaveSettings={handleSaveSettings}
+            onNavigateToAuth={() => setActiveTab("auth")}
+          />
         )}
 
         {activeTab === "auth" && <AuthScreen />}

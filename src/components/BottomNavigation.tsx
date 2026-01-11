@@ -17,13 +17,14 @@ const BottomNavigation = ({
   const { isRegistered, user } = useAuth();
 
   const tabs: { id: TabType; label: string; icon: string }[] = [
-    { id: "home", label: "Bosh sahifa", icon: "🏠" },
+    { id: "home", label: "Bosh", icon: "🏠" },
     { id: "daily", label: "Kunlik", icon: "📊" },
-    { id: "settings", label: "Sozlamalar", icon: "⚙️" },
+    { id: "history", label: "Tarix", icon: "📅" },
+    { id: "stats", label: "Statistika", icon: "📈" },
     {
-      id: "auth",
-      label: isRegistered ? "Profil" : "Kirish",
-      icon: isRegistered ? "👤" : "🔐",
+      id: "settings",
+      label: "Sozlamalar",
+      icon: "⚙️",
     },
   ];
 

@@ -6,6 +6,9 @@ import type {
   User,
   DailyLogResponse,
   MealEntryResponse,
+  DailyLogSummary,
+  DateRangeStats,
+  FoodStats,
 } from "../types";
 
 const API_BASE_URL =
@@ -242,10 +245,52 @@ export const getLogByDate = async (
 export const getHistory = async (
   token: string,
   days: number = 7
-): Promise<DailyLogResponse[]> => {
+): Promise<DailyLogSummary[]> => {
   try {
-    const response = await api.get<DailyLogResponse[]>(
+    const response = await api.get<DailyLogSummary[]>(
       `/meals/history?days=${days}`,
+      {
+        headers: getAuthHeaders(token),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get date range statistics
+ */
+export const getDateRangeStats = async (
+  token: string,
+  startDate: string,
+  endDate: string
+): Promise<DateRangeStats> => {
+  try {
+    const response = await api.get<DateRangeStats>(
+      `/meals/stats/range?start_date=${startDate}&end_date=${endDate}`,
+      {
+        headers: getAuthHeaders(token),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get food statistics (most eaten foods)
+ */
+export const getFoodStats = async (
+  token: string,
+  days: number = 30,
+  limit: number = 10
+): Promise<FoodStats[]> => {
+  try {
+    const response = await api.get<FoodStats[]>(
+      `/meals/stats/foods?days=${days}&limit=${limit}`,
       {
         headers: getAuthHeaders(token),
       }

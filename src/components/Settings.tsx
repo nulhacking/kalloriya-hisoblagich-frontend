@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import type { UserSettings } from "../types";
 import { useAuth } from "../contexts/AuthContext";
+import AuthScreen from "./AuthScreen";
 
 interface SettingsProps {
   settings: UserSettings;
   onSaveSettings: (settings: UserSettings) => void;
+  onNavigateToAuth?: () => void;
 }
 
-const Settings = ({ settings, onSaveSettings }: SettingsProps) => {
+const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps) => {
   const { isRegistered, logout, user } = useAuth();
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [saved, setSaved] = useState(false);
@@ -54,6 +56,30 @@ const Settings = ({ settings, onSaveSettings }: SettingsProps) => {
           Kunlik maqsadlaringizni belgilang
         </p>
       </div>
+
+      {/* Auth Section - Show if not registered */}
+      {!isRegistered && (
+        <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
+          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>🔐</span>
+            Hisobingizni sinxronlang
+          </h3>
+          <p className="text-sm text-food-brown-600 mb-3">
+            Ro'yxatdan o'ting va ma'lumotlaringiz barcha qurilmalarda sinxronlansin!
+          </p>
+          <button
+            onClick={() => {
+              if (onNavigateToAuth) {
+                onNavigateToAuth();
+              }
+            }}
+            className="w-full bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+          >
+            <span>✨</span>
+            <span>Ro'yxatdan o'tish yoki kirish</span>
+          </button>
+        </div>
+      )}
 
       {/* Ism */}
       <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
