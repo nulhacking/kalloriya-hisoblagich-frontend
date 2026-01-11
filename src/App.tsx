@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
-import { analyzeFood } from "./services/api";
+import { useState, useEffect, useCallback } from "react";
+import { analyzeFood, addMeal, deleteMeal, getTodayLog } from "./services/api";
+import { useAuth } from "./contexts/AuthContext";
 import ImageUpload from "./components/ImageUpload";
 import ResultsDisplay from "./components/ResultsDisplay";
 import LoadingSpinner from "./components/LoadingSpinner";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import DailyLogComponent from "./components/DailyLog";
 import Settings from "./components/Settings";
+import AuthScreen from "./components/AuthScreen";
 import BottomNavigation from "./components/BottomNavigation";
 import type {
   AnalysisResults,
@@ -13,22 +15,9 @@ import type {
   DailyLog,
   MealEntry,
   UserSettings,
+  DailyLogResponse,
+  MealEntryResponse,
 } from "./types";
-
-// LocalStorage kalitlari
-const STORAGE_KEYS = {
-  DAILY_LOG: "kaloriya_daily_log",
-  SETTINGS: "kaloriya_settings",
-};
-
-// Default sozlamalar
-const DEFAULT_SETTINGS: UserSettings = {
-  dailyCalorieGoal: 2000,
-  dailyOqsilGoal: 80,
-  dailyCarbsGoal: 250,
-  dailyFatGoal: 65,
-  name: "",
-};
 
 // Bugungi sana YYYY-MM-DD formatda
 const getTodayDate = (): string => {
@@ -45,36 +34,31 @@ const createEmptyDailyLog = (): DailyLog => ({
   totalFat: 0,
 });
 
-// LocalStorage dan boshlang'ich qiymatlarni olish
-const getInitialSettings = (): UserSettings => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error("Sozlamalarni yuklashda xatolik:", e);
-  }
-  return DEFAULT_SETTINGS;
-};
+// Backend response ni frontend formatga o'tkazish
+const convertMealResponse = (meal: MealEntryResponse): MealEntry => ({
+  id: meal.id,
+  food: meal.food_name,
+  calories: meal.calories,
+  oqsil: meal.protein,
+  carbs: meal.carbs,
+  fat: meal.fat,
+  weight_grams: meal.weight_grams,
+  timestamp: new Date(meal.timestamp).getTime(),
+  imagePreview: meal.image_preview,
+});
 
-const getInitialDailyLog = (): DailyLog => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEYS.DAILY_LOG);
-    if (saved) {
-      const parsed: DailyLog = JSON.parse(saved);
-      // Agar bugungi kun bo'lsa, qaytaramiz
-      if (parsed.date === getTodayDate()) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.error("Kunlik logni yuklashda xatolik:", e);
-  }
-  return createEmptyDailyLog();
-};
+const convertDailyLogResponse = (response: DailyLogResponse): DailyLog => ({
+  date: response.date,
+  meals: response.meals.map(convertMealResponse),
+  totalCalories: response.total_calories,
+  totalOqsil: response.total_protein,
+  totalCarbs: response.total_carbs,
+  totalFat: response.total_fat,
+});
 
 function App() {
+  const { user, token, isLoading: authLoading, updateSettings } = useAuth();
+
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisResults | null>(null);
@@ -82,80 +66,121 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
-  // Tab va yangi state'lar - LocalStorage dan boshlang'ich qiymatlar bilan
+  // Tab va state'lar
   const [activeTab, setActiveTab] = useState<TabType>("home");
-  const [dailyLog, setDailyLog] = useState<DailyLog>(getInitialDailyLog);
-  const [settings, setSettings] = useState<UserSettings>(getInitialSettings);
+  const [dailyLog, setDailyLog] = useState<DailyLog>(createEmptyDailyLog);
+  const [dataLoading, setDataLoading] = useState(false);
 
-  // Kunlik log o'zgarganda saqlash
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.DAILY_LOG, JSON.stringify(dailyLog));
-  }, [dailyLog]);
+  // User settings from auth context
+  const settings: UserSettings = {
+    dailyCalorieGoal: user?.daily_calorie_goal || 2000,
+    dailyOqsilGoal: user?.daily_protein_goal || 80,
+    dailyCarbsGoal: user?.daily_carbs_goal || 250,
+    dailyFatGoal: user?.daily_fat_goal || 65,
+    name: user?.name || "",
+  };
 
-  // Sozlamalar o'zgarganda saqlash
+  // Backend dan kunlik logni yuklash
+  const loadTodayLog = useCallback(async () => {
+    if (!token) return;
+
+    setDataLoading(true);
+    try {
+      const response = await getTodayLog(token);
+      setDailyLog(convertDailyLogResponse(response));
+    } catch (err) {
+      console.error("Kunlik logni yuklashda xatolik:", err);
+      // Agar xatolik bo'lsa, bo'sh log ishlatamiz
+      setDailyLog(createEmptyDailyLog());
+    } finally {
+      setDataLoading(false);
+    }
+  }, [token]);
+
+  // Token o'zgarganda ma'lumotlarni yuklash
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-  }, [settings]);
+    if (token) {
+      loadTodayLog();
+    }
+  }, [token, loadTodayLog]);
 
   // Ovqatni kunlik hisobga qo'shish
-  const handleAddMeal = (analysisResults: AnalysisResults) => {
-    const newMeal: MealEntry = {
-      id: Date.now().toString(),
-      food: analysisResults.food,
-      calories:
-        analysisResults.total_nutrition?.calories ||
-        analysisResults.nutrition_per_100g.calories ||
-        0,
-      oqsil:
-        analysisResults.total_nutrition?.oqsil ||
-        analysisResults.nutrition_per_100g.oqsil ||
-        0,
-      carbs:
-        analysisResults.total_nutrition?.carbs ||
-        analysisResults.nutrition_per_100g.carbs ||
-        0,
-      fat:
-        analysisResults.total_nutrition?.fat ||
-        analysisResults.nutrition_per_100g.fat ||
-        0,
-      weight_grams: analysisResults.estimated_weight_grams || 100,
-      timestamp: Date.now(),
-      imagePreview: imagePreview || undefined,
-    };
+  const handleAddMeal = async (analysisResults: AnalysisResults) => {
+    if (!token) return;
 
-    setDailyLog((prev) => {
-      const updatedMeals = [...prev.meals, newMeal];
-      return {
+    try {
+      const mealData = {
+        food_name: analysisResults.food,
+        weight_grams: analysisResults.estimated_weight_grams || 100,
+        calories:
+          analysisResults.total_nutrition?.calories ||
+          analysisResults.nutrition_per_100g.calories ||
+          0,
+        protein:
+          analysisResults.total_nutrition?.oqsil ||
+          analysisResults.nutrition_per_100g.oqsil ||
+          0,
+        carbs:
+          analysisResults.total_nutrition?.carbs ||
+          analysisResults.nutrition_per_100g.carbs ||
+          0,
+        fat:
+          analysisResults.total_nutrition?.fat ||
+          analysisResults.nutrition_per_100g.fat ||
+          0,
+        image_preview: imagePreview || undefined,
+      };
+
+      const newMeal = await addMeal(token, mealData);
+
+      // Local state ni yangilash
+      setDailyLog((prev) => ({
         ...prev,
-        meals: updatedMeals,
+        meals: [...prev.meals, convertMealResponse(newMeal)],
         totalCalories: prev.totalCalories + newMeal.calories,
-        totalOqsil: prev.totalOqsil + newMeal.oqsil,
+        totalOqsil: prev.totalOqsil + newMeal.protein,
         totalCarbs: prev.totalCarbs + newMeal.carbs,
         totalFat: prev.totalFat + newMeal.fat,
-      };
-    });
+      }));
+    } catch (err) {
+      console.error("Ovqatni qo'shishda xatolik:", err);
+      setError("Ovqatni qo'shishda xatolik yuz berdi");
+    }
   };
 
   // Ovqatni o'chirish
-  const handleDeleteMeal = (mealId: string) => {
-    setDailyLog((prev) => {
-      const mealToDelete = prev.meals.find((m) => m.id === mealId);
-      if (!mealToDelete) return prev;
+  const handleDeleteMeal = async (mealId: string) => {
+    if (!token) return;
 
-      return {
+    const mealToDelete = dailyLog.meals.find((m) => m.id === mealId);
+    if (!mealToDelete) return;
+
+    try {
+      await deleteMeal(token, mealId);
+
+      // Local state ni yangilash
+      setDailyLog((prev) => ({
         ...prev,
         meals: prev.meals.filter((m) => m.id !== mealId),
         totalCalories: prev.totalCalories - mealToDelete.calories,
         totalOqsil: prev.totalOqsil - mealToDelete.oqsil,
         totalCarbs: prev.totalCarbs - mealToDelete.carbs,
         totalFat: prev.totalFat - mealToDelete.fat,
-      };
-    });
+      }));
+    } catch (err) {
+      console.error("Ovqatni o'chirishda xatolik:", err);
+      setError("Ovqatni o'chirishda xatolik yuz berdi");
+    }
   };
 
   // Sozlamalarni saqlash
-  const handleSaveSettings = (newSettings: UserSettings) => {
-    setSettings(newSettings);
+  const handleSaveSettings = async (newSettings: UserSettings) => {
+    try {
+      await updateSettings(newSettings);
+    } catch (err) {
+      console.error("Sozlamalarni saqlashda xatolik:", err);
+      setError("Sozlamalarni saqlashda xatolik yuz berdi");
+    }
   };
 
   const handleImageSelect = (file: File) => {
@@ -203,6 +228,19 @@ function App() {
     setResults(null);
     setError(null);
   };
+
+  // Auth loading screen
+  if (authLoading) {
+    return (
+      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-bounce-soft">🍽️</div>
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-food-brown-600 font-medium">Yuklanmoqda...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Bosh sahifa renderini alohida funksiya sifatida
   const renderHomeTab = () => (
@@ -327,6 +365,14 @@ function App() {
       </div>
 
       <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10 pb-24">
+        {/* Data loading indicator */}
+        {dataLoading && (
+          <div className="fixed top-4 right-4 bg-white/90 rounded-full px-3 py-2 shadow-lg flex items-center gap-2 z-50">
+            <div className="w-4 h-4 border-2 border-food-green-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-xs text-food-brown-600">Sinxronlanmoqda...</span>
+          </div>
+        )}
+
         {/* Tab Content */}
         {activeTab === "home" && renderHomeTab()}
 
@@ -341,6 +387,8 @@ function App() {
         {activeTab === "settings" && (
           <Settings settings={settings} onSaveSettings={handleSaveSettings} />
         )}
+
+        {activeTab === "auth" && <AuthScreen />}
       </div>
 
       {/* Bottom Navigation */}

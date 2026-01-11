@@ -1,4 +1,5 @@
 import type { TabType } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 interface BottomNavigationProps {
   activeTab: TabType;
@@ -13,10 +14,17 @@ const BottomNavigation = ({
   dailyCalories,
   dailyGoal,
 }: BottomNavigationProps) => {
+  const { isRegistered, user } = useAuth();
+
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: "home", label: "Bosh sahifa", icon: "🏠" },
     { id: "daily", label: "Kunlik", icon: "📊" },
     { id: "settings", label: "Sozlamalar", icon: "⚙️" },
+    {
+      id: "auth",
+      label: isRegistered ? "Profil" : "Kirish",
+      icon: isRegistered ? "👤" : "🔐",
+    },
   ];
 
   const getCalorieColor = (): string => {
@@ -65,6 +73,16 @@ const BottomNavigation = ({
                   >
                     {Math.round(dailyCalories)}
                   </span>
+                )}
+
+                {/* Registered badge for auth tab */}
+                {tab.id === "auth" && isRegistered && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-food-green-500 rounded-full border-2 border-white"></span>
+                )}
+
+                {/* Anonymous indicator */}
+                {tab.id === "auth" && !isRegistered && user && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-food-yellow-500 rounded-full border-2 border-white animate-pulse"></span>
                 )}
               </div>
 

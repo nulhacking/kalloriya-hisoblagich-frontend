@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { UserSettings } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 interface SettingsProps {
   settings: UserSettings;
@@ -7,13 +8,27 @@ interface SettingsProps {
 }
 
 const Settings = ({ settings, onSaveSettings }: SettingsProps) => {
+  const { isRegistered, logout, user } = useAuth();
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    onSaveSettings(localSettings);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  // Sync local settings when props change
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await onSaveSettings(localSettings);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error("Saqlashda xatolik:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleChange = (field: keyof UserSettings, value: string | number) => {
@@ -138,13 +153,19 @@ const Settings = ({ settings, onSaveSettings }: SettingsProps) => {
       {/* Saqlash tugmasi */}
       <button
         onClick={handleSave}
-        className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
+        disabled={saving}
+        className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${
           saved
             ? "bg-gradient-to-r from-food-green-500 to-food-green-600"
-            : "bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700"
+            : "bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-400 disabled:to-gray-500"
         }`}
       >
-        {saved ? (
+        {saving ? (
+          <>
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Saqlanmoqda...</span>
+          </>
+        ) : saved ? (
           <>
             <span className="text-xl">✓</span>
             <span>Saqlandi!</span>
@@ -162,11 +183,61 @@ const Settings = ({ settings, onSaveSettings }: SettingsProps) => {
         <p className="text-food-brown-700 font-medium text-sm flex items-start gap-2">
           <span className="text-lg">💡</span>
           <span>
-            Sozlamalar qurilmangizda saqlanadi. Ilovani qayta o'rnatganingizda
-            ma'lumotlar o'chib ketishi mumkin.
+            {isRegistered
+              ? "Sozlamalar bulutda saqlanadi va barcha qurilmalaringizda sinxronlanadi."
+              : "Ro'yxatdan o'ting va ma'lumotlaringiz barcha qurilmalarda sinxronlansin!"}
           </span>
         </p>
       </div>
+
+      {/* Account info */}
+      {user && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>👤</span> Hisob ma'lumotlari
+          </h3>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between items-center py-2 border-b border-food-green-100">
+              <span className="text-food-brown-600">Hisob turi:</span>
+              <span
+                className={`font-bold ${
+                  isRegistered ? "text-food-green-600" : "text-food-yellow-600"
+                }`}
+              >
+                {isRegistered ? "✅ Ro'yxatdan o'tgan" : "👻 Anonim"}
+              </span>
+            </div>
+
+            {user.email && (
+              <div className="flex justify-between items-center py-2 border-b border-food-green-100">
+                <span className="text-food-brown-600">Email:</span>
+                <span className="font-medium text-food-brown-800">
+                  {user.email}
+                </span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center py-2">
+              <span className="text-food-brown-600">ID:</span>
+              <span className="font-mono text-xs text-food-brown-500">
+                {user.id.slice(0, 8)}...
+              </span>
+            </div>
+          </div>
+
+          {/* Logout button for registered users */}
+          {isRegistered && (
+            <button
+              onClick={logout}
+              className="w-full mt-4 py-3 rounded-xl font-bold text-food-red-600 bg-food-red-50 hover:bg-food-red-100 border-2 border-food-red-200 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <span>🚪</span>
+              <span>Chiqish</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

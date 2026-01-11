@@ -16,6 +16,8 @@ const ImageUpload = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
 
   const validateAndSelectFile = (file: File) => {
     // Validate file type
@@ -52,28 +54,94 @@ const ImageUpload = ({
 
   const startCamera = async () => {
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError(
+          "Kamera qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning."
+        );
+        setCameraActive(false);
+        setCameraPermissionDenied(false);
+        return;
+      }
+
       // Stop any existing stream
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment", // Rear camera
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+      setCameraError(null);
+      setCameraPermissionDenied(false);
+
+      // Try to get camera with preferred settings first
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment", // Rear camera
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      } catch (preferredError) {
+        // If preferred settings fail, try with basic settings
+        console.warn(
+          "Preferred camera settings failed, trying basic settings:",
+          preferredError
+        );
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
 
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setCameraActive(true);
+        setCameraError(null);
+        setCameraPermissionDenied(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Kamera xatosi:", error);
       setCameraActive(false);
+
+      // Handle specific error types
+      if (
+        error.name === "NotAllowedError" ||
+        error.name === "PermissionDeniedError"
+      ) {
+        setCameraError(
+          "Kamera ruxsati berilmagan. Iltimos, brauzer sozlamalaridan kamera ruxsatini bering."
+        );
+        setCameraPermissionDenied(true);
+      } else if (
+        error.name === "NotFoundError" ||
+        error.name === "DevicesNotFoundError"
+      ) {
+        setCameraError(
+          "Kamera topilmadi. Iltimos, fayl yuklashdan foydalaning."
+        );
+        setCameraPermissionDenied(false);
+      } else if (
+        error.name === "NotReadableError" ||
+        error.name === "TrackStartError"
+      ) {
+        setCameraError(
+          "Kamera allaqachon ishlatilmoqda yoki xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning."
+        );
+        setCameraPermissionDenied(false);
+      } else if (error.name === "OverconstrainedError") {
+        setCameraError(
+          "Kamera sozlamalari qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning."
+        );
+        setCameraPermissionDenied(false);
+      } else {
+        setCameraError(
+          "Kamera ishga tushirishda xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning."
+        );
+        setCameraPermissionDenied(false);
+      }
     }
   };
 
@@ -106,7 +174,7 @@ const ImageUpload = ({
 
   // Start camera automatically on mount
   useEffect(() => {
-    if (!disabled && !imagePreview) {
+    if (!disabled && !imagePreview && !cameraError) {
       startCamera();
     }
 
@@ -116,6 +184,7 @@ const ImageUpload = ({
         streamRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, imagePreview]);
 
   return (
@@ -135,8 +204,35 @@ const ImageUpload = ({
         </div>
       ) : (
         <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-gray-900">
-          {/* Skeleton Loader - shown while camera is loading */}
-          {!cameraActive && (
+          {/* Error Message - shown when camera fails */}
+          {cameraError && (
+            <div className="absolute inset-0 z-30 bg-gradient-to-br from-food-red-50 via-food-orange-50 to-food-yellow-50 flex flex-col items-center justify-center p-6">
+              <div className="text-center max-w-md">
+                {/* Error icon */}
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-food-red-200 to-food-red-300 flex items-center justify-center mx-auto mb-4">
+                  <div className="text-4xl md:text-5xl">⚠️</div>
+                </div>
+
+                {/* Error message */}
+                <p className="text-food-red-700 font-bold text-base md:text-lg mb-3">
+                  {cameraError}
+                </p>
+
+                {/* Retry button for permission errors */}
+                {cameraPermissionDenied && (
+                  <button
+                    onClick={startCamera}
+                    className="mt-4 bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 text-white font-bold py-2 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-95"
+                  >
+                    Qayta urinib ko'rish
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Skeleton Loader - shown while camera is loading (only if no error) */}
+          {!cameraActive && !cameraError && (
             <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center">
               {/* Animated skeleton */}
               <div className="relative">
@@ -214,25 +310,35 @@ const ImageUpload = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
-        {/* Capture Photo Button */}
-        <button
-          onClick={capturePhoto}
-          disabled={disabled || !cameraActive || !!imagePreview}
-          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
-        >
-          <span className="text-xl">📸</span>
-          <span className="text-sm md:text-base">Rasm olish</span>
-        </button>
+      <div
+        className={`flex gap-2 ${
+          cameraError && !cameraActive ? "flex-col" : ""
+        }`}
+      >
+        {/* Capture Photo Button - only show if camera is available */}
+        {!cameraError && (
+          <button
+            onClick={capturePhoto}
+            disabled={disabled || !cameraActive || !!imagePreview}
+            className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+          >
+            <span className="text-xl">📸</span>
+            <span className="text-sm md:text-base">Rasm olish</span>
+          </button>
+        )}
 
-        {/* File Upload Button */}
+        {/* File Upload Button - always available */}
         <button
           onClick={handleClick}
           disabled={disabled}
-          className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+          className={`${
+            cameraError && !cameraActive ? "w-full" : "flex-1"
+          } group relative overflow-hidden bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2`}
         >
           <span className="text-xl">📁</span>
-          <span className="text-sm md:text-base">Fayldan</span>
+          <span className="text-sm md:text-base">
+            {cameraError && !cameraActive ? "Rasm yuklash" : "Fayldan"}
+          </span>
         </button>
       </div>
 
