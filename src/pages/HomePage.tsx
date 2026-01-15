@@ -1,29 +1,27 @@
 import { useState } from "react";
-import { analyzeFood, addMeal } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import ImageUpload from "../components/ImageUpload";
 import ResultsDisplay from "../components/ResultsDisplay";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PrivacyPolicy from "../components/PrivacyPolicy";
 import type { AnalysisResults } from "../types";
-import { useDailyLog } from "../hooks/useDailyLog";
+import { useAnalyzeFood } from "../hooks/useFoodAnalysis";
+import { useAddMeal } from "../hooks/useMeals";
 
 const HomePage = () => {
   const { token } = useAuth();
-  const { addMealToLog } = useDailyLog();
+  const analyzeMutation = useAnalyzeFood();
+  const addMealMutation = useAddMeal();
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisResults | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
   const handleImageSelect = (file: File) => {
     if (file) {
       setImage(file);
       setResults(null);
-      setError(null);
 
       // Create preview
       const reader = new FileReader();
@@ -34,35 +32,24 @@ const HomePage = () => {
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!image) {
-      setError("Iltimos, avval rasm tanlang");
-      return;
-    }
+  const handleAnalyze = () => {
+    if (!image) return;
 
-    setLoading(true);
-    setError(null);
-    setResults(null);
-
-    try {
-      const data = await analyzeFood(image);
-      setResults(data);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Rasmni tahlil qilishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
-      );
-    } finally {
-      setLoading(false);
-    }
+    analyzeMutation.mutate(image, {
+      onSuccess: (data) => {
+        setResults(data);
+      },
+      onError: () => {
+        // Error is handled by mutation
+      },
+    });
   };
 
   const handleReset = () => {
     setImage(null);
     setImagePreview(null);
     setResults(null);
-    setError(null);
+    analyzeMutation.reset();
   };
 
   // Ovqatni kunlik hisobga qo'shish
@@ -92,16 +79,21 @@ const HomePage = () => {
         image_preview: imagePreview || undefined,
       };
 
-      const newMeal = await addMeal(token, mealData);
-      addMealToLog(newMeal);
+      await addMealMutation.mutateAsync(mealData);
       
       // Reset after adding
       handleReset();
     } catch (err) {
       console.error("Ovqatni qo'shishda xatolik:", err);
-      setError("Ovqatni qo'shishda xatolik yuz berdi");
     }
   };
+
+  const loading = analyzeMutation.isPending || addMealMutation.isPending;
+  const error = analyzeMutation.error
+    ? analyzeMutation.error instanceof Error
+      ? analyzeMutation.error.message
+      : "Rasmni tahlil qilishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+    : null;
 
   return (
     <>
@@ -152,7 +144,7 @@ const HomePage = () => {
               disabled={!image || loading}
               className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 via-food-green-600 to-food-green-500 hover:from-food-green-600 hover:via-food-green-700 hover:to-food-green-600 disabled:from-gray-300 disabled:via-gray-400 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 md:py-4 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95"
             >
-              {loading ? (
+              {analyzeMutation.isPending ? (
                 <>
                   <LoadingSpinner size="sm" />
                   <span className="text-sm md:text-base">Tahlil...</span>

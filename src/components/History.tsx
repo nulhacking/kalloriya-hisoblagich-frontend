@@ -1,24 +1,14 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import {
-  getHistory,
-  getDateRangeStats,
-  getLogByDate,
-} from "../services/api";
-import type { DailyLogSummary, DateRangeStats, DailyLogResponse } from "../types";
+import { useHistory, useDateRangeStats, useLogByDate } from "../hooks/useMeals";
+import type { DailyLogResponse } from "../types";
 import LoadingSpinner from "./LoadingSpinner";
 
 const History = () => {
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "range">("list");
   const [days, setDays] = useState(7);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [history, setHistory] = useState<DailyLogSummary[]>([]);
-  const [rangeStats, setRangeStats] = useState<DateRangeStats | null>(null);
   const [selectedDayLog, setSelectedDayLog] = useState<DailyLogResponse | null>(null);
 
   // Set default dates
@@ -31,60 +21,37 @@ const History = () => {
     setStartDate(weekAgo.toISOString().split("T")[0]);
   }, []);
 
-  // Load history
-  const loadHistory = async () => {
-    if (!token) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getHistory(token, days);
-      setHistory(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // React Query hooks
+  const {
+    data: history = [],
+    isLoading: historyLoading,
+    error: historyError,
+  } = useHistory(viewMode === "list" ? days : 0);
 
-  // Load date range stats
-  const loadRangeStats = async () => {
-    if (!token || !startDate || !endDate) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getDateRangeStats(token, startDate, endDate);
-      setRangeStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: rangeStats,
+    isLoading: rangeStatsLoading,
+    error: rangeStatsError,
+    refetch: refetchRangeStats,
+  } = useDateRangeStats(
+    viewMode === "range" && startDate && endDate ? startDate : "",
+    viewMode === "range" && startDate && endDate ? endDate : ""
+  );
 
-  // Load specific date log
-  const loadDateLog = async (date: string) => {
-    if (!token) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getLogByDate(token, date);
-      setSelectedDayLog(data);
-      setSelectedDate(date);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: dateLogData,
+    isLoading: dateLogLoading,
+  } = useLogByDate(selectedDate);
 
+  // Update selected day log when data changes
   useEffect(() => {
-    if (viewMode === "list") {
-      loadHistory();
+    if (dateLogData) {
+      setSelectedDayLog(dateLogData);
     }
-  }, [viewMode, days, token]);
+  }, [dateLogData]);
+
+  const loading = historyLoading || rangeStatsLoading || dateLogLoading;
+  const error = historyError || rangeStatsError;
 
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr + "T00:00:00");
@@ -94,6 +61,10 @@ const History = () => {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const handleLoadDateLog = (date: string) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -154,13 +125,15 @@ const History = () => {
               </select>
             </div>
 
-            {loading ? (
+            {historyLoading ? (
               <div className="flex justify-center py-8">
                 <LoadingSpinner size="lg" />
               </div>
             ) : error ? (
               <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
-                <p className="text-food-red-700 font-medium">{error}</p>
+                <p className="text-food-red-700 font-medium">
+                  {error instanceof Error ? error.message : "Xatolik yuz berdi"}
+                </p>
               </div>
             ) : history.length === 0 ? (
               <div className="text-center py-8">
@@ -174,7 +147,7 @@ const History = () => {
                 {history.map((day) => (
                   <div
                     key={day.id}
-                    onClick={() => loadDateLog(day.date)}
+                    onClick={() => handleLoadDateLog(day.date)}
                     className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-4 border border-food-green-200 hover:border-food-green-400 cursor-pointer transition-all"
                   >
                     <div className="flex items-center justify-between">
@@ -233,16 +206,18 @@ const History = () => {
             </div>
 
             <button
-              onClick={loadRangeStats}
-              disabled={loading || !startDate || !endDate}
+              onClick={() => refetchRangeStats()}
+              disabled={rangeStatsLoading || !startDate || !endDate}
               className="w-full bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3 rounded-xl transition-all"
             >
-              {loading ? "Yuklanmoqda..." : "📊 Statistika ko'rish"}
+              {rangeStatsLoading ? "Yuklanmoqda..." : "📊 Statistika ko'rish"}
             </button>
 
             {error && (
               <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
-                <p className="text-food-red-700 font-medium">{error}</p>
+                <p className="text-food-red-700 font-medium">
+                  {error instanceof Error ? error.message : "Xatolik yuz berdi"}
+                </p>
               </div>
             )}
 
@@ -310,7 +285,7 @@ const History = () => {
                       {rangeStats.days.map((day) => (
                         <div
                           key={day.id}
-                          onClick={() => loadDateLog(day.date)}
+                          onClick={() => handleLoadDateLog(day.date)}
                           className="bg-white rounded-lg p-2 flex items-center justify-between cursor-pointer hover:bg-food-green-50 transition-colors"
                         >
                           <span className="text-xs font-medium text-food-brown-700">
@@ -349,76 +324,82 @@ const History = () => {
               </button>
             </div>
 
-            <div className="space-y-3">
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-food-red-50 rounded-lg p-2 text-center">
-                  <div className="text-xs text-food-brown-600">Kaloriya</div>
-                  <div className="font-bold text-food-red-600">
-                    {Math.round(selectedDayLog.total_calories)}
-                  </div>
-                </div>
-                <div className="bg-food-green-50 rounded-lg p-2 text-center">
-                  <div className="text-xs text-food-brown-600">Oqsil</div>
-                  <div className="font-bold text-food-green-600">
-                    {Math.round(selectedDayLog.total_protein)}g
-                  </div>
-                </div>
-                <div className="bg-food-yellow-50 rounded-lg p-2 text-center">
-                  <div className="text-xs text-food-brown-600">Uglevod</div>
-                  <div className="font-bold text-food-yellow-600">
-                    {Math.round(selectedDayLog.total_carbs)}g
-                  </div>
-                </div>
-                <div className="bg-food-orange-50 rounded-lg p-2 text-center">
-                  <div className="text-xs text-food-brown-600">Yog'</div>
-                  <div className="font-bold text-food-orange-600">
-                    {Math.round(selectedDayLog.total_fat)}g
-                  </div>
-                </div>
+            {dateLogLoading ? (
+              <div className="flex justify-center py-8">
+                <LoadingSpinner size="lg" />
               </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="bg-food-red-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-food-brown-600">Kaloriya</div>
+                    <div className="font-bold text-food-red-600">
+                      {Math.round(selectedDayLog.total_calories)}
+                    </div>
+                  </div>
+                  <div className="bg-food-green-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-food-brown-600">Oqsil</div>
+                    <div className="font-bold text-food-green-600">
+                      {Math.round(selectedDayLog.total_protein)}g
+                    </div>
+                  </div>
+                  <div className="bg-food-yellow-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-food-brown-600">Uglevod</div>
+                    <div className="font-bold text-food-yellow-600">
+                      {Math.round(selectedDayLog.total_carbs)}g
+                    </div>
+                  </div>
+                  <div className="bg-food-orange-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-food-brown-600">Yog'</div>
+                    <div className="font-bold text-food-orange-600">
+                      {Math.round(selectedDayLog.total_fat)}g
+                    </div>
+                  </div>
+                </div>
 
-              <div>
-                <h4 className="font-bold text-food-brown-800 mb-2">
-                  Ovqatlar ({selectedDayLog.meals.length})
-                </h4>
-                {selectedDayLog.meals.length === 0 ? (
-                  <p className="text-food-brown-500 text-sm">
-                    Bu kunda ovqat qo'shilmagan
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {selectedDayLog.meals.map((meal) => (
-                      <div
-                        key={meal.id}
-                        className="bg-food-green-50 rounded-lg p-3 border border-food-green-200"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-bold text-food-brown-800">
-                              {meal.food_name}
-                            </p>
-                            <p className="text-xs text-food-brown-500">
-                              {meal.weight_grams}g
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-food-red-600">
-                              {Math.round(meal.calories)} kkal
-                            </p>
-                            <p className="text-xs text-food-brown-500">
-                              {new Date(meal.timestamp).toLocaleTimeString("uz-UZ", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
+                <div>
+                  <h4 className="font-bold text-food-brown-800 mb-2">
+                    Ovqatlar ({selectedDayLog.meals.length})
+                  </h4>
+                  {selectedDayLog.meals.length === 0 ? (
+                    <p className="text-food-brown-500 text-sm">
+                      Bu kunda ovqat qo'shilmagan
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedDayLog.meals.map((meal) => (
+                        <div
+                          key={meal.id}
+                          className="bg-food-green-50 rounded-lg p-3 border border-food-green-200"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-bold text-food-brown-800">
+                                {meal.food_name}
+                              </p>
+                              <p className="text-xs text-food-brown-500">
+                                {meal.weight_grams}g
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-food-red-600">
+                                {Math.round(meal.calories)} kkal
+                              </p>
+                              <p className="text-xs text-food-brown-500">
+                                {new Date(meal.timestamp).toLocaleTimeString("uz-UZ", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

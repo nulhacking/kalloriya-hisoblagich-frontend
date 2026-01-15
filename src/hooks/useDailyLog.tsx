@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { getTodayLog, addMeal, deleteMeal } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { useMemo } from "react";
+import { useTodayLog, useAddMeal, useDeleteMeal } from "./useMeals";
 import type { DailyLog, MealEntry, MealEntryResponse, DailyLogResponse } from "../types";
 
 // Bugungi sana YYYY-MM-DD formatda
@@ -41,75 +40,59 @@ const convertDailyLogResponse = (response: DailyLogResponse): DailyLog => ({
 });
 
 export function useDailyLog() {
-  const { token } = useAuth();
-  const [dailyLog, setDailyLog] = useState<DailyLog>(createEmptyDailyLog);
-  const [dataLoading, setDataLoading] = useState(false);
+  const { data: todayLogData, isLoading: dataLoading, error } = useTodayLog();
+  const addMealMutation = useAddMeal();
+  const deleteMealMutation = useDeleteMeal();
 
-  // Backend dan kunlik logni yuklash
-  const loadTodayLog = useCallback(async () => {
-    if (!token) return;
-
-    setDataLoading(true);
-    try {
-      const response = await getTodayLog(token);
-      setDailyLog(convertDailyLogResponse(response));
-    } catch (err) {
-      console.error("Kunlik logni yuklashda xatolik:", err);
-      // Agar xatolik bo'lsa, bo'sh log ishlatamiz
-      setDailyLog(createEmptyDailyLog());
-    } finally {
-      setDataLoading(false);
+  // Convert backend response to frontend format
+  const dailyLog = useMemo(() => {
+    if (todayLogData) {
+      return convertDailyLogResponse(todayLogData);
     }
-  }, [token]);
+    return createEmptyDailyLog();
+  }, [todayLogData]);
 
-  // Token o'zgarganda ma'lumotlarni yuklash
-  useEffect(() => {
-    if (token) {
-      loadTodayLog();
+  // Add meal to log - accepts either MealEntryResponse or meal data object
+  const addMealToLog = async (
+    mealData:
+      | MealEntryResponse
+      | {
+          food_name: string;
+          weight_grams: number;
+          calories: number;
+          protein: number;
+          carbs: number;
+          fat: number;
+          image_preview?: string;
+        }
+  ) => {
+    // The mutation will automatically invalidate and refetch the query
+    if ("food_name" in mealData && "calories" in mealData) {
+      // It's already a meal data object
+      await addMealMutation.mutateAsync(mealData);
+    } else {
+      // It's a MealEntryResponse, convert it
+      await addMealMutation.mutateAsync({
+        food_name: mealData.food_name,
+        weight_grams: mealData.weight_grams,
+        calories: mealData.calories,
+        protein: mealData.protein,
+        carbs: mealData.carbs,
+        fat: mealData.fat,
+        image_preview: mealData.image_preview,
+      });
     }
-  }, [token, loadTodayLog]);
+  };
 
-  // Ovqatni kunlik hisobga qo'shish
-  const addMealToLog = useCallback(async (newMeal: MealEntryResponse) => {
-    setDailyLog((prev) => ({
-      ...prev,
-      meals: [...prev.meals, convertMealResponse(newMeal)],
-      totalCalories: prev.totalCalories + newMeal.calories,
-      totalOqsil: prev.totalOqsil + newMeal.protein,
-      totalCarbs: prev.totalCarbs + newMeal.carbs,
-      totalFat: prev.totalFat + newMeal.fat,
-    }));
-  }, []);
-
-  // Ovqatni o'chirish
-  const removeMealFromLog = useCallback(async (mealId: string) => {
-    if (!token) return;
-
-    const mealToDelete = dailyLog.meals.find((m) => m.id === mealId);
-    if (!mealToDelete) return;
-
-    try {
-      await deleteMeal(token, mealId);
-
-      // Local state ni yangilash
-      setDailyLog((prev) => ({
-        ...prev,
-        meals: prev.meals.filter((m) => m.id !== mealId),
-        totalCalories: prev.totalCalories - mealToDelete.calories,
-        totalOqsil: prev.totalOqsil - mealToDelete.oqsil,
-        totalCarbs: prev.totalCarbs - mealToDelete.carbs,
-        totalFat: prev.totalFat - mealToDelete.fat,
-      }));
-    } catch (err) {
-      console.error("Ovqatni o'chirishda xatolik:", err);
-      throw err;
-    }
-  }, [token, dailyLog.meals]);
+  // Remove meal from log
+  const removeMealFromLog = async (mealId: string) => {
+    await deleteMealMutation.mutateAsync(mealId);
+  };
 
   return {
     dailyLog,
     dataLoading,
-    loadTodayLog,
+    error,
     addMealToLog,
     removeMealFromLog,
   };

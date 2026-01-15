@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { getFoodStats, getDateRangeStats } from "../services/api";
-import type { FoodStats, DateRangeStats } from "../types";
+import { useFoodStats, useDateRangeStats } from "../hooks/useMeals";
 import LoadingSpinner from "./LoadingSpinner";
 
 const Stats = () => {
-  const { token, user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [foodStats, setFoodStats] = useState<FoodStats[]>([]);
-  const [rangeStats, setRangeStats] = useState<DateRangeStats | null>(null);
+  const { user } = useAuth();
   const [days, setDays] = useState(30);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -19,47 +14,26 @@ const Stats = () => {
     const today = new Date();
     const monthAgo = new Date(today);
     monthAgo.setDate(today.getDate() - 30);
-    
+
     setEndDate(today.toISOString().split("T")[0]);
     setStartDate(monthAgo.toISOString().split("T")[0]);
   }, []);
 
-  // Load food stats
-  const loadFoodStats = async () => {
-    if (!token) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getFoodStats(token, days, 10);
-      setFoodStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // React Query hooks
+  const {
+    data: foodStats = [],
+    isLoading: foodStatsLoading,
+    error: foodStatsError,
+  } = useFoodStats(days, 10);
 
-  // Load range stats
-  const loadRangeStats = async () => {
-    if (!token || !startDate || !endDate) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getDateRangeStats(token, startDate, endDate);
-      setRangeStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: rangeStats,
+    isLoading: rangeStatsLoading,
+    error: rangeStatsError,
+  } = useDateRangeStats(startDate, endDate);
 
-  useEffect(() => {
-    loadFoodStats();
-    loadRangeStats();
-  }, [token, days, startDate, endDate]);
+  const loading = foodStatsLoading || rangeStatsLoading;
+  const error = foodStatsError || rangeStatsError;
 
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr + "T00:00:00");
@@ -130,7 +104,9 @@ const Stats = () => {
 
       {error && (
         <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
-          <p className="text-food-red-700 font-medium">{error}</p>
+          <p className="text-food-red-700 font-medium">
+            {error instanceof Error ? error.message : "Xatolik yuz berdi"}
+          </p>
         </div>
       )}
 
@@ -145,7 +121,8 @@ const Stats = () => {
             <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
               <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
                 <span>📈</span>
-                Umumiy statistika ({formatDate(rangeStats.start_date)} - {formatDate(rangeStats.end_date)})
+                Umumiy statistika ({formatDate(rangeStats.start_date)} -{" "}
+                {formatDate(rangeStats.end_date)})
               </h3>
 
               <div className="grid grid-cols-2 gap-3 mb-3">
@@ -154,7 +131,9 @@ const Stats = () => {
                   <div className="font-extrabold text-food-red-600 text-xl">
                     {Math.round(rangeStats.total_calories)}
                   </div>
-                  <div className="text-xs text-food-brown-500">Jami kaloriya</div>
+                  <div className="text-xs text-food-brown-500">
+                    Jami kaloriya
+                  </div>
                   <div className="text-xs text-food-brown-400 mt-1">
                     O'rtacha: {Math.round(rangeStats.avg_calories)}/kun
                   </div>
@@ -177,21 +156,27 @@ const Stats = () => {
                   <div className="font-bold text-food-green-600">
                     {Math.round(rangeStats.avg_protein)}g
                   </div>
-                  <div className="text-xs text-food-brown-500">O'rtacha oqsil</div>
+                  <div className="text-xs text-food-brown-500">
+                    O'rtacha oqsil
+                  </div>
                 </div>
                 <div className="bg-white rounded-lg p-2 text-center">
                   <div className="text-sm">🍞</div>
                   <div className="font-bold text-food-yellow-600">
                     {Math.round(rangeStats.avg_carbs)}g
                   </div>
-                  <div className="text-xs text-food-brown-500">O'rtacha uglevod</div>
+                  <div className="text-xs text-food-brown-500">
+                    O'rtacha uglevod
+                  </div>
                 </div>
                 <div className="bg-white rounded-lg p-2 text-center">
                   <div className="text-sm">🧈</div>
                   <div className="font-bold text-food-orange-600">
                     {Math.round(rangeStats.avg_fat)}g
                   </div>
-                  <div className="text-xs text-food-brown-500">O'rtacha yog'</div>
+                  <div className="text-xs text-food-brown-500">
+                    O'rtacha yog'
+                  </div>
                 </div>
               </div>
 
@@ -206,7 +191,8 @@ const Stats = () => {
                       <div className="flex justify-between text-xs mb-1">
                         <span>Kaloriya</span>
                         <span>
-                          {Math.round(rangeStats.avg_calories)} / {user.daily_calorie_goal}
+                          {Math.round(rangeStats.avg_calories)} /{" "}
+                          {user.daily_calorie_goal}
                         </span>
                       </div>
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -218,7 +204,9 @@ const Stats = () => {
                           }`}
                           style={{
                             width: `${Math.min(
-                              (rangeStats.avg_calories / user.daily_calorie_goal) * 100,
+                              (rangeStats.avg_calories /
+                                user.daily_calorie_goal) *
+                                100,
                               100
                             )}%`,
                           }}
@@ -271,7 +259,8 @@ const Stats = () => {
                           {Math.round(food.total_calories)} kkal
                         </p>
                         <p className="text-xs text-food-brown-500">
-                          O'rtacha: {Math.round(food.avg_calories_per_meal)}/marta
+                          O'rtacha: {Math.round(food.avg_calories_per_meal)}
+                          /marta
                         </p>
                         <p className="text-xs text-food-brown-400">
                           Jami: {Math.round(food.total_weight)}g
@@ -307,10 +296,13 @@ const Stats = () => {
                     <div key={day.id} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-food-brown-700">
-                          {new Date(day.date + "T00:00:00").toLocaleDateString("uz-UZ", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {new Date(day.date + "T00:00:00").toLocaleDateString(
+                            "uz-UZ",
+                            {
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
                         </span>
                         <span className="font-bold text-food-brown-800">
                           {Math.round(day.total_calories)} kkal
@@ -331,7 +323,9 @@ const Stats = () => {
                           <div
                             className="absolute top-0 h-full w-0.5 bg-food-blue-500"
                             style={{
-                              left: `${(user.daily_calorie_goal / maxCalories) * 100}%`,
+                              left: `${
+                                (user.daily_calorie_goal / maxCalories) * 100
+                              }%`,
                             }}
                             title={`Maqsad: ${user.daily_calorie_goal} kkal`}
                           ></div>
