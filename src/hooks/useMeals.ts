@@ -69,7 +69,7 @@ export const useHistory = (days: number = 7) => {
       if (!token) throw new Error("Token mavjud emas");
       return getHistory(token, days);
     },
-    enabled: !!token,
+    enabled: !!token && days > 0,
     staleTime: 5 * 60 * 1000,
   });
 };

@@ -26,17 +26,22 @@ const Stats = () => {
   // React Query hooks
   const {
     data: foodStats = [],
-    isLoading: foodStatsLoading,
+    isLoading: foodStatsInitialLoading,
+    isFetching: foodStatsFetching,
     error: foodStatsError,
   } = useFoodStats(days, 10);
 
   const {
     data: rangeStats,
-    isLoading: rangeStatsLoading,
+    isLoading: rangeStatsInitialLoading,
+    isFetching: rangeStatsFetching,
     error: rangeStatsError,
   } = useDateRangeStats(startDate, endDate);
 
-  const loading = foodStatsLoading || rangeStatsLoading;
+  // Show skeleton on initial load or when fetching (for better UX)
+  const foodStatsLoading = foodStatsInitialLoading || foodStatsFetching;
+  const rangeStatsLoading = rangeStatsInitialLoading || rangeStatsFetching;
+  
   const error = foodStatsError || rangeStatsError;
 
   const formatDate = (dateStr: string): string => {

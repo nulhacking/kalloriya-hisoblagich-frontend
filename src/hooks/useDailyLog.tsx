@@ -40,9 +40,12 @@ const convertDailyLogResponse = (response: DailyLogResponse): DailyLog => ({
 });
 
 export function useDailyLog() {
-  const { data: todayLogData, isLoading: dataLoading, error } = useTodayLog();
+  const { data: todayLogData, isLoading: initialLoading, isFetching, error } = useTodayLog();
   const addMealMutation = useAddMeal();
   const deleteMealMutation = useDeleteMeal();
+  
+  // Show loading on initial load or when fetching
+  const dataLoading = initialLoading || isFetching;
 
   // Convert backend response to frontend format
   const dailyLog = useMemo(() => {

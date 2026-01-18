@@ -25,13 +25,15 @@ const History = () => {
   // React Query hooks
   const {
     data: history = [],
-    isLoading: historyLoading,
+    isLoading: historyInitialLoading,
+    isFetching: historyFetching,
     error: historyError,
   } = useHistory(viewMode === "list" ? days : 0);
 
   const {
     data: rangeStats,
-    isLoading: rangeStatsLoading,
+    isLoading: rangeStatsInitialLoading,
+    isFetching: rangeStatsFetching,
     error: rangeStatsError,
     refetch: refetchRangeStats,
   } = useDateRangeStats(
@@ -43,6 +45,10 @@ const History = () => {
     data: dateLogData,
     isLoading: dateLogLoading,
   } = useLogByDate(selectedDate);
+
+  // Show skeleton on initial load or when fetching (for better UX)
+  const historyLoading = historyInitialLoading || historyFetching;
+  const rangeStatsLoading = rangeStatsInitialLoading || rangeStatsFetching;
 
   // Update selected day log when data changes
   useEffect(() => {
