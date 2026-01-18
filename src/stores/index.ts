@@ -6,6 +6,7 @@ export {
   useIsLoading,
   useIsAuthenticated,
   useIsRegistered,
+  useIsTelegramMiniApp,
 } from "./authStore";
 
 // UI Store

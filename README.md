@@ -9,6 +9,8 @@ React frontend for the Food Nutrition Analyzer application.
 - ⚡ Fast and responsive UI
 - 🎨 Modern design with Tailwind CSS
 - 📱 Mobile-friendly responsive layout
+- ✈️ Telegram Mini App support
+- 🔐 Authentication via Email/Password or Telegram
 
 ## Prerequisites
 
@@ -24,10 +26,14 @@ npm install
 yarn install
 ```
 
-2. (Optional) Configure API URL:
+2. (Optional) Configure environment variables:
 Create a `.env` file in the `frontend` directory:
-```
+```bash
+# Backend API URL
 VITE_API_URL=http://localhost:8000
+
+# Telegram Bot Username (for "Login with Telegram" button)
+VITE_TELEGRAM_BOT_USERNAME=YourBotUsername
 ```
 
 ## Development

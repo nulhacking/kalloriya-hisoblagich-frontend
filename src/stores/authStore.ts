@@ -9,6 +9,8 @@ import {
   getCurrentUser,
   updateUserSettings,
   refreshToken,
+  telegramAuth,
+  linkTelegramAccount,
 } from "../services/api";
 
 interface AuthState {
@@ -17,6 +19,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   isInitialized: boolean;
+  isTelegramMiniApp: boolean;
 
   // Computed getters
   isAuthenticated: boolean;
@@ -28,6 +31,7 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   handleAuthResponse: (response: AuthResponse) => void;
   clearAuth: () => void;
+  setIsTelegramMiniApp: (value: boolean) => void;
 
   // Async actions
   initAuth: () => Promise<void>;
@@ -38,9 +42,28 @@ interface AuthState {
     password: string,
     name?: string
   ) => Promise<void>;
+  loginWithTelegram: (initData: string) => Promise<void>;
+  linkTelegram: (initData: string) => Promise<void>;
   logout: () => void;
   updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
 }
+
+// Helper to check if running in Telegram Mini App
+const checkIsTelegramMiniApp = (): boolean => {
+  return !!(
+    typeof window !== "undefined" &&
+    window.Telegram?.WebApp?.initData &&
+    window.Telegram.WebApp.initData.length > 0
+  );
+};
+
+// Helper to get Telegram init data
+const getTelegramInitData = (): string | null => {
+  if (typeof window !== "undefined" && window.Telegram?.WebApp?.initData) {
+    return window.Telegram.WebApp.initData;
+  }
+  return null;
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -50,19 +73,22 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isLoading: true,
       isInitialized: false,
+      isTelegramMiniApp: false,
 
       // Computed (derived from state)
       get isAuthenticated() {
         return !!get().user;
       },
       get isRegistered() {
-        return get().user?.user_type === "registered";
+        const userType = get().user?.user_type;
+        return userType === "registered" || userType === "telegram";
       },
 
       // Simple setters
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
       setLoading: (isLoading) => set({ isLoading }),
+      setIsTelegramMiniApp: (value) => set({ isTelegramMiniApp: value }),
 
       // Handle auth response
       handleAuthResponse: (response) => {
@@ -82,10 +108,34 @@ export const useAuthStore = create<AuthState>()(
 
       // Initialize auth
       initAuth: async () => {
-        const { token, handleAuthResponse, clearAuth } = get();
+        const { token, handleAuthResponse, clearAuth, setIsTelegramMiniApp } = get();
         set({ isLoading: true });
 
+        // Check if running in Telegram Mini App
+        const isTelegram = checkIsTelegramMiniApp();
+        setIsTelegramMiniApp(isTelegram);
+
         try {
+          // If in Telegram Mini App, try to auto-authenticate
+          if (isTelegram) {
+            const initData = getTelegramInitData();
+            if (initData) {
+              try {
+                // Expand the Mini App
+                window.Telegram?.WebApp?.expand();
+                window.Telegram?.WebApp?.ready();
+                
+                const response = await telegramAuth(initData);
+                handleAuthResponse(response);
+                set({ isLoading: false, isInitialized: true });
+                return;
+              } catch (error) {
+                console.error("Telegram auto-auth failed:", error);
+                // Fall through to normal auth flow
+              }
+            }
+          }
+
           if (token) {
             // Try to refresh/validate existing token
             try {
@@ -142,6 +192,20 @@ export const useAuthStore = create<AuthState>()(
         handleAuthResponse(response);
       },
 
+      // Login with Telegram
+      loginWithTelegram: async (initData) => {
+        const response = await telegramAuth(initData);
+        get().handleAuthResponse(response);
+      },
+
+      // Link Telegram to existing account
+      linkTelegram: async (initData) => {
+        const { token, handleAuthResponse } = get();
+        if (!token) throw new Error("Token mavjud emas");
+        const response = await linkTelegramAccount(token, initData);
+        handleAuthResponse(response);
+      },
+
       // Logout
       logout: () => {
         get().clearAuth();
@@ -189,4 +253,9 @@ export const useToken = () => useAuthStore((state) => state.token);
 export const useIsLoading = () => useAuthStore((state) => state.isLoading);
 export const useIsAuthenticated = () => useAuthStore((state) => !!state.user);
 export const useIsRegistered = () =>
-  useAuthStore((state) => state.user?.user_type === "registered");
+  useAuthStore((state) => {
+    const userType = state.user?.user_type;
+    return userType === "registered" || userType === "telegram";
+  });
+export const useIsTelegramMiniApp = () =>
+  useAuthStore((state) => state.isTelegramMiniApp);

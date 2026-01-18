@@ -164,6 +164,39 @@ export const refreshToken = async (token: string): Promise<AuthResponse> => {
   }
 };
 
+/**
+ * Telegram authentication
+ */
+export const telegramAuth = async (initData: string): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>("/auth/telegram", {
+      init_data: initData,
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Link Telegram account to existing user
+ */
+export const linkTelegramAccount = async (
+  token: string,
+  initData: string
+): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>(
+      "/auth/telegram/link",
+      { init_data: initData },
+      { headers: getAuthHeaders(token) }
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
 // ==================== MEALS API ====================
 
 /**
