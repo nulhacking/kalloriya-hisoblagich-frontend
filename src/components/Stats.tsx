@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useFoodStats, useDateRangeStats } from "../hooks/useMeals";
-import LoadingSpinner from "./LoadingSpinner";
+import {
+  RangeStatsSkeleton,
+  FoodStatsListSkeleton,
+  DailyChartSkeleton,
+} from "./Skeleton";
 
 const Stats = () => {
   const { user } = useAuth();
@@ -110,13 +114,11 @@ const Stats = () => {
         </div>
       )}
 
-      {loading ? (
-        <div className="flex justify-center py-8">
-          <LoadingSpinner size="lg" />
-        </div>
+      {/* Overall Statistics */}
+      {rangeStatsLoading ? (
+        <RangeStatsSkeleton />
       ) : (
         <>
-          {/* Overall Statistics */}
           {rangeStats && (
             <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
               <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
@@ -226,7 +228,9 @@ const Stats = () => {
               Eng ko'p yedim ovqatlar (oxirgi {days} kun)
             </h3>
 
-            {foodStats.length === 0 ? (
+            {foodStatsLoading ? (
+              <FoodStatsListSkeleton />
+            ) : foodStats.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">🍽️</div>
                 <p className="text-food-brown-600 font-medium">
@@ -274,12 +278,14 @@ const Stats = () => {
           </div>
 
           {/* Daily Breakdown Chart */}
-          {rangeStats && rangeStats.days.length > 0 && (
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
-              <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-                <span>📉</span>
-                Kunlik kaloriya grafigi
-              </h3>
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+            <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+              <span>📉</span>
+              Kunlik kaloriya grafigi
+            </h3>
+            {rangeStatsLoading ? (
+              <DailyChartSkeleton />
+            ) : rangeStats && rangeStats.days.length > 0 ? (
               <div className="space-y-2">
                 {rangeStats.days.map((day) => {
                   const maxCalories = Math.max(
@@ -335,8 +341,15 @@ const Stats = () => {
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-3">📊</div>
+                <p className="text-food-brown-600 font-medium">
+                  Ma'lumotlar topilmadi
+                </p>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useHistory, useDateRangeStats, useLogByDate } from "../hooks/useMeals";
 import type { DailyLogResponse } from "../types";
 import LoadingSpinner from "./LoadingSpinner";
+import { HistoryListSkeleton, RangeStatsSkeleton } from "./Skeleton";
 
 const History = () => {
   const [viewMode, setViewMode] = useState<"list" | "range">("list");
@@ -126,9 +127,7 @@ const History = () => {
             </div>
 
             {historyLoading ? (
-              <div className="flex justify-center py-8">
-                <LoadingSpinner size="lg" />
-              </div>
+              <HistoryListSkeleton />
             ) : error ? (
               <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
                 <p className="text-food-red-700 font-medium">
@@ -221,7 +220,9 @@ const History = () => {
               </div>
             )}
 
-            {rangeStats && (
+            {rangeStatsLoading ? (
+              <RangeStatsSkeleton />
+            ) : rangeStats && (
               <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-xl p-4 border-2 border-food-orange-200">
                 <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
                   <span>📊</span>

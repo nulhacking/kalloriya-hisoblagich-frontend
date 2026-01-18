@@ -1,11 +1,12 @@
 import { useAuth } from "../contexts/AuthContext";
 import { useDailyLog } from "../hooks/useDailyLog";
 import DailyLogComponent from "../components/DailyLog";
+import { DailyLogPageSkeleton } from "../components/Skeleton";
 import type { UserSettings } from "../types";
 
 const DailyLogPage = () => {
   const { user } = useAuth();
-  const { dailyLog, removeMealFromLog } = useDailyLog();
+  const { dailyLog, dataLoading, removeMealFromLog } = useDailyLog();
 
   const settings: UserSettings = {
     dailyCalorieGoal: user?.daily_calorie_goal || 2000,
@@ -22,6 +23,10 @@ const DailyLogPage = () => {
       console.error("Ovqatni o'chirishda xatolik:", err);
     }
   };
+
+  if (dataLoading) {
+    return <DailyLogPageSkeleton />;
+  }
 
   return (
     <DailyLogComponent
