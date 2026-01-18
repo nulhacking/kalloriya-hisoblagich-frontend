@@ -4,6 +4,7 @@ import { useAuth } from "./contexts/AuthContext";
 import { useDailyLog } from "./hooks/useDailyLog";
 import LoadingSpinner from "./components/LoadingSpinner";
 import BottomNavigation from "./components/BottomNavigation";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -65,6 +66,9 @@ function App() {
 
       {/* Bottom Navigation */}
       <BottomNavigation dailyCalories={dailyCalories} dailyGoal={dailyGoal} />
+
+      {/* PWA Update Prompt */}
+      <PWAUpdatePrompt />
     </div>
   );
 }
