@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useToken } from "../stores";
 import ImageUpload from "../components/ImageUpload";
 import ResultsDisplay from "../components/ResultsDisplay";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -9,7 +9,7 @@ import { useAnalyzeFood } from "../hooks/useFoodAnalysis";
 import { useAddMeal } from "../hooks/useMeals";
 
 const HomePage = () => {
-  const { token } = useAuth();
+  const token = useToken();
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
 

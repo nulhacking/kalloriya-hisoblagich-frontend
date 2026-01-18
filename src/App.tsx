@@ -1,6 +1,6 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuthStore, useUser, useIsLoading } from "./stores";
 import { useDailyLog } from "./hooks/useDailyLog";
 import LoadingSpinner from "./components/LoadingSpinner";
 import BottomNavigation from "./components/BottomNavigation";
@@ -22,8 +22,18 @@ const PageLoader = () => (
 );
 
 function App() {
-  const { isLoading: authLoading, user } = useAuth();
+  const authLoading = useIsLoading();
+  const user = useUser();
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
   const { dailyLog } = useDailyLog();
+
+  // Initialize auth on mount
+  useEffect(() => {
+    if (!isInitialized) {
+      initAuth();
+    }
+  }, [initAuth, isInitialized]);
 
   // Auth loading screen
   if (authLoading) {

@@ -1,11 +1,11 @@
-import { useAuth } from "../contexts/AuthContext";
+import { useUser } from "../stores";
 import { useDailyLog } from "../hooks/useDailyLog";
 import DailyLogComponent from "../components/DailyLog";
 import { DailyLogPageSkeleton } from "../components/Skeleton";
 import type { UserSettings } from "../types";
 
 const DailyLogPage = () => {
-  const { user } = useAuth();
+  const user = useUser();
   const { dailyLog, dataLoading, removeMealFromLog } = useDailyLog();
 
   const settings: UserSettings = {

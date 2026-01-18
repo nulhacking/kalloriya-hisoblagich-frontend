@@ -1,26 +1,38 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useHistory, useDateRangeStats, useLogByDate } from "../hooks/useMeals";
-import type { DailyLogResponse } from "../types";
 import LoadingSpinner from "./LoadingSpinner";
 import { HistoryListSkeleton, RangeStatsSkeleton } from "./Skeleton";
+import {
+  useUIStore,
+  useHistoryViewMode,
+  useHistoryDays,
+  useHistoryDateRange,
+  useSelectedDayLog,
+} from "../stores";
 
 const History = () => {
-  const [viewMode, setViewMode] = useState<"list" | "range">("list");
-  const [days, setDays] = useState(7);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedDayLog, setSelectedDayLog] = useState<DailyLogResponse | null>(null);
+  // UI Store selectors
+  const viewMode = useHistoryViewMode();
+  const days = useHistoryDays();
+  const { startDate, endDate } = useHistoryDateRange();
+  const { selectedDate, selectedDayLog } = useSelectedDayLog();
 
-  // Set default dates
+  // UI Store actions
+  const {
+    setHistoryViewMode: setViewMode,
+    setHistoryDays: setDays,
+    setHistoryStartDate: setStartDate,
+    setHistoryEndDate: setEndDate,
+    setSelectedDate,
+    setSelectedDayLog,
+    clearSelectedDayLog,
+    initHistoryDates,
+  } = useUIStore();
+
+  // Initialize dates on mount
   useEffect(() => {
-    const today = new Date();
-    const weekAgo = new Date(today);
-    weekAgo.setDate(today.getDate() - 7);
-    
-    setEndDate(today.toISOString().split("T")[0]);
-    setStartDate(weekAgo.toISOString().split("T")[0]);
-  }, []);
+    initHistoryDates();
+  }, [initHistoryDates]);
 
   // React Query hooks
   const {
@@ -55,9 +67,8 @@ const History = () => {
     if (dateLogData) {
       setSelectedDayLog(dateLogData);
     }
-  }, [dateLogData]);
+  }, [dateLogData, setSelectedDayLog]);
 
-  const loading = historyLoading || rangeStatsLoading || dateLogLoading;
   const error = historyError || rangeStatsError;
 
   const formatDate = (dateStr: string): string => {
@@ -321,10 +332,7 @@ const History = () => {
                 {formatDate(selectedDate)}
               </h3>
               <button
-                onClick={() => {
-                  setSelectedDayLog(null);
-                  setSelectedDate("");
-                }}
+                onClick={clearSelectedDayLog}
                 className="w-8 h-8 rounded-full bg-food-red-100 text-food-red-600 flex items-center justify-center hover:bg-food-red-200"
               >
                 ✕

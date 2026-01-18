@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../contexts/AuthContext";
+import { useToken } from "../stores";
 import {
   getTodayLog,
   getLogByDate,
@@ -9,13 +9,6 @@ import {
   getFoodStats,
   getDateRangeStats,
 } from "../services/api";
-import type {
-  DailyLogResponse,
-  DailyLogSummary,
-  MealEntryResponse,
-  FoodStats,
-  DateRangeStats,
-} from "../types";
 
 // Query keys
 export const mealKeys = {
@@ -31,7 +24,7 @@ export const mealKeys = {
 
 // Get today's log
 export const useTodayLog = () => {
-  const { token } = useAuth();
+  const token = useToken();
 
   return useQuery({
     queryKey: mealKeys.today(),
@@ -46,7 +39,7 @@ export const useTodayLog = () => {
 
 // Get log by date
 export const useLogByDate = (date: string) => {
-  const { token } = useAuth();
+  const token = useToken();
 
   return useQuery({
     queryKey: mealKeys.byDate(date),
@@ -61,7 +54,7 @@ export const useLogByDate = (date: string) => {
 
 // Get history
 export const useHistory = (days: number = 7) => {
-  const { token } = useAuth();
+  const token = useToken();
 
   return useQuery({
     queryKey: mealKeys.history(days),
@@ -76,7 +69,7 @@ export const useHistory = (days: number = 7) => {
 
 // Get food stats
 export const useFoodStats = (days: number = 30, limit: number = 10) => {
-  const { token } = useAuth();
+  const token = useToken();
 
   return useQuery({
     queryKey: mealKeys.foodStats(days, limit),
@@ -91,7 +84,7 @@ export const useFoodStats = (days: number = 30, limit: number = 10) => {
 
 // Get date range stats
 export const useDateRangeStats = (startDate: string, endDate: string) => {
-  const { token } = useAuth();
+  const token = useToken();
 
   return useQuery({
     queryKey: mealKeys.rangeStats(startDate, endDate),
@@ -106,7 +99,7 @@ export const useDateRangeStats = (startDate: string, endDate: string) => {
 
 // Add meal mutation
 export const useAddMeal = () => {
-  const { token } = useAuth();
+  const token = useToken();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -124,20 +117,15 @@ export const useAddMeal = () => {
       return addMeal(token, meal);
     },
     onSuccess: () => {
-      // Invalidate and refetch today's log
-      queryClient.invalidateQueries({ queryKey: mealKeys.today() });
-      // Invalidate history to show updated data
-      queryClient.invalidateQueries({ queryKey: mealKeys.history() });
-      // Invalidate stats
-      queryClient.invalidateQueries({ queryKey: mealKeys.foodStats() });
-      queryClient.invalidateQueries({ queryKey: mealKeys.rangeStats() });
+      // Invalidate and refetch all meal-related queries
+      queryClient.invalidateQueries({ queryKey: mealKeys.all });
     },
   });
 };
 
 // Delete meal mutation
 export const useDeleteMeal = () => {
-  const { token } = useAuth();
+  const token = useToken();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -146,13 +134,8 @@ export const useDeleteMeal = () => {
       return deleteMeal(token, mealId);
     },
     onSuccess: () => {
-      // Invalidate and refetch today's log
-      queryClient.invalidateQueries({ queryKey: mealKeys.today() });
-      // Invalidate history
-      queryClient.invalidateQueries({ queryKey: mealKeys.history() });
-      // Invalidate stats
-      queryClient.invalidateQueries({ queryKey: mealKeys.foodStats() });
-      queryClient.invalidateQueries({ queryKey: mealKeys.rangeStats() });
+      // Invalidate and refetch all meal-related queries
+      queryClient.invalidateQueries({ queryKey: mealKeys.all });
     },
   });
 };

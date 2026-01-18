@@ -70,21 +70,15 @@ export function useDailyLog() {
         }
   ) => {
     // The mutation will automatically invalidate and refetch the query
-    if ("food_name" in mealData && "calories" in mealData) {
-      // It's already a meal data object
-      await addMealMutation.mutateAsync(mealData);
-    } else {
-      // It's a MealEntryResponse, convert it
-      await addMealMutation.mutateAsync({
-        food_name: mealData.food_name,
-        weight_grams: mealData.weight_grams,
-        calories: mealData.calories,
-        protein: mealData.protein,
-        carbs: mealData.carbs,
-        fat: mealData.fat,
-        image_preview: mealData.image_preview,
-      });
-    }
+    await addMealMutation.mutateAsync({
+      food_name: mealData.food_name,
+      weight_grams: mealData.weight_grams,
+      calories: mealData.calories,
+      protein: mealData.protein,
+      carbs: mealData.carbs,
+      fat: mealData.fat,
+      image_preview: mealData.image_preview,
+    });
   };
 
   // Remove meal from log

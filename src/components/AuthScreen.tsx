@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore, useIsRegistered, useUser } from "../stores";
 
 type AuthMode = "login" | "register";
 
 export default function AuthScreen() {
-  const { login, register, convertAnonymous, isRegistered, user } = useAuth();
+  const login = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
+  const convertAnonymous = useAuthStore((state) => state.convertAnonymous);
+  const isRegistered = useIsRegistered();
+  const user = useUser();
   const [mode, setMode] = useState<AuthMode>("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

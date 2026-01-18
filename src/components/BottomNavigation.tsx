@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 
 interface BottomNavigationProps {
   dailyCalories: number;
@@ -10,7 +9,6 @@ const BottomNavigation = ({
   dailyCalories,
   dailyGoal,
 }: BottomNavigationProps) => {
-  const { isRegistered, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 

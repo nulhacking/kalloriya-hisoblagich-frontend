@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useUser } from "../stores";
 import { useFoodStats, useDateRangeStats } from "../hooks/useMeals";
 import {
   RangeStatsSkeleton,
@@ -8,7 +8,7 @@ import {
 } from "./Skeleton";
 
 const Stats = () => {
-  const { user } = useAuth();
+  const user = useUser();
   const [days, setDays] = useState(30);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");

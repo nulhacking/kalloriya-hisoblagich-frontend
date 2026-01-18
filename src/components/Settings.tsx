@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { UserSettings } from "../types";
-import { useAuth } from "../contexts/AuthContext";
-import AuthScreen from "./AuthScreen";
+import { useAuthStore, useIsRegistered, useUser } from "../stores";
 
 interface SettingsProps {
   settings: UserSettings;
@@ -10,7 +9,9 @@ interface SettingsProps {
 }
 
 const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps) => {
-  const { isRegistered, logout, user } = useAuth();
+  const isRegistered = useIsRegistered();
+  const user = useUser();
+  const logout = useAuthStore((state) => state.logout);
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);

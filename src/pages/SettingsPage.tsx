@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore, useUser } from "../stores";
 import Settings from "../components/Settings";
 import type { UserSettings } from "../types";
 
 const SettingsPage = () => {
-  const { user, updateSettings } = useAuth();
+  const user = useUser();
+  const updateSettings = useAuthStore((state) => state.updateSettings);
   const navigate = useNavigate();
 
   const settings: UserSettings = {
