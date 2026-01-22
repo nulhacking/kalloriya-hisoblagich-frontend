@@ -66,12 +66,15 @@ const Feedback = () => {
     setError(null);
 
     try {
-      await submitFeedback(token, {
+      const feedbackData: { subject: string; message: string; category: string; rating?: number } = {
         subject: subject.trim(),
         message: message.trim(),
         category,
-        rating: rating || undefined,
-      });
+      };
+      if (rating) {
+        feedbackData.rating = rating;
+      }
+      await submitFeedback(token, feedbackData);
       
       setSubmitted(true);
       setSubject("");
