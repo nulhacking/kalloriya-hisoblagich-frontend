@@ -376,3 +376,57 @@ export const checkHealth = async (): Promise<HealthStatus> => {
     throw new Error("Backend server mavjud emas");
   }
 };
+
+// ==================== FEEDBACK API ====================
+
+export interface FeedbackItem {
+  id: string;
+  user_id: string;
+  subject: string;
+  message: string;
+  rating: number | null;
+  category: string;
+  admin_response: string | null;
+  responded_at: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FeedbackCreateData {
+  subject: string;
+  message: string;
+  category?: string;
+  rating?: number;
+}
+
+/**
+ * Submit feedback
+ */
+export const submitFeedback = async (
+  token: string,
+  data: FeedbackCreateData
+): Promise<FeedbackItem> => {
+  try {
+    const response = await api.post<FeedbackItem>("/feedback", data, {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get user's feedbacks
+ */
+export const getMyFeedbacks = async (token: string): Promise<FeedbackItem[]> => {
+  try {
+    const response = await api.get<FeedbackItem[]>("/feedback/my", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
