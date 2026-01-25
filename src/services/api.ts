@@ -9,6 +9,8 @@ import type {
   DailyLogSummary,
   DateRangeStats,
   FoodStats,
+  ActivityEntry,
+  ActivityCatalogResponse,
 } from "../types";
 
 const API_BASE_URL =
@@ -587,6 +589,72 @@ export const sendMessageToUser = async (
 export const getTelegramUsers = async (token: string): Promise<TelegramUser[]> => {
   try {
     const response = await api.get<TelegramUser[]>("/feedback/admin/users", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// ==================== ACTIVITIES API ====================
+
+/**
+ * Get activity catalog
+ */
+export const getActivityCatalog = async (): Promise<ActivityCatalogResponse> => {
+  try {
+    const response = await api.get<ActivityCatalogResponse>("/activities/catalog");
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Add activity entry
+ */
+export const addActivity = async (
+  token: string,
+  activity: {
+    activity_id: string;
+    duration_minutes: number;
+    distance_km?: number;
+    date?: string;
+  }
+): Promise<ActivityEntry> => {
+  try {
+    const response = await api.post<ActivityEntry>("/activities", activity, {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Delete activity entry
+ */
+export const deleteActivity = async (
+  token: string,
+  activityId: string
+): Promise<void> => {
+  try {
+    await api.delete(`/activities/${activityId}`, {
+      headers: getAuthHeaders(token),
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get today's activities
+ */
+export const getTodayActivities = async (token: string): Promise<ActivityEntry[]> => {
+  try {
+    const response = await api.get<ActivityEntry[]>("/activities/today", {
       headers: getAuthHeaders(token),
     });
     return response.data;

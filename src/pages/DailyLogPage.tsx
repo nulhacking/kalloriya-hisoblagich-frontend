@@ -6,7 +6,7 @@ import type { UserSettings } from "../types";
 
 const DailyLogPage = () => {
   const user = useUser();
-  const { dailyLog, dataLoading, removeMealFromLog } = useDailyLog();
+  const { dailyLog, dataLoading, removeMealFromLog, refetchLog } = useDailyLog();
 
   const settings: UserSettings = {
     dailyCalorieGoal: user?.daily_calorie_goal || 2000,
@@ -33,6 +33,7 @@ const DailyLogPage = () => {
       dailyLog={dailyLog}
       settings={settings}
       onDeleteMeal={handleDeleteMeal}
+      onRefresh={refetchLog}
     />
   );
 };

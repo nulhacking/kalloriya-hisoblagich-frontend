@@ -38,7 +38,7 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
     setLocalSettings((prev) => ({
       ...prev,
       [field]:
-        typeof value === "string" && field !== "name"
+        typeof value === "string" && field !== "name" && field !== "gender" && field !== "activity_level"
           ? Number(value) || 0
           : value,
     }));
@@ -176,6 +176,132 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
           </div>
         </div>
       </div>
+
+      {/* Tana ma'lumotlari */}
+      <div className="bg-gradient-to-br from-food-blue-50 to-food-green-50 rounded-2xl p-4 border-2 border-food-blue-200">
+        <h3 className="text-base font-bold text-food-brown-800 mb-4 flex items-center gap-2">
+          <span>📏</span> Tana ma'lumotlari (TDEE hisoblash uchun)
+        </h3>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {/* Vazn */}
+            <div>
+              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
+                <span>⚖️</span> Vazn (kg)
+              </label>
+              <input
+                type="number"
+                value={localSettings.weight_kg || ""}
+                onChange={(e) => handleChange("weight_kg", e.target.value)}
+                placeholder="70"
+                min="20"
+                max="500"
+                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              />
+            </div>
+
+            {/* Bo'y */}
+            <div>
+              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
+                <span>📐</span> Bo'y (cm)
+              </label>
+              <input
+                type="number"
+                value={localSettings.height_cm || ""}
+                onChange={(e) => handleChange("height_cm", e.target.value)}
+                placeholder="175"
+                min="50"
+                max="300"
+                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {/* Yosh */}
+            <div>
+              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
+                <span>🎂</span> Yosh
+              </label>
+              <input
+                type="number"
+                value={localSettings.age || ""}
+                onChange={(e) => handleChange("age", e.target.value)}
+                placeholder="25"
+                min="1"
+                max="150"
+                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              />
+            </div>
+
+            {/* Jins */}
+            <div>
+              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
+                <span>👤</span> Jins
+              </label>
+              <select
+                value={localSettings.gender || ""}
+                onChange={(e) => handleChange("gender", e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg bg-white"
+              >
+                <option value="">Tanlang</option>
+                <option value="male">Erkak</option>
+                <option value="female">Ayol</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Faoliyat darajasi */}
+          <div>
+            <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
+              <span>🏃</span> Faoliyat darajasi
+            </label>
+            <select
+              value={localSettings.activity_level || ""}
+              onChange={(e) => handleChange("activity_level", e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold bg-white"
+            >
+              <option value="">Tanlang</option>
+              <option value="sedentary">🪑 Kam harakatli (ofis ishi)</option>
+              <option value="light">🚶 Yengil (1-3 kun/hafta)</option>
+              <option value="moderate">🏃 O'rtacha (3-5 kun/hafta)</option>
+              <option value="active">💪 Faol (6-7 kun/hafta)</option>
+              <option value="very_active">🏋️ Juda faol (og'ir ish)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* BMR va TDEE natijasi */}
+      {user?.bmr && user?.tdee && (
+        <div className="bg-gradient-to-r from-food-green-100 to-food-blue-100 rounded-2xl p-4 border-2 border-food-green-300">
+          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>⚡</span> Kunlik kaloriya sarfi
+          </h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🔥</div>
+              <div className="font-extrabold text-food-orange-600 text-xl">
+                {Math.round(user.bmr)}
+              </div>
+              <div className="text-xs text-food-brown-500">BMR (tinch holat)</div>
+            </div>
+            <div className="bg-white rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">⚡</div>
+              <div className="font-extrabold text-food-green-600 text-xl">
+                {Math.round(user.tdee)}
+              </div>
+              <div className="text-xs text-food-brown-500">TDEE (kunlik sarf)</div>
+            </div>
+          </div>
+          
+          <p className="text-xs text-food-brown-600 mt-3 text-center">
+            💡 Vazn ushlab turish uchun kuniga ~{Math.round(user.tdee)} kkal yeng
+          </p>
+        </div>
+      )}
 
       {/* Saqlash tugmasi */}
       <button

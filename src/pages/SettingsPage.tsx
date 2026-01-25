@@ -31,6 +31,12 @@ const SettingsPage = () => {
     dailyCarbsGoal: user?.daily_carbs_goal || 250,
     dailyFatGoal: user?.daily_fat_goal || 65,
     name: user?.name || "",
+    // Body metrics
+    weight_kg: user?.weight_kg,
+    height_cm: user?.height_cm,
+    age: user?.age,
+    gender: user?.gender,
+    activity_level: user?.activity_level,
   };
 
   const handleSaveSettings = async (newSettings: UserSettings) => {

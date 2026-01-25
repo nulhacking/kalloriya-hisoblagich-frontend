@@ -15,6 +15,8 @@ const createEmptyDailyLog = (): DailyLog => ({
   totalOqsil: 0,
   totalCarbs: 0,
   totalFat: 0,
+  total_activity_calories: 0,
+  activities: [],
 });
 
 // Backend response ni frontend formatga o'tkazish
@@ -37,10 +39,12 @@ const convertDailyLogResponse = (response: DailyLogResponse): DailyLog => ({
   totalOqsil: response.total_protein,
   totalCarbs: response.total_carbs,
   totalFat: response.total_fat,
+  total_activity_calories: response.total_activity_calories,
+  activities: response.activities,
 });
 
 export function useDailyLog() {
-  const { data: todayLogData, isLoading: initialLoading, isFetching, error } = useTodayLog();
+  const { data: todayLogData, isLoading: initialLoading, isFetching, error, refetch } = useTodayLog();
   const addMealMutation = useAddMeal();
   const deleteMealMutation = useDeleteMeal();
   
@@ -92,5 +96,6 @@ export function useDailyLog() {
     error,
     addMealToLog,
     removeMealFromLog,
+    refetchLog: refetch,
   };
 }

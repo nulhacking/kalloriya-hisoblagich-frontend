@@ -53,6 +53,8 @@ export interface DailyLog {
   totalOqsil: number;
   totalCarbs: number;
   totalFat: number;
+  total_activity_calories: number;
+  activities: ActivityEntry[];
 }
 
 // Backend DailyLog response
@@ -63,7 +65,46 @@ export interface DailyLogResponse {
   total_protein: number;
   total_carbs: number;
   total_fat: number;
+  total_activity_calories: number;
   meals: MealEntryResponse[];
+  activities: ActivityEntry[];
+}
+
+// Activity Entry
+export interface ActivityEntry {
+  id: string;
+  activity_id: string;
+  activity_name: string;
+  activity_icon?: string;
+  category?: string;
+  duration_minutes: number;
+  distance_km?: number;
+  calories_burned: number;
+  timestamp: string;
+}
+
+// Activity Catalog Item
+export interface ActivityCatalogItem {
+  id: string;
+  name: string;
+  name_short: string;
+  category: string;
+  icon: string;
+  met: number;
+  has_distance: boolean;
+}
+
+// Activity Category
+export interface ActivityCategory {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+// Activity Catalog Response
+export interface ActivityCatalogResponse {
+  activities: ActivityCatalogItem[];
+  categories: ActivityCategory[];
 }
 
 // DailyLog Summary (without meals)
@@ -110,6 +151,12 @@ export interface UserSettings {
   dailyCarbsGoal: number;
   dailyFatGoal: number;
   name: string;
+  // Body metrics
+  weight_kg?: number;
+  height_cm?: number;
+  age?: number;
+  gender?: 'male' | 'female';
+  activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 }
 
 // User model from backend
@@ -122,6 +169,15 @@ export interface User {
   daily_protein_goal: number;
   daily_carbs_goal: number;
   daily_fat_goal: number;
+  // Body metrics
+  weight_kg?: number;
+  height_cm?: number;
+  age?: number;
+  gender?: 'male' | 'female';
+  activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+  bmr?: number;
+  tdee?: number;
+  // Telegram
   telegram_id?: string;
   telegram_username?: string;
   telegram_photo_url?: string;

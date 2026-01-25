@@ -233,6 +233,17 @@ export const useAuthStore = create<AuthState>()(
           backendSettings.daily_carbs_goal = settings.dailyCarbsGoal;
         if (settings.dailyFatGoal !== undefined)
           backendSettings.daily_fat_goal = settings.dailyFatGoal;
+        // Body metrics
+        if (settings.weight_kg !== undefined)
+          backendSettings.weight_kg = settings.weight_kg;
+        if (settings.height_cm !== undefined)
+          backendSettings.height_cm = settings.height_cm;
+        if (settings.age !== undefined)
+          backendSettings.age = settings.age;
+        if (settings.gender !== undefined)
+          backendSettings.gender = settings.gender;
+        if (settings.activity_level !== undefined)
+          backendSettings.activity_level = settings.activity_level;
 
         const updatedUser = await updateUserSettings(token, backendSettings);
         set({ user: updatedUser });
