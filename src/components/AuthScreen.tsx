@@ -6,9 +6,7 @@ type AuthMode = "login" | "register";
 export default function AuthScreen() {
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
-  const convertAnonymous = useAuthStore((state) => state.convertAnonymous);
   const loginWithTelegram = useAuthStore((state) => state.loginWithTelegram);
-  const linkTelegram = useAuthStore((state) => state.linkTelegram);
   const isRegistered = useIsRegistered();
   const user = useUser();
   const isTelegramMiniApp = useIsTelegramMiniApp();
@@ -32,16 +30,8 @@ export default function AuthScreen() {
         await login(email, password);
         setSuccess("Muvaffaqiyatli kirdingiz!");
       } else {
-        // If user is anonymous, convert them
-        if (user?.user_type === "anonymous") {
-          await convertAnonymous(email, password, name || undefined);
-          setSuccess(
-            "Muvaffaqiyatli ro'yxatdan o'tdingiz! Ma'lumotlaringiz saqlab qolindi."
-          );
-        } else {
-          await register(email, password, name || undefined);
-          setSuccess("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
-        }
+        await register(email, password, name || undefined);
+        setSuccess("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
       }
       // Clear form
       setEmail("");
@@ -73,15 +63,9 @@ export default function AuthScreen() {
     setSuccess(null);
 
     try {
-      if (user?.user_type === "anonymous") {
-        // Link Telegram to existing anonymous account
-        await linkTelegram(initData);
-        setSuccess("Telegram hisobi ulandi! Ma'lumotlaringiz saqlab qolindi.");
-      } else {
-        // Login with Telegram
-        await loginWithTelegram(initData);
-        setSuccess("Telegram orqali muvaffaqiyatli kirdingiz!");
-      }
+      // Login with Telegram
+      await loginWithTelegram(initData);
+      setSuccess("Telegram orqali muvaffaqiyatli kirdingiz!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Telegram orqali kirishda xatolik");
     } finally {
@@ -180,24 +164,6 @@ export default function AuthScreen() {
       </header>
 
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border-2 border-food-green-100">
-        {/* Anonymous user notice */}
-        {user?.user_type === "anonymous" && mode === "register" && (
-          <div className="bg-food-yellow-50 rounded-2xl p-4 mb-4 border border-food-yellow-200">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">💡</span>
-              <div>
-                <p className="font-bold text-food-yellow-800 text-sm">
-                  Ma'lumotlaringiz saqlanadi!
-                </p>
-                <p className="text-food-yellow-700 text-xs mt-1">
-                  Ro'yxatdan o'tsangiz, hozirgi barcha ovqat yozuvlaringiz
-                  saqlanib qoladi va boshqa qurilmalarda ham ko'rishingiz
-                  mumkin.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Error message */}
         {error && (
@@ -340,16 +306,6 @@ export default function AuthScreen() {
           </button>
         </div>
 
-        {/* Skip for now */}
-        {user?.user_type === "anonymous" && (
-          <div className="mt-4 text-center">
-            <p className="text-food-brown-500 text-xs">
-              Hozircha anonim foydalanishda davom etishingiz mumkin.
-              <br />
-              Ma'lumotlaringiz faqat shu qurilmada saqlanadi.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

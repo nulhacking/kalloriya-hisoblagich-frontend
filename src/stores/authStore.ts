@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { User, AuthResponse, UserSettings } from "../types";
 import {
-  createAnonymousUser,
   loginUser,
   registerUser,
   convertToRegistered,
@@ -108,7 +107,8 @@ export const useAuthStore = create<AuthState>()(
 
       // Initialize auth
       initAuth: async () => {
-        const { token, handleAuthResponse, clearAuth, setIsTelegramMiniApp } = get();
+        // Always get fresh state from store, not from closure
+        const { handleAuthResponse, clearAuth, setIsTelegramMiniApp } = get();
         set({ isLoading: true });
 
         // Check if running in Telegram Mini App
@@ -136,36 +136,43 @@ export const useAuthStore = create<AuthState>()(
             }
           }
 
-          if (token) {
-            // Try to refresh/validate existing token
+          // Get fresh token and user from store (after persist middleware has loaded)
+          const currentToken = get().token;
+
+          if (currentToken) {
+            // We have a token - validate it
             try {
-              const response = await refreshToken(token);
+              // Try to refresh token first
+              const response = await refreshToken(currentToken);
               handleAuthResponse(response);
-            } catch {
-              // Token invalid, try to get current user
+            } catch (refreshError) {
+              // Refresh failed, try to get user with existing token
               try {
-                const currentUser = await getCurrentUser(token);
-                set({ user: currentUser });
-              } catch {
-                // Token completely invalid, create anonymous user
+                const fetchedUser = await getCurrentUser(currentToken);
+                // Token is valid, update user
+                set({ user: fetchedUser });
+              } catch (getUserError) {
+                // Token is completely invalid - clear auth
                 clearAuth();
-                const response = await createAnonymousUser();
-                handleAuthResponse(response);
+                console.warn("Token expired, please login again");
               }
             }
           } else {
-            // No token, create anonymous user
-            const response = await createAnonymousUser();
-            handleAuthResponse(response);
+            // No token - user needs to login
+            clearAuth();
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Auth initialization error:", error);
-          // Create anonymous user as fallback
-          try {
-            const response = await createAnonymousUser();
-            handleAuthResponse(response);
-          } catch {
-            console.error("Failed to create anonymous user");
+
+          // Check for 401 (Unauthorized) or 403 (Forbidden) errors
+          // Only clear auth if the token is explicitly rejected by the server
+          if (error?.status === 401 || error?.status === 403) {
+            clearAuth();
+            console.warn("Token expired/invalid, please login again");
+          } else {
+             // For other errors (Network Error, 500, etc.), KEEP the current state.
+             // This ensures users don't get logged out if the server is down or internet is flaky.
+             console.warn("Auth check failed but keeping session (network/server error)");
           }
         } finally {
           set({ isLoading: false, isInitialized: true });
@@ -209,10 +216,6 @@ export const useAuthStore = create<AuthState>()(
       // Logout
       logout: () => {
         get().clearAuth();
-        // Create new anonymous user
-        createAnonymousUser()
-          .then((response) => get().handleAuthResponse(response))
-          .catch(console.error);
       },
 
       // Update settings
@@ -243,6 +246,22 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         user: state.user,
       }),
+      // Call initAuth after localStorage data is loaded
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Error rehydrating auth state:", error);
+          return;
+        }
+        // After rehydration, initialize auth if not already initialized
+        // Use setTimeout to ensure state is fully set
+        if (state && !state.isInitialized) {
+          setTimeout(() => {
+            state.initAuth().catch((err) => {
+              console.error("Error initializing auth:", err);
+            });
+          }, 0);
+        }
+      },
     }
   )
 );

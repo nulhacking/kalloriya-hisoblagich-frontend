@@ -13,6 +13,7 @@ const HistoryPage = lazy(() => import("./pages/HistoryPage"));
 const StatsPage = lazy(() => import("./pages/StatsPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -28,11 +29,18 @@ function App() {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const { dailyLog } = useDailyLog();
 
-  // Initialize auth on mount
+  // Initialize auth on mount (only if not already initialized)
+  // Note: onRehydrateStorage callback in authStore will also call initAuth
+  // This is a fallback in case onRehydrateStorage doesn't fire
   useEffect(() => {
-    if (!isInitialized) {
-      initAuth();
-    }
+    // Small delay to ensure persist middleware has loaded from localStorage
+    const timer = setTimeout(() => {
+      if (!isInitialized) {
+        initAuth();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [initAuth, isInitialized]);
 
   // Auth loading screen
@@ -43,6 +51,26 @@ function App() {
           <div className="text-6xl mb-4 animate-bounce-soft">🍽️</div>
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-food-brown-600 font-medium">Yuklanmoqda...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to auth page if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-10 left-5 w-32 h-32 md:w-64 md:h-64 bg-food-green-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute top-20 right-5 w-32 h-32 md:w-64 md:h-64 bg-food-yellow-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-10 left-1/3 w-32 h-32 md:w-64 md:h-64 bg-food-orange-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10">
+          <Suspense fallback={<PageLoader />}>
+            <AuthPage />
+          </Suspense>
         </div>
       </div>
     );
@@ -69,6 +97,7 @@ function App() {
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

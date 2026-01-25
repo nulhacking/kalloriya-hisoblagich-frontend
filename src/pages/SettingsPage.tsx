@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore, useUser } from "../stores";
 import Settings from "../components/Settings";
 import Feedback from "../components/Feedback";
+import { checkAdminStatus } from "../services/api";
 import type { UserSettings } from "../types";
 
 const SettingsPage = () => {
   const user = useUser();
+  const token = useAuthStore((state) => state.token);
   const updateSettings = useAuthStore((state) => state.updateSettings);
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<"settings" | "feedback">("settings");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin status
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (token) {
+        const result = await checkAdminStatus(token);
+        setIsAdmin(result.is_admin);
+      }
+    };
+    checkAdmin();
+  }, [token]);
 
   const settings: UserSettings = {
     dailyCalorieGoal: user?.daily_calorie_goal || 2000,
@@ -59,6 +73,17 @@ const SettingsPage = () => {
           <span>Fikr-mulohaza</span>
         </button>
       </div>
+
+      {/* Admin Button */}
+      {isAdmin && (
+        <button
+          onClick={() => navigate("/admin")}
+          className="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all"
+        >
+          <span>👨‍💼</span>
+          <span>Admin Panel</span>
+        </button>
+      )}
 
       {/* Content */}
       {activeSection === "settings" ? (

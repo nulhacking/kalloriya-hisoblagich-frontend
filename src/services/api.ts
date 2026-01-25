@@ -14,7 +14,7 @@ import type {
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
   // "https://kalloriya-hisoblagich-backend-production.up.railway.app";
-  "http://localhost:8000";
+  "http://localhost:5000";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -27,20 +27,32 @@ const getAuthHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
 });
 
+// Custom API Error class with status code
+export class ApiError extends Error {
+  status?: number;
+
+  constructor(message: string, status?: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 // Handle API errors
 const handleError = (error: unknown): never => {
   const axiosError = error as AxiosError<{ detail?: string }>;
 
   if (axiosError.response) {
-    throw new Error(
-      axiosError.response.data?.detail || "Server xatosi yuz berdi"
+    throw new ApiError(
+      axiosError.response.data?.detail || "Server xatosi yuz berdi",
+      axiosError.response.status
     );
   } else if (axiosError.request) {
-    throw new Error(
+    throw new ApiError(
       "Serverga ulanib bo'lmadi. Internet aloqangizni tekshiring"
     );
   } else {
-    throw new Error(axiosError.message || "Kutilmagan xatolik yuz berdi");
+    throw new ApiError(axiosError.message || "Kutilmagan xatolik yuz berdi");
   }
 };
 
@@ -423,6 +435,158 @@ export const submitFeedback = async (
 export const getMyFeedbacks = async (token: string): Promise<FeedbackItem[]> => {
   try {
     const response = await api.get<FeedbackItem[]>("/feedback/my", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// ==================== ADMIN API ====================
+
+export interface FeedbackDetailItem extends FeedbackItem {
+  user?: {
+    id: string;
+    name: string | null;
+    telegram_username: string | null;
+    user_type: string;
+  } | null;
+  responder?: {
+    id: string;
+    name: string | null;
+    telegram_username: string | null;
+    user_type: string;
+  } | null;
+}
+
+export interface FeedbackListResponse {
+  feedbacks: FeedbackDetailItem[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface FeedbackStatsResponse {
+  total: number;
+  pending: number;
+  in_review: number;
+  responded: number;
+  closed: number;
+  average_rating: number | null;
+}
+
+export interface TelegramUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  user_type: string;
+  telegram_id: string | null;
+  telegram_username: string | null;
+  telegram_first_name: string | null;
+  created_at: string;
+  is_active: boolean;
+}
+
+/**
+ * Check if current user is admin
+ */
+export const checkAdminStatus = async (token: string): Promise<{ is_admin: boolean }> => {
+  try {
+    const response = await api.get<{ is_admin: boolean }>("/feedback/admin/check", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return { is_admin: false };
+  }
+};
+
+/**
+ * Get all feedbacks (Admin only)
+ */
+export const getAllFeedbacks = async (
+  token: string,
+  page: number = 1,
+  pageSize: number = 20,
+  status?: string
+): Promise<FeedbackListResponse> => {
+  try {
+    let url = `/feedback?page=${page}&page_size=${pageSize}`;
+    if (status) {
+      url += `&status_filter=${status}`;
+    }
+    const response = await api.get<FeedbackListResponse>(url, {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get feedback stats (Admin only)
+ */
+export const getFeedbackStats = async (token: string): Promise<FeedbackStatsResponse> => {
+  try {
+    const response = await api.get<FeedbackStatsResponse>("/feedback/stats", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Reply to feedback via Telegram (Admin only)
+ */
+export const replyFeedbackTelegram = async (
+  token: string,
+  feedbackId: string,
+  adminResponse: string,
+  status: string = "responded"
+): Promise<{ success: boolean; telegram_sent: boolean; message: string }> => {
+  try {
+    const response = await api.post(
+      `/feedback/${feedbackId}/reply-telegram`,
+      { admin_response: adminResponse, status },
+      { headers: getAuthHeaders(token) }
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Send message to user via Telegram (Admin only)
+ */
+export const sendMessageToUser = async (
+  token: string,
+  userId: string,
+  message: string
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await api.post(
+      "/feedback/send-message",
+      { user_id: userId, message },
+      { headers: getAuthHeaders(token) }
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get all users with Telegram ID (Admin only)
+ */
+export const getTelegramUsers = async (token: string): Promise<TelegramUser[]> => {
+  try {
+    const response = await api.get<TelegramUser[]>("/feedback/admin/users", {
       headers: getAuthHeaders(token),
     });
     return response.data;
