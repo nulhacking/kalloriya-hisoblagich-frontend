@@ -33,7 +33,7 @@ export const useTodayLog = () => {
       return getTodayLog(token);
     },
     enabled: !!token,
-    staleTime: 2 * 60 * 1000, // 2 minutes for today's log
+    staleTime: 5 * 60 * 1000, // 5 minutes - use longer cache
   });
 };
 
@@ -48,7 +48,7 @@ export const useLogByDate = (date: string) => {
       return getLogByDate(token, date);
     },
     enabled: !!token && !!date,
-    staleTime: 5 * 60 * 1000, // 5 minutes for historical data
+    staleTime: 10 * 60 * 1000, // 10 minutes for historical data
   });
 };
 

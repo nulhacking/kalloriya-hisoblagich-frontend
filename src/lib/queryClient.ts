@@ -1,25 +1,27 @@
 import { QueryClient } from "@tanstack/react-query";
 
-// Create a query client with optimized defaults
+// Create a query client with optimized defaults for performance
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cache data for 2 minutes (reduced for fresher data)
-      staleTime: 2 * 60 * 1000,
-      // Keep unused data in cache for 5 minutes
-      gcTime: 5 * 60 * 1000,
-      // Retry failed requests 2 times
-      retry: 2,
-      // Refetch on window focus (good for keeping data fresh)
-      refetchOnWindowFocus: true,
-      // Don't refetch on reconnect by default (can be overridden)
+      // Cache data for 5 minutes (longer = less refetching)
+      staleTime: 5 * 60 * 1000,
+      // Keep unused data in cache for 10 minutes
+      gcTime: 10 * 60 * 1000,
+      // Retry failed requests only 1 time (faster failure)
+      retry: 1,
+      // Retry delay - start with 1 second
+      retryDelay: 1000,
+      // Refetch on window focus disabled (reduces unnecessary requests)
+      refetchOnWindowFocus: false,
+      // Don't refetch on reconnect
       refetchOnReconnect: false,
-      // Don't use placeholder data - show loading state instead
-      placeholderData: undefined,
+      // Network mode - always try first (for faster perceived load)
+      networkMode: "offlineFirst",
     },
     mutations: {
-      // Retry failed mutations once
-      retry: 1,
+      // No retry for mutations (faster feedback)
+      retry: 0,
     },
   },
 });

@@ -21,7 +21,7 @@ const API_BASE_URL =
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 10000, // 10 seconds timeout for faster failure
 });
 
 // Helper to get auth headers
