@@ -57,7 +57,7 @@ const DailyLogComponent = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Bugungi sana */}
       <div className="text-center mb-4">
         <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">

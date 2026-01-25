@@ -87,9 +87,9 @@ const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
       <div 
-        className="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col md:h-[calc(100vh-5rem)] h-[calc(100vh-4rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

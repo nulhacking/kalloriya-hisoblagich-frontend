@@ -8,7 +8,7 @@ const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-fade-in-up">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-hidden animate-fade-in-up">
         {/* Header */}
         <div className="bg-gradient-to-r from-food-green-500 to-food-green-600 p-4 md:p-6 flex items-center justify-between">
           <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
@@ -117,17 +117,6 @@ const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
               <li>Reklama maqsadlarida ma'lumot to'plamaymiz</li>
               <li>Sizning roziligisiz ma'lumot ulashmaymiz</li>
             </ul>
-          </section>
-
-          <section className="mb-6">
-            <h3 className="text-lg font-bold text-food-green-700 mb-2 flex items-center gap-2">
-              <span>👶</span> Bolalar maxfiyligi
-            </h3>
-            <p className="text-sm md:text-base leading-relaxed">
-              Ilovamiz 13 yoshdan kichik bolalardan ataylab ma'lumot
-              to'plamaydi. Agar bolangiz bizga shaxsiy ma'lumot berganini
-              bilsangiz, biz bilan bog'laning.
-            </p>
           </section>
 
           <section className="mb-6">
