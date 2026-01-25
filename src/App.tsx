@@ -33,14 +33,10 @@ function App() {
   // Note: onRehydrateStorage callback in authStore will also call initAuth
   // This is a fallback in case onRehydrateStorage doesn't fire
   useEffect(() => {
-    // Small delay to ensure persist middleware has loaded from localStorage
-    const timer = setTimeout(() => {
-      if (!isInitialized) {
-        initAuth();
-      }
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    // Initialize immediately - no delay needed
+    if (!isInitialized) {
+      initAuth();
+    }
   }, [initAuth, isInitialized]);
 
   // Auth loading screen
