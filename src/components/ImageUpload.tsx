@@ -75,25 +75,44 @@ const ImageUpload = ({
 
       // Try to get camera with preferred settings first
       let stream: MediaStream;
+
+      // Attempt 1: Strict rear camera with resolution
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "environment", // Rear camera
+            facingMode: { exact: "environment" }, // Force rear camera
             width: { ideal: 1024 },
             height: { ideal: 768 },
           },
           audio: false,
         });
-      } catch (preferredError) {
-        // If preferred settings fail, try with basic settings
-        console.warn(
-          "Preferred camera settings failed, trying basic settings:",
-          preferredError,
-        );
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false,
-        });
+      } catch (exactError) {
+        console.warn("Exact rear camera failed, trying ideal:", exactError);
+
+        // Attempt 2: Preferred rear camera (may fall back on some devices)
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1024 },
+              height: { ideal: 768 },
+            },
+            audio: false,
+          });
+        } catch (idealError) {
+          console.warn(
+            "Ideal rear camera failed, trying basic environment:",
+            idealError,
+          );
+
+          // Attempt 3: Basic rear camera request
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: "environment",
+            },
+            audio: false,
+          });
+        }
       }
 
       streamRef.current = stream;
