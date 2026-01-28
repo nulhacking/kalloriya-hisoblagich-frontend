@@ -1,19 +1,20 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore, useUser, useIsLoading } from "./stores";
 import { useDailyLog } from "./hooks/useDailyLog";
 import LoadingSpinner from "./components/LoadingSpinner";
 import BottomNavigation from "./components/BottomNavigation";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import { lazyWithRetry } from "./utils/lazyWithRetry";
 
-// Lazy load pages for better performance
-const HomePage = lazy(() => import("./pages/HomePage"));
-const DailyLogPage = lazy(() => import("./pages/DailyLogPage"));
-const HistoryPage = lazy(() => import("./pages/HistoryPage"));
-const StatsPage = lazy(() => import("./pages/StatsPage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const AuthPage = lazy(() => import("./pages/AuthPage"));
-const AdminPage = lazy(() => import("./pages/AdminPage"));
+// Lazy load pages with retry logic for chunk loading errors
+const HomePage = lazyWithRetry(() => import("./pages/HomePage"));
+const DailyLogPage = lazyWithRetry(() => import("./pages/DailyLogPage"));
+const HistoryPage = lazyWithRetry(() => import("./pages/HistoryPage"));
+const StatsPage = lazyWithRetry(() => import("./pages/StatsPage"));
+const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
+const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
+const AdminPage = lazyWithRetry(() => import("./pages/AdminPage"));
 
 // Loading fallback component
 const PageLoader = () => (
