@@ -47,11 +47,11 @@ const handleError = (error: unknown): never => {
   if (axiosError.response) {
     throw new ApiError(
       axiosError.response.data?.detail || "Server xatosi yuz berdi",
-      axiosError.response.status
+      axiosError.response.status,
     );
   } else if (axiosError.request) {
     throw new ApiError(
-      "Serverga ulanib bo'lmadi. Internet aloqangizni tekshiring"
+      "Serverga ulanib bo'lmadi. Internet aloqangizni tekshiring",
     );
   } else {
     throw new ApiError(axiosError.message || "Kutilmagan xatolik yuz berdi");
@@ -78,7 +78,7 @@ export const createAnonymousUser = async (): Promise<AuthResponse> => {
 export const registerUser = async (
   email: string,
   password: string,
-  name?: string
+  name?: string,
 ): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>("/auth/register", {
@@ -97,7 +97,7 @@ export const registerUser = async (
  */
 export const loginUser = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>("/auth/login", {
@@ -117,13 +117,13 @@ export const convertToRegistered = async (
   token: string,
   email: string,
   password: string,
-  name?: string
+  name?: string,
 ): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>(
       "/auth/convert",
       { email, password, name },
-      { headers: getAuthHeaders(token) }
+      { headers: getAuthHeaders(token) },
     );
     return response.data;
   } catch (error) {
@@ -150,7 +150,7 @@ export const getCurrentUser = async (token: string): Promise<User> => {
  */
 export const updateUserSettings = async (
   token: string,
-  settings: Record<string, unknown>
+  settings: Record<string, unknown>,
 ): Promise<User> => {
   try {
     const response = await api.put<User>("/auth/me", settings, {
@@ -170,7 +170,7 @@ export const refreshToken = async (token: string): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       "/auth/refresh",
       {},
-      { headers: getAuthHeaders(token) }
+      { headers: getAuthHeaders(token) },
     );
     return response.data;
   } catch (error) {
@@ -197,13 +197,13 @@ export const telegramAuth = async (initData: string): Promise<AuthResponse> => {
  */
 export const linkTelegramAccount = async (
   token: string,
-  initData: string
+  initData: string,
 ): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>(
       "/auth/telegram/link",
       { init_data: initData },
-      { headers: getAuthHeaders(token) }
+      { headers: getAuthHeaders(token) },
     );
     return response.data;
   } catch (error) {
@@ -227,7 +227,7 @@ export const addMeal = async (
     fat: number;
     image_preview?: string;
     date?: string;
-  }
+  },
 ): Promise<MealEntryResponse> => {
   try {
     const response = await api.post<MealEntryResponse>("/meals", meal, {
@@ -244,7 +244,7 @@ export const addMeal = async (
  */
 export const deleteMeal = async (
   token: string,
-  mealId: string
+  mealId: string,
 ): Promise<void> => {
   try {
     await api.delete(`/meals/${mealId}`, {
@@ -274,7 +274,7 @@ export const getTodayLog = async (token: string): Promise<DailyLogResponse> => {
  */
 export const getLogByDate = async (
   token: string,
-  date: string
+  date: string,
 ): Promise<DailyLogResponse> => {
   try {
     const response = await api.get<DailyLogResponse>(`/meals/date/${date}`, {
@@ -291,14 +291,14 @@ export const getLogByDate = async (
  */
 export const getHistory = async (
   token: string,
-  days: number = 7
+  days: number = 7,
 ): Promise<DailyLogSummary[]> => {
   try {
     const response = await api.get<DailyLogSummary[]>(
       `/meals/history?days=${days}`,
       {
         headers: getAuthHeaders(token),
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -312,14 +312,14 @@ export const getHistory = async (
 export const getDateRangeStats = async (
   token: string,
   startDate: string,
-  endDate: string
+  endDate: string,
 ): Promise<DateRangeStats> => {
   try {
     const response = await api.get<DateRangeStats>(
       `/meals/stats/range?start_date=${startDate}&end_date=${endDate}`,
       {
         headers: getAuthHeaders(token),
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -333,14 +333,14 @@ export const getDateRangeStats = async (
 export const getFoodStats = async (
   token: string,
   days: number = 30,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<FoodStats[]> => {
   try {
     const response = await api.get<FoodStats[]>(
       `/meals/stats/foods?days=${days}&limit=${limit}`,
       {
         headers: getAuthHeaders(token),
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -356,7 +356,7 @@ export const getFoodStats = async (
  * @returns Nutrition analysis results
  */
 export const analyzeFood = async (
-  imageFile: File
+  imageFile: File,
 ): Promise<AnalysisResults> => {
   const formData = new FormData();
   formData.append("image", imageFile);
@@ -367,7 +367,7 @@ export const analyzeFood = async (
       formData,
       {
         timeout: 30000,
-      }
+      },
     );
 
     return response.data;
@@ -419,7 +419,7 @@ export interface FeedbackCreateData {
  */
 export const submitFeedback = async (
   token: string,
-  data: FeedbackCreateData
+  data: FeedbackCreateData,
 ): Promise<FeedbackItem> => {
   try {
     const response = await api.post<FeedbackItem>("/feedback", data, {
@@ -434,7 +434,9 @@ export const submitFeedback = async (
 /**
  * Get user's feedbacks
  */
-export const getMyFeedbacks = async (token: string): Promise<FeedbackItem[]> => {
+export const getMyFeedbacks = async (
+  token: string,
+): Promise<FeedbackItem[]> => {
   try {
     const response = await api.get<FeedbackItem[]>("/feedback/my", {
       headers: getAuthHeaders(token),
@@ -494,11 +496,16 @@ export interface TelegramUser {
 /**
  * Check if current user is admin
  */
-export const checkAdminStatus = async (token: string): Promise<{ is_admin: boolean }> => {
+export const checkAdminStatus = async (
+  token: string,
+): Promise<{ is_admin: boolean }> => {
   try {
-    const response = await api.get<{ is_admin: boolean }>("/feedback/admin/check", {
-      headers: getAuthHeaders(token),
-    });
+    const response = await api.get<{ is_admin: boolean }>(
+      "/feedback/admin/check",
+      {
+        headers: getAuthHeaders(token),
+      },
+    );
     return response.data;
   } catch (error) {
     return { is_admin: false };
@@ -512,7 +519,7 @@ export const getAllFeedbacks = async (
   token: string,
   page: number = 1,
   pageSize: number = 20,
-  status?: string
+  status?: string,
 ): Promise<FeedbackListResponse> => {
   try {
     let url = `/feedback?page=${page}&page_size=${pageSize}`;
@@ -531,7 +538,9 @@ export const getAllFeedbacks = async (
 /**
  * Get feedback stats (Admin only)
  */
-export const getFeedbackStats = async (token: string): Promise<FeedbackStatsResponse> => {
+export const getFeedbackStats = async (
+  token: string,
+): Promise<FeedbackStatsResponse> => {
   try {
     const response = await api.get<FeedbackStatsResponse>("/feedback/stats", {
       headers: getAuthHeaders(token),
@@ -549,13 +558,13 @@ export const replyFeedbackTelegram = async (
   token: string,
   feedbackId: string,
   adminResponse: string,
-  status: string = "responded"
+  status: string = "responded",
 ): Promise<{ success: boolean; telegram_sent: boolean; message: string }> => {
   try {
     const response = await api.post(
       `/feedback/${feedbackId}/reply-telegram`,
       { admin_response: adminResponse, status },
-      { headers: getAuthHeaders(token) }
+      { headers: getAuthHeaders(token) },
     );
     return response.data;
   } catch (error) {
@@ -569,13 +578,13 @@ export const replyFeedbackTelegram = async (
 export const sendMessageToUser = async (
   token: string,
   userId: string,
-  message: string
+  message: string,
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await api.post(
       "/feedback/send-message",
       { user_id: userId, message },
-      { headers: getAuthHeaders(token) }
+      { headers: getAuthHeaders(token) },
     );
     return response.data;
   } catch (error) {
@@ -586,7 +595,9 @@ export const sendMessageToUser = async (
 /**
  * Get all users with Telegram ID (Admin only)
  */
-export const getTelegramUsers = async (token: string): Promise<TelegramUser[]> => {
+export const getTelegramUsers = async (
+  token: string,
+): Promise<TelegramUser[]> => {
   try {
     const response = await api.get<TelegramUser[]>("/feedback/admin/users", {
       headers: getAuthHeaders(token),
@@ -602,14 +613,17 @@ export const getTelegramUsers = async (token: string): Promise<TelegramUser[]> =
 /**
  * Get activity catalog
  */
-export const getActivityCatalog = async (): Promise<ActivityCatalogResponse> => {
-  try {
-    const response = await api.get<ActivityCatalogResponse>("/activities/catalog");
-    return response.data;
-  } catch (error) {
-    return handleError(error);
-  }
-};
+export const getActivityCatalog =
+  async (): Promise<ActivityCatalogResponse> => {
+    try {
+      const response = await api.get<ActivityCatalogResponse>(
+        "/activities/catalog",
+      );
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  };
 
 /**
  * Add activity entry
@@ -621,7 +635,7 @@ export const addActivity = async (
     duration_minutes: number;
     distance_km?: number;
     date?: string;
-  }
+  },
 ): Promise<ActivityEntry> => {
   try {
     const response = await api.post<ActivityEntry>("/activities", activity, {
@@ -638,7 +652,7 @@ export const addActivity = async (
  */
 export const deleteActivity = async (
   token: string,
-  activityId: string
+  activityId: string,
 ): Promise<void> => {
   try {
     await api.delete(`/activities/${activityId}`, {
@@ -650,9 +664,37 @@ export const deleteActivity = async (
 };
 
 /**
+ * Add custom activity with direct calorie entry
+ */
+export const addCustomActivity = async (
+  token: string,
+  activity: {
+    name: string;
+    calories_burned: number;
+    duration_minutes?: number;
+    date?: string;
+  },
+): Promise<ActivityEntry> => {
+  try {
+    const response = await api.post<ActivityEntry>(
+      "/activities/custom",
+      activity,
+      {
+        headers: getAuthHeaders(token),
+      },
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
  * Get today's activities
  */
-export const getTodayActivities = async (token: string): Promise<ActivityEntry[]> => {
+export const getTodayActivities = async (
+  token: string,
+): Promise<ActivityEntry[]> => {
   try {
     const response = await api.get<ActivityEntry[]>("/activities/today", {
       headers: getAuthHeaders(token),

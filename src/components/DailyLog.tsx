@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { DailyLog as DailyLogType, UserSettings } from "../types";
 import { useUser, useAuthStore } from "../stores";
 import ActivityPicker from "./ActivityPicker";
-import { deleteActivity } from "../services/api";
+import { deleteActivity, addCustomActivity, addMeal } from "../services/api";
 
 interface DailyLogProps {
   dailyLog: DailyLogType;
@@ -20,13 +20,27 @@ const DailyLogComponent = ({
   const user = useUser();
   const token = useAuthStore((state) => state.token);
   const [showActivityPicker, setShowActivityPicker] = useState(false);
-  const { meals, activities, totalCalories, totalOqsil, totalCarbs, totalFat, total_activity_calories } = dailyLog;
+  const [showCustomBurnedModal, setShowCustomBurnedModal] = useState(false);
+  const [showCustomConsumedModal, setShowCustomConsumedModal] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customCalories, setCustomCalories] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    meals,
+    activities,
+    totalCalories,
+    totalOqsil,
+    totalCarbs,
+    totalFat,
+    total_activity_calories,
+  } = dailyLog;
 
   const totalBurned = (user?.tdee || 0) + (total_activity_calories || 0);
   const calorieBalance = totalBurned - totalCalories;
-  
+
   // Eaten vs (Goal + Exercise)
-  const adjustedGoal = settings.dailyCalorieGoal + (total_activity_calories || 0);
+  const adjustedGoal =
+    settings.dailyCalorieGoal + (total_activity_calories || 0);
 
   const handleDeleteActivity = async (id: string) => {
     if (!token || !confirm("Bu harakatni o'chirmoqchimisiz?")) return;
@@ -35,6 +49,48 @@ const DailyLogComponent = ({
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Harakat o'chirishda xatolik:", error);
+    }
+  };
+
+  const handleAddCustomBurned = async () => {
+    if (!token || !customName.trim() || !customCalories) return;
+    setIsSubmitting(true);
+    try {
+      await addCustomActivity(token, {
+        name: customName.trim(),
+        calories_burned: parseFloat(customCalories),
+      });
+      setCustomName("");
+      setCustomCalories("");
+      setShowCustomBurnedModal(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Maxsus harakat qo'shishda xatolik:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddCustomConsumed = async () => {
+    if (!token || !customName.trim() || !customCalories) return;
+    setIsSubmitting(true);
+    try {
+      await addMeal(token, {
+        food_name: customName.trim(),
+        weight_grams: 0,
+        calories: parseFloat(customCalories),
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      });
+      setCustomName("");
+      setCustomCalories("");
+      setShowCustomConsumedModal(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Maxsus ovqat qo'shishda xatolik:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -94,20 +150,17 @@ const DailyLogComponent = ({
             <div
               className={`h-full ${getProgressColor(
                 totalCalories,
-                adjustedGoal
+                adjustedGoal,
               )} transition-all duration-500 rounded-full`}
               style={{
-                width: `${getProgressPercent(
-                  totalCalories,
-                  adjustedGoal
-                )}%`,
+                width: `${getProgressPercent(totalCalories, adjustedGoal)}%`,
               }}
             ></div>
           </div>
           {total_activity_calories > 0 && (
-             <p className="text-xs text-food-green-700 mt-1 text-right">
-               + {Math.round(total_activity_calories)} kkal mashq qo'shildi
-             </p>
+            <p className="text-xs text-food-green-700 mt-1 text-right">
+              + {Math.round(total_activity_calories)} kkal mashq qo'shildi
+            </p>
           )}
         </div>
 
@@ -126,12 +179,12 @@ const DailyLogComponent = ({
               <div
                 className={`h-full ${getProgressColor(
                   totalOqsil,
-                  settings.dailyOqsilGoal
+                  settings.dailyOqsilGoal,
                 )} transition-all duration-500`}
                 style={{
                   width: `${getProgressPercent(
                     totalOqsil,
-                    settings.dailyOqsilGoal
+                    settings.dailyOqsilGoal,
                   )}%`,
                 }}
               ></div>
@@ -151,12 +204,12 @@ const DailyLogComponent = ({
               <div
                 className={`h-full ${getProgressColor(
                   totalCarbs,
-                  settings.dailyCarbsGoal
+                  settings.dailyCarbsGoal,
                 )} transition-all duration-500`}
                 style={{
                   width: `${getProgressPercent(
                     totalCarbs,
-                    settings.dailyCarbsGoal
+                    settings.dailyCarbsGoal,
                   )}%`,
                 }}
               ></div>
@@ -176,12 +229,12 @@ const DailyLogComponent = ({
               <div
                 className={`h-full ${getProgressColor(
                   totalFat,
-                  settings.dailyFatGoal
+                  settings.dailyFatGoal,
                 )} transition-all duration-500`}
                 style={{
                   width: `${getProgressPercent(
                     totalFat,
-                    settings.dailyFatGoal
+                    settings.dailyFatGoal,
                   )}%`,
                 }}
               ></div>
@@ -196,16 +249,14 @@ const DailyLogComponent = ({
           <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
             <span>⚡</span> Kaloriya balansi
           </h3>
-          
+
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">🔥</div>
               <div className="font-extrabold text-food-orange-600">
                 {Math.round(totalBurned)}
               </div>
-              <div className="text-xs text-food-brown-500">
-                TDEE + Mashq
-              </div>
+              <div className="text-xs text-food-brown-500">TDEE + Mashq</div>
             </div>
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">🍽️</div>
@@ -216,18 +267,20 @@ const DailyLogComponent = ({
             </div>
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">{calorieBalance > 0 ? "📉" : "📈"}</div>
-              <div className={`font-extrabold ${calorieBalance > 0 ? "text-food-green-600" : "text-food-red-600"}`}>
-                {calorieBalance > 0 ? "-" : "+"}{Math.abs(Math.round(calorieBalance))}
+              <div
+                className={`font-extrabold ${calorieBalance > 0 ? "text-food-green-600" : "text-food-red-600"}`}
+              >
+                {calorieBalance > 0 ? "-" : "+"}
+                {Math.abs(Math.round(calorieBalance))}
               </div>
               <div className="text-xs text-food-brown-500">Balans</div>
             </div>
           </div>
-          
+
           <p className="text-xs text-food-brown-600 mt-2 text-center">
-            {calorieBalance > 0 
+            {calorieBalance > 0
               ? `💚 Bugun ${Math.round(calorieBalance)} kkal taqchillik (vazn yo'qotish)`
-              : `⚠️ Bugun ${Math.round(-calorieBalance)} kkal ortiqcha (vazn olish)`
-            }
+              : `⚠️ Bugun ${Math.round(-calorieBalance)} kkal ortiqcha (vazn olish)`}
           </p>
         </div>
       )}
@@ -238,12 +291,21 @@ const DailyLogComponent = ({
           <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
             <span>🏃</span> Bugungi harakatlar
           </h3>
-          <button
-            onClick={() => setShowActivityPicker(true)}
-            className="px-3 py-1.5 bg-food-blue-100 text-food-blue-700 rounded-lg text-sm font-bold hover:bg-food-blue-200 transition-colors"
-          >
-            + Qo'shish
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCustomBurnedModal(true)}
+              className="px-2 py-1.5 bg-food-orange-100 text-food-orange-700 rounded-lg text-xs font-bold hover:bg-food-orange-200 transition-colors"
+              title="Maxsus kaloriya qo'shish"
+            >
+              ✏️ Maxsus
+            </button>
+            <button
+              onClick={() => setShowActivityPicker(true)}
+              className="px-3 py-1.5 bg-food-blue-100 text-food-blue-700 rounded-lg text-sm font-bold hover:bg-food-blue-200 transition-colors"
+            >
+              + Qo'shish
+            </button>
+          </div>
         </div>
 
         {!activities || activities.length === 0 ? (
@@ -254,26 +316,35 @@ const DailyLogComponent = ({
         ) : (
           <div className="space-y-3">
             {activities.map((activity) => (
-              <div key={activity.id} className="flex items-center gap-3 p-3 bg-food-blue-50 rounded-xl border border-food-blue-200 relative">
+              <div
+                key={activity.id}
+                className="flex items-center gap-3 p-3 bg-food-blue-50 rounded-xl border border-food-blue-200 relative"
+              >
                 <div className="text-2xl">{activity.activity_icon || "🏃"}</div>
                 <div className="flex-1">
-                  <div className="font-bold text-food-brown-800">{activity.activity_name}</div>
+                  <div className="font-bold text-food-brown-800">
+                    {activity.activity_name}
+                  </div>
                   <div className="text-xs text-food-brown-600">
-                    {activity.duration_minutes} daqiqa 
-                    {activity.distance_km ? ` • ${activity.distance_km} km` : ""}
+                    {activity.duration_minutes} daqiqa
+                    {activity.distance_km
+                      ? ` • ${activity.distance_km} km`
+                      : ""}
                   </div>
                 </div>
                 <div className="text-right mr-8">
-                  <div className="font-extrabold text-food-orange-600">-{Math.round(activity.calories_burned)}</div>
+                  <div className="font-extrabold text-food-orange-600">
+                    -{Math.round(activity.calories_burned)}
+                  </div>
                   <div className="text-[10px] text-food-brown-500">kkal</div>
                 </div>
                 <button
-                    onClick={() => handleDeleteActivity(activity.id)}
-                    className="absolute top-3 right-2 w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center transition-colors"
-                    title="O'chirish"
-                  >
-                    <span className="text-xs">✕</span>
-                  </button>
+                  onClick={() => handleDeleteActivity(activity.id)}
+                  className="absolute top-3 right-2 w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center transition-colors"
+                  title="O'chirish"
+                >
+                  <span className="text-xs">✕</span>
+                </button>
               </div>
             ))}
           </div>
@@ -282,9 +353,18 @@ const DailyLogComponent = ({
 
       {/* Ovqatlar ro'yxati */}
       <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
-        <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-          <span>🍽️</span> Bugungi ovqatlar ({meals.length})
-        </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
+            <span>🍽️</span> Bugungi ovqatlar ({meals.length})
+          </h3>
+          <button
+            onClick={() => setShowCustomConsumedModal(true)}
+            className="px-2 py-1.5 bg-food-green-100 text-food-green-700 rounded-lg text-xs font-bold hover:bg-food-green-200 transition-colors"
+            title="Maxsus kaloriya qo'shish"
+          >
+            ✏️ Maxsus
+          </button>
+        </div>
 
         {meals.length === 0 ? (
           <div className="text-center py-8">
@@ -386,12 +466,128 @@ const DailyLogComponent = ({
 
       {/* Activity Picker Modal */}
       {showActivityPicker && (
-        <ActivityPicker 
+        <ActivityPicker
           onClose={() => setShowActivityPicker(false)}
           onActivityAdded={() => {
             if (onRefresh) onRefresh();
           }}
         />
+      )}
+
+      {/* Custom Burned Calories Modal */}
+      {showCustomBurnedModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-5 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-food-brown-800 mb-4 flex items-center gap-2">
+              <span>🔥</span> Maxsus sarflangan kaloriya
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-food-brown-700 mb-1">
+                  Harakat nomi
+                </label>
+                <input
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="Masalan: Uy mashqi"
+                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-orange-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-food-brown-700 mb-1">
+                  Sarflangan kaloriya (kkal)
+                </label>
+                <input
+                  type="number"
+                  value={customCalories}
+                  onChange={(e) => setCustomCalories(e.target.value)}
+                  placeholder="Masalan: 200"
+                  min="1"
+                  max="5000"
+                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-orange-400 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => {
+                  setShowCustomBurnedModal(false);
+                  setCustomName("");
+                  setCustomCalories("");
+                }}
+                className="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button
+                onClick={handleAddCustomBurned}
+                disabled={!customName.trim() || !customCalories || isSubmitting}
+                className="flex-1 py-2 bg-food-orange-500 text-white rounded-xl font-bold hover:bg-food-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Consumed Calories Modal */}
+      {showCustomConsumedModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-5 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-food-brown-800 mb-4 flex items-center gap-2">
+              <span>🍽️</span> Maxsus iste'mol kaloriyasi
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-food-brown-700 mb-1">
+                  Ovqat nomi
+                </label>
+                <input
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="Masalan: Shirinlik"
+                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-green-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-food-brown-700 mb-1">
+                  Kaloriya (kkal)
+                </label>
+                <input
+                  type="number"
+                  value={customCalories}
+                  onChange={(e) => setCustomCalories(e.target.value)}
+                  placeholder="Masalan: 150"
+                  min="1"
+                  max="5000"
+                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-green-400 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => {
+                  setShowCustomConsumedModal(false);
+                  setCustomName("");
+                  setCustomCalories("");
+                }}
+                className="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button
+                onClick={handleAddCustomConsumed}
+                disabled={!customName.trim() || !customCalories || isSubmitting}
+                className="flex-1 py-2 bg-food-green-500 text-white rounded-xl font-bold hover:bg-food-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
