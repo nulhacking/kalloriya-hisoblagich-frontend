@@ -26,10 +26,11 @@ const ImageUpload = ({
       return;
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Rasm hajmi 10MB dan kichik bo'lishi kerak");
-      return;
+    // No size limit - compression will handle large files automatically
+    // Log original size for debugging
+    const sizeKB = Math.round(file.size / 1024);
+    if (sizeKB > 1000) {
+      console.log(`📁 Katta fayl: ${sizeKB}KB - avtomatik siqiladi`);
     }
 
     onImageSelect(file);
@@ -57,7 +58,7 @@ const ImageUpload = ({
       // Check if mediaDevices is available
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setCameraError(
-          "Kamera qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning."
+          "Kamera qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning.",
         );
         setCameraActive(false);
         setCameraPermissionDenied(false);
@@ -78,8 +79,8 @@ const ImageUpload = ({
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "environment", // Rear camera
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { ideal: 1024 },
+            height: { ideal: 768 },
           },
           audio: false,
         });
@@ -87,7 +88,7 @@ const ImageUpload = ({
         // If preferred settings fail, try with basic settings
         console.warn(
           "Preferred camera settings failed, trying basic settings:",
-          preferredError
+          preferredError,
         );
         stream = await navigator.mediaDevices.getUserMedia({
           video: true,
@@ -112,7 +113,7 @@ const ImageUpload = ({
         error.name === "PermissionDeniedError"
       ) {
         setCameraError(
-          "Kamera ruxsati berilmagan. Iltimos, brauzer sozlamalaridan kamera ruxsatini bering."
+          "Kamera ruxsati berilmagan. Iltimos, brauzer sozlamalaridan kamera ruxsatini bering.",
         );
         setCameraPermissionDenied(true);
       } else if (
@@ -120,7 +121,7 @@ const ImageUpload = ({
         error.name === "DevicesNotFoundError"
       ) {
         setCameraError(
-          "Kamera topilmadi. Iltimos, fayl yuklashdan foydalaning."
+          "Kamera topilmadi. Iltimos, fayl yuklashdan foydalaning.",
         );
         setCameraPermissionDenied(false);
       } else if (
@@ -128,17 +129,17 @@ const ImageUpload = ({
         error.name === "TrackStartError"
       ) {
         setCameraError(
-          "Kamera allaqachon ishlatilmoqda yoki xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning."
+          "Kamera allaqachon ishlatilmoqda yoki xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning.",
         );
         setCameraPermissionDenied(false);
       } else if (error.name === "OverconstrainedError") {
         setCameraError(
-          "Kamera sozlamalari qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning."
+          "Kamera sozlamalari qo'llab-quvvatlanmaydi. Iltimos, fayl yuklashdan foydalaning.",
         );
         setCameraPermissionDenied(false);
       } else {
         setCameraError(
-          "Kamera ishga tushirishda xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning."
+          "Kamera ishga tushirishda xatolik yuz berdi. Iltimos, fayl yuklashdan foydalaning.",
         );
         setCameraPermissionDenied(false);
       }
@@ -152,9 +153,24 @@ const ImageUpload = ({
       const context = canvas.getContext("2d");
 
       if (context && video.videoWidth > 0 && video.videoHeight > 0) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0);
+        // Limit canvas size for smaller file
+        const maxDim = 1024;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(video, 0, 0, width, height);
 
         canvas.toBlob(
           (blob) => {
@@ -162,11 +178,12 @@ const ImageUpload = ({
               const file = new File([blob], "camera-photo.jpg", {
                 type: "image/jpeg",
               });
+              console.log(`📷 Kamera: ${Math.round(blob.size / 1024)}KB`);
               validateAndSelectFile(file);
             }
           },
           "image/jpeg",
-          0.9
+          0.7, // Reduced from 0.9 for smaller file size
         );
       }
     }
