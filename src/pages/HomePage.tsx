@@ -39,13 +39,13 @@ const HomePage = () => {
     analyzeMutation.mutate(
       { imageFile: image, foodHint: foodHint.trim() },
       {
-      onSuccess: (data) => {
-        setResults(data);
-      },
-      onError: () => {
-        // Error is handled by mutation
-      },
-    });
+        onSuccess: (data) => {
+          setResults(data);
+        },
+        onError: () => {
+          // Error is handled by mutation
+        },
+      });
   };
 
   const handleReset = () => {
@@ -84,7 +84,7 @@ const HomePage = () => {
       };
 
       await addMealMutation.mutateAsync(mealData);
-      
+
       // Reset after adding
       handleReset();
     } catch (err) {
@@ -101,35 +101,6 @@ const HomePage = () => {
 
   return (
     <>
-      {/* Header - Mobile optimized */}
-      <header className="text-center mb-4 md:mb-8">
-        <div className="inline-block">
-          <div className="relative">
-            {/* Logo/Icon */}
-            <div className="text-5xl md:text-6xl mb-2 animate-bounce-soft">
-              🍽️
-            </div>
-            <h1 className="text-2xl md:text-4xl font-extrabold gradient-text-food mb-1 md:mb-2">
-              Kaloriya Hisoblagich
-            </h1>
-            <p className="text-sm md:text-base text-food-brown-600 font-medium">
-              AI bilan ovqat kaloriyalarini aniqlang
-            </p>
-          </div>
-        </div>
-        {/* Tags */}
-        <div className="flex justify-center gap-2 mt-3">
-          <span className="px-2.5 py-1 bg-food-green-100 text-food-green-700 rounded-full text-xs font-bold border border-food-green-200">
-            ⚡ Tezkor
-          </span>
-          <span className="px-2.5 py-1 bg-food-yellow-100 text-food-yellow-700 rounded-full text-xs font-bold border border-food-yellow-200">
-            🎯 Aniq
-          </span>
-          <span className="px-2.5 py-1 bg-food-orange-100 text-food-orange-700 rounded-full text-xs font-bold border border-food-orange-200">
-            🤖 AI
-          </span>
-        </div>
-      </header>
 
       {/* Main Content */}
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
