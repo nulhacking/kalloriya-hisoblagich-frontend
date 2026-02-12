@@ -172,8 +172,8 @@ const ImageUpload = ({
       const context = canvas.getContext("2d");
 
       if (context && video.videoWidth > 0 && video.videoHeight > 0) {
-        // Limit canvas size for smaller file
-        const maxDim = 1024;
+        // Limit canvas size for token savings (OpenAI low-detail = 512px)
+        const maxDim = 512;
         let width = video.videoWidth;
         let height = video.videoHeight;
 
@@ -202,7 +202,7 @@ const ImageUpload = ({
             }
           },
           "image/jpeg",
-          0.7, // Reduced from 0.9 for smaller file size
+          0.6, // Token-friendly: smaller file, quicker upload
         );
       }
     }

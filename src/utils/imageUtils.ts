@@ -2,9 +2,9 @@
  * Image compression utilities for optimizing food analysis.
  *
  * Reduces image size before sending to AI API:
- * - Smaller file = faster upload
- * - Smaller dimensions = fewer tokens
- * - OpenAI Vision works well with 512-768px images
+ * - Smaller file = faster upload, fewer tokens
+ * - OpenAI Vision "low" detail uses 512x512 - we match that
+ * - Aggressive compression = max 512px, quality 0.65
  */
 
 /**
@@ -141,13 +141,13 @@ export const imageResizeCompress = async (
 };
 
 /**
- * Legacy function for backwards compatibility
- * @deprecated Use imageResizeCompress instead
+ * Compress image for AI analysis - token-friendly settings.
+ * 512px max (matches OpenAI low-detail), quality 0.65.
  */
 export const compressImage = async (
   file: File,
-  maxWidth: number = 1024,
-  quality: number = 0.75,
+  maxWidth: number = 512,
+  quality: number = 0.65,
 ): Promise<File> => {
   const result = await imageResizeCompress(file, maxWidth, quality);
   return result.file;
@@ -155,11 +155,11 @@ export const compressImage = async (
 
 /**
  * Check if file needs compression.
- * Skip compression for already small files.
+ * Compress if >50KB - ensures token savings for most uploads.
  */
 export const needsCompression = (
   file: File,
-  maxSizeKB: number = 300,
+  maxSizeKB: number = 50,
 ): boolean => {
   return file.size > maxSizeKB * 1024;
 };
