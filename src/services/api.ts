@@ -353,13 +353,18 @@ export const getFoodStats = async (
 /**
  * Analyze a food image and get nutrition information
  * @param imageFile - The image file to analyze
+ * @param foodHint - Optional user hint to improve accuracy (e.g. "osh", "qo'shimcha pishloq bilan")
  * @returns Nutrition analysis results
  */
 export const analyzeFood = async (
   imageFile: File,
+  foodHint?: string,
 ): Promise<AnalysisResults> => {
   const formData = new FormData();
   formData.append("image", imageFile);
+  if (foodHint && foodHint.trim()) {
+    formData.append("food_hint", foodHint.trim());
+  }
 
   try {
     const response = await axios.post<AnalysisResults>(

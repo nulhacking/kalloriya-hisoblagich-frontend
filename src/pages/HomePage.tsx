@@ -15,6 +15,7 @@ const HomePage = () => {
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [foodHint, setFoodHint] = useState<string>("");
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
@@ -35,7 +36,9 @@ const HomePage = () => {
   const handleAnalyze = () => {
     if (!image) return;
 
-    analyzeMutation.mutate(image, {
+    analyzeMutation.mutate(
+      { imageFile: image, foodHint: foodHint.trim() },
+      {
       onSuccess: (data) => {
         setResults(data);
       },
@@ -48,6 +51,7 @@ const HomePage = () => {
   const handleReset = () => {
     setImage(null);
     setImagePreview(null);
+    setFoodHint("");
     setResults(null);
     analyzeMutation.reset();
   };
@@ -135,6 +139,26 @@ const HomePage = () => {
           imagePreview={imagePreview}
           disabled={loading}
         />
+
+        {/* Optional food hint - helps improve accuracy */}
+        <div className="mt-3">
+          <label
+            htmlFor="food-hint"
+            className="block text-sm font-medium text-food-brown-600 mb-1.5"
+          >
+            <span className="opacity-80">💡 Ixtiyoriy:</span>             Ovqat haqida
+            qo'shimcha ma'lumot (aniqlikni oshirish uchun)
+          </label>
+          <input
+            id="food-hint"
+            type="text"
+            value={foodHint}
+            onChange={(e) => setFoodHint(e.target.value)}
+            placeholder="Misol: osh, lag'mon, qo'shimcha pishloq bilan..."
+            disabled={loading}
+            className="w-full px-4 py-3 rounded-xl border-2 border-food-green-100 focus:border-food-green-400 focus:ring-2 focus:ring-food-green-200 outline-none transition-all placeholder:text-food-brown-400 text-food-brown-700 disabled:bg-gray-50 disabled:opacity-60"
+          />
+        </div>
 
         {/* Action Buttons */}
         {imagePreview && (
