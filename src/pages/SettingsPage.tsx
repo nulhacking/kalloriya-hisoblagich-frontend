@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore, useUser } from "../stores";
+import { useUser } from "../stores";
+import { useUpdateUserSettings } from "../hooks/useUserSettings";
 import Settings from "../components/Settings";
 import Feedback from "../components/Feedback";
 import { checkAdminStatus } from "../services/api";
+import { useToken } from "../stores";
 import type { UserSettings } from "../types";
 
 const SettingsPage = () => {
   const user = useUser();
-  const token = useAuthStore((state) => state.token);
-  const updateSettings = useAuthStore((state) => state.updateSettings);
+  const token = useToken();
+  const updateSettingsMutation = useUpdateUserSettings();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<"settings" | "feedback">("settings");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -41,7 +43,8 @@ const SettingsPage = () => {
 
   const handleSaveSettings = async (newSettings: UserSettings) => {
     try {
-      await updateSettings(newSettings);
+      // Optimistic update orqali tezkor yangilash
+      await updateSettingsMutation.mutateAsync(newSettings);
     } catch (err) {
       console.error("Sozlamalarni saqlashda xatolik:", err);
       throw err;

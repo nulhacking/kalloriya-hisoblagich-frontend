@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuthStore } from "../stores";
-import { submitFeedback, getMyFeedbacks, FeedbackItem } from "../services/api";
+import { useMyFeedbacks, useSubmitFeedback } from "../hooks/useFeedback";
+import type { FeedbackCreateData } from "../services/api";
 
 const CATEGORIES = [
   { value: "general", label: "Umumiy", icon: "💬" },
@@ -17,56 +17,34 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const Feedback = () => {
-  const token = useAuthStore((state) => state.token);
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
+  
+  // React Query hooks for data fetching
+  const { data: feedbacks = [], isLoading: loadingHistory } = useMyFeedbacks();
+  const submitFeedbackMutation = useSubmitFeedback();
   
   // New feedback form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState("general");
   const [rating, setRating] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // History state
-  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyLoaded, setHistoryLoaded] = useState(false);
-
-  const loadHistory = async () => {
-    if (!token || historyLoaded) return;
-    
-    setLoadingHistory(true);
-    try {
-      const data = await getMyFeedbacks(token);
-      setFeedbacks(data);
-      setHistoryLoaded(true);
-    } catch (err) {
-      console.error("Failed to load feedbacks:", err);
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
 
   const handleTabChange = (tab: "new" | "history") => {
     setActiveTab(tab);
-    if (tab === "history" && !historyLoaded) {
-      loadHistory();
-    }
   };
 
   const handleSubmit = async () => {
-    if (!token || !subject.trim() || !message.trim()) {
+    if (!subject.trim() || !message.trim()) {
       setError("Mavzu va xabar to'ldirilishi shart");
       return;
     }
 
-    setSubmitting(true);
     setError(null);
 
     try {
-      const feedbackData: { subject: string; message: string; category: string; rating?: number } = {
+      const feedbackData: FeedbackCreateData = {
         subject: subject.trim(),
         message: message.trim(),
         category,
@@ -74,20 +52,19 @@ const Feedback = () => {
       if (rating) {
         feedbackData.rating = rating;
       }
-      await submitFeedback(token, feedbackData);
+      
+      // Optimistic update orqali tezkor qo'shish
+      await submitFeedbackMutation.mutateAsync(feedbackData);
       
       setSubmitted(true);
       setSubject("");
       setMessage("");
       setCategory("general");
       setRating(null);
-      setHistoryLoaded(false); // Refresh history on next view
       
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -239,14 +216,14 @@ const Feedback = () => {
           {/* Submit button */}
           <button
             onClick={handleSubmit}
-            disabled={submitting || !subject.trim() || !message.trim()}
+            disabled={submitFeedbackMutation.isPending || !subject.trim() || !message.trim()}
             className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${
-              submitting
+              submitFeedbackMutation.isPending
                 ? "bg-gray-400"
                 : "bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-400 disabled:to-gray-500"
             }`}
           >
-            {submitting ? (
+            {submitFeedbackMutation.isPending ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Yuborilmoqda...</span>

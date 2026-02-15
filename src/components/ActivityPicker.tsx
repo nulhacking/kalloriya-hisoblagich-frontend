@@ -1,19 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
-import { getActivityCatalog, addActivity } from "../services/api";
-import { useAuthStore, useUser } from "../stores";
+import { getActivityCatalog } from "../services/api";
+import { useUser } from "../stores";
+import { useAddActivity } from "../hooks/useActivities";
 import type { ActivityCatalogItem, ActivityCategory } from "../types";
 
 interface ActivityPickerProps {
   onClose: () => void;
-  onActivityAdded: () => void;
+  onActivityAdded?: () => void;
 }
 
 const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
-  const token = useAuthStore((state) => state.token);
   const user = useUser();
+  const addActivityMutation = useAddActivity();
   
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [activities, setActivities] = useState<ActivityCatalogItem[]>([]);
   const [categories, setCategories] = useState<ActivityCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -57,21 +57,22 @@ const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
   };
 
   const handleAdd = async () => {
-    if (!selectedActivity || !token) return;
+    if (!selectedActivity) return;
 
-    setSubmitting(true);
     try {
-      await addActivity(token, {
+      // Optimistic update orqali tezkor qo'shish
+      await addActivityMutation.mutateAsync({
         activity_id: selectedActivity.id,
         duration_minutes: duration,
         distance_km: distance ? Number(distance) : undefined,
       });
-      onActivityAdded();
+      
+      // Close modal immediately after successful mutation
+      onActivityAdded?.();
       onClose();
     } catch (error) {
       console.error("Harakat qo'shishda xatolik:", error);
-    } finally {
-      setSubmitting(false);
+      // Error handling is already done in the mutation hook
     }
   };
 
@@ -281,10 +282,10 @@ const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
           <div className="p-4 border-t bg-white safe-area-bottom rounded-b-3xl">
             <button
               onClick={handleAdd}
-              disabled={submitting || duration <= 0}
+              disabled={addActivityMutation.isPending || duration <= 0}
               className="w-full py-3.5 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {submitting ? (
+              {addActivityMutation.isPending ? (
                 <span>Saqlanmoqda...</span>
               ) : (
                 <>
