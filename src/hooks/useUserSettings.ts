@@ -3,6 +3,30 @@ import { useAuthStore, useToken } from "../stores";
 import { updateUserSettings } from "../services/api";
 import type { UserSettings, User } from "../types";
 
+const ACTIVITY_MULTIPLIERS: Record<string, number> = {
+  sedentary: 1.2,
+  light: 1.375,
+  moderate: 1.55,
+  active: 1.725,
+  very_active: 1.9,
+};
+
+function calcBmrTdee(
+  weight: number,
+  height: number,
+  age: number,
+  gender: "male" | "female",
+  activityLevel: string
+): { bmr: number; tdee: number } | null {
+  if (!weight || !height || !age || !gender) return null;
+  const bmr =
+    gender === "male"
+      ? 10 * weight + 6.25 * height - 5 * age + 5
+      : 10 * weight + 6.25 * height - 5 * age - 161;
+  const mult = ACTIVITY_MULTIPLIERS[activityLevel] ?? 1.55;
+  return { bmr, tdee: bmr * mult };
+}
+
 // Update user settings mutation with optimistic update
 export const useUpdateUserSettings = () => {
   const token = useToken();
@@ -32,7 +56,7 @@ export const useUpdateUserSettings = () => {
         backendSettings.age = settings.age;
       if (settings.gender !== undefined)
         backendSettings.gender = settings.gender;
-      if (settings.activity_level !== undefined)
+      if (settings.activity_level != null)
         backendSettings.activity_level = settings.activity_level;
 
       return updateUserSettings(token, backendSettings);
@@ -44,6 +68,12 @@ export const useUpdateUserSettings = () => {
 
       // Optimistically update the user in store
       if (currentUser) {
+        const w = newSettings.weight_kg ?? currentUser.weight_kg;
+        const h = newSettings.height_cm ?? currentUser.height_cm;
+        const a = newSettings.age ?? currentUser.age;
+        const g = (newSettings.gender ?? currentUser.gender) as "male" | "female" | undefined;
+        const act = newSettings.activity_level ?? currentUser.activity_level ?? "moderate";
+
         const updatedUser: User = {
           ...currentUser,
           name: newSettings.name !== undefined ? newSettings.name : currentUser.name,
@@ -59,22 +89,24 @@ export const useUpdateUserSettings = () => {
           daily_fat_goal: newSettings.dailyFatGoal !== undefined
             ? newSettings.dailyFatGoal
             : currentUser.daily_fat_goal,
-          weight_kg: newSettings.weight_kg !== undefined
-            ? newSettings.weight_kg
-            : currentUser.weight_kg,
-          height_cm: newSettings.height_cm !== undefined
-            ? newSettings.height_cm
-            : currentUser.height_cm,
-          age: newSettings.age !== undefined
-            ? newSettings.age
-            : currentUser.age,
-          gender: newSettings.gender !== undefined
-            ? newSettings.gender
-            : currentUser.gender,
-          activity_level: newSettings.activity_level !== undefined
-            ? newSettings.activity_level
-            : currentUser.activity_level,
+          weight_kg: w,
+          height_cm: h,
+          age: a,
+          gender: g,
+          activity_level:
+            newSettings.activity_level != null
+              ? newSettings.activity_level
+              : currentUser.activity_level,
         };
+
+        // Faoliyat darajasi tanlanganda BMR/TDEE ni optimistik hisoblash
+        if (w && h && a && g) {
+          const calc = calcBmrTdee(w, h, a, g, act);
+          if (calc) {
+            updatedUser.bmr = Math.round(calc.bmr * 10) / 10;
+            updatedUser.tdee = Math.round(calc.tdee * 10) / 10;
+          }
+        }
 
         setUser(updatedUser);
       }

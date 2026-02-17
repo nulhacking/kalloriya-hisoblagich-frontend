@@ -1,6 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { UserSettings } from "../types";
 import { useAuthStore, useIsRegistered, useUser } from "../stores";
+
+// Faoliyat darajasi koeffitsiyentlari (backend bilan bir xil)
+const ACTIVITY_MULTIPLIERS: Record<string, number> = {
+  sedentary: 1.2,
+  light: 1.375,
+  moderate: 1.55,
+  active: 1.725,
+  very_active: 1.9,
+};
+
+/** BMR va TDEE hisoblash (Mifflin-St Jeor) */
+function calcBmrTdee(
+  weight: number,
+  height: number,
+  age: number,
+  gender: "male" | "female",
+  activityLevel: string
+): { bmr: number; tdee: number } | null {
+  if (!weight || !height || !age || !gender) return null;
+  const bmr =
+    gender === "male"
+      ? 10 * weight + 6.25 * height - 5 * age + 5
+      : 10 * weight + 6.25 * height - 5 * age - 161;
+  const mult = ACTIVITY_MULTIPLIERS[activityLevel] ?? 1.55;
+  return { bmr, tdee: bmr * mult };
+}
 
 interface SettingsProps {
   settings: UserSettings;
@@ -21,6 +47,25 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
     setLocalSettings(settings);
   }, [settings]);
 
+  // Faoliyat darajasi tanlanganda kaloriya sarfini hisoblash (preview yoki saqlangan)
+  const tdeeData = useMemo(() => {
+    const w = localSettings.weight_kg;
+    const h = localSettings.height_cm;
+    const a = localSettings.age;
+    const g = localSettings.gender;
+    const act = localSettings.activity_level;
+    // Tana ma'lumotlari + faoliyat darajasi to'liq bo'lsa — client-side hisoblash
+    if (w && h && a && g && act) {
+      const calc = calcBmrTdee(w, h, a, g, act);
+      if (calc) return { ...calc, isPreview: true };
+    }
+    // Saqlangan qiymatlar (backend dan)
+    if (user?.bmr != null && user?.tdee != null) {
+      return { bmr: user.bmr, tdee: user.tdee, isPreview: false };
+    }
+    return null;
+  }, [localSettings.weight_kg, localSettings.height_cm, localSettings.age, localSettings.gender, localSettings.activity_level, user?.bmr, user?.tdee]);
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -40,7 +85,9 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
       [field]:
         typeof value === "string" && field !== "name" && field !== "gender" && field !== "activity_level"
           ? Number(value) || 0
-          : value,
+          : field === "activity_level" && value === ""
+            ? undefined
+            : value,
     }));
     setSaved(false);
   };
@@ -273,8 +320,8 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
         </div>
       </div>
 
-      {/* BMR va TDEE natijasi */}
-      {user?.bmr && user?.tdee && (
+      {/* BMR va TDEE — faoliyat darajasi tanlanganda yoki saqlangan qiymatlar */}
+      {tdeeData && (
         <div className="bg-gradient-to-r from-food-green-100 to-food-blue-100 rounded-2xl p-4 border-2 border-food-green-300">
           <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
             <span>⚡</span> Kunlik kaloriya sarfi
@@ -284,22 +331,27 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
             <div className="bg-white rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">🔥</div>
               <div className="font-extrabold text-food-orange-600 text-xl">
-                {Math.round(user.bmr)}
+                {Math.round(tdeeData.bmr)}
               </div>
               <div className="text-xs text-food-brown-500">BMR (tinch holat)</div>
             </div>
             <div className="bg-white rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">⚡</div>
               <div className="font-extrabold text-food-green-600 text-xl">
-                {Math.round(user.tdee)}
+                {Math.round(tdeeData.tdee)}
               </div>
               <div className="text-xs text-food-brown-500">TDEE (kunlik sarf)</div>
             </div>
           </div>
           
           <p className="text-xs text-food-brown-600 mt-3 text-center">
-            💡 Vazn ushlab turish uchun kuniga ~{Math.round(user.tdee)} kkal yeng
+            💡 Vazn ushlab turish uchun kuniga ~{Math.round(tdeeData.tdee)} kkal yeng
           </p>
+          {tdeeData.isPreview && (
+            <p className="text-xs text-food-orange-600 mt-1 text-center font-medium">
+              ⚠️ Natijani saqlash uchun &quot;Saqlash&quot; tugmasini bosing
+            </p>
+          )}
         </div>
       )}
 

@@ -242,7 +242,7 @@ export const useAuthStore = create<AuthState>()(
           backendSettings.age = settings.age;
         if (settings.gender !== undefined)
           backendSettings.gender = settings.gender;
-        if (settings.activity_level !== undefined)
+        if (settings.activity_level != null)
           backendSettings.activity_level = settings.activity_level;
 
         const updatedUser = await updateUserSettings(token, backendSettings);
