@@ -13,6 +13,8 @@ export interface AnalysisResults {
   nutrition_per_100g: NutritionData;
   total_nutrition?: NutritionData | null;
   note: string;
+  /** R2 da saqlangan rasm URL (agar mavjud bo'lsa) */
+  image_url?: string | null;
 }
 
 export interface HealthStatus {

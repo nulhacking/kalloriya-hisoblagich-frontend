@@ -4,7 +4,7 @@
  * Reduces image size before sending to AI API:
  * - Smaller file = faster upload, fewer tokens
  * - OpenAI Vision "low" detail uses 512x512 - we match that
- * - Aggressive compression = max 512px, quality 0.65
+ * - Aggressive compression = max 512px, quality 0.75
  */
 
 /**
@@ -142,12 +142,12 @@ export const imageResizeCompress = async (
 
 /**
  * Compress image for AI analysis - token-friendly settings.
- * 512px max (matches OpenAI low-detail), quality 0.65.
+ * 512px max (matches OpenAI low-detail), quality 0.75.
  */
 export const compressImage = async (
   file: File,
   maxWidth: number = 512,
-  quality: number = 0.65,
+  quality: number = 0.75,
 ): Promise<File> => {
   const result = await imageResizeCompress(file, maxWidth, quality);
   return result.file;

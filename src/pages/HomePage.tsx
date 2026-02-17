@@ -61,6 +61,10 @@ const HomePage = () => {
     if (!token) return;
 
     try {
+      // R2 image_url mavjud bo'lsa uni ishlatamiz, aks holda base64 preview
+      const imagePreviewValue =
+        analysisResults.image_url || imagePreview || undefined;
+
       const mealData = {
         food_name: analysisResults.food,
         weight_grams: analysisResults.estimated_weight_grams || 100,
@@ -80,7 +84,7 @@ const HomePage = () => {
           analysisResults.total_nutrition?.fat ||
           analysisResults.nutrition_per_100g.fat ||
           0,
-        image_preview: imagePreview || undefined,
+        image_preview: imagePreviewValue,
       };
 
       await addMealMutation.mutateAsync(mealData);
