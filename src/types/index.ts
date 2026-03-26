@@ -181,6 +181,26 @@ export interface User {
   telegram_id?: string;
   telegram_username?: string;
   telegram_photo_url?: string;
+  // Subscription
+  subscription_expires_at?: string;
+  free_attempts_date?: string;
+  free_attempts_used_today?: number;
+}
+
+export interface SubscriptionStatus {
+  is_active: boolean;
+  subscription_expires_at?: string | null;
+  free_attempts_per_day: number;
+  free_attempts_used_today: number;
+  free_attempts_left_today: number;
+  monthly_price: number;
+  monthly_days: number;
+}
+
+export interface ClickPayLinkResponse {
+  amount: number;
+  days: number;
+  pay_url: string;
 }
 
 // Telegram WebApp types

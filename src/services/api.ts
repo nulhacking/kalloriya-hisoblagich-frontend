@@ -4,6 +4,8 @@ import type {
   HealthStatus,
   AuthResponse,
   User,
+  SubscriptionStatus,
+  ClickPayLinkResponse,
   DailyLogResponse,
   MealEntryResponse,
   DailyLogSummary,
@@ -356,20 +358,52 @@ export const getFoodStats = async (
  * @returns Nutrition analysis results
  */
 export const analyzeFood = async (
+  token: string,
   imageFile: File,
 ): Promise<AnalysisResults> => {
   const formData = new FormData();
   formData.append("image", imageFile);
 
   try {
-    const response = await axios.post<AnalysisResults>(
-      `${API_BASE_URL}/analyze-food`,
+    const response = await api.post<AnalysisResults>(
+      "/analyze-food",
       formData,
       {
+        headers: getAuthHeaders(token),
         timeout: 30000,
       },
     );
 
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getSubscriptionStatus = async (
+  token: string,
+): Promise<SubscriptionStatus> => {
+  try {
+    const response = await api.get<SubscriptionStatus>("/subscription/status", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getClickPayLink = async (
+  token: string,
+  amount: number,
+): Promise<ClickPayLinkResponse> => {
+  try {
+    const response = await api.get<ClickPayLinkResponse>(
+      `/subscription/click/pay-link?amount=${amount}`,
+      {
+        headers: getAuthHeaders(token),
+      },
+    );
     return response.data;
   } catch (error) {
     return handleError(error);
