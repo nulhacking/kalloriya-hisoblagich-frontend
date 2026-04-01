@@ -15,10 +15,12 @@ import type {
   ActivityCatalogResponse,
 } from "../types";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  // "https://kalloriya-hisoblagich-backend-production.up.railway.app";
-  "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+if (!API_BASE_URL) {
+  throw new Error(
+    "VITE_API_URL mavjud emas. .env faylida VITE_API_URL=... ni belgilang.",
+  );
+}
 
 // Create axios instance with default config
 const api = axios.create({
