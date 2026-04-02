@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useToken } from "../stores";
+import { useIsTelegramMiniApp, useToken } from "../stores";
 import ImageUpload from "../components/ImageUpload";
 import ResultsDisplay from "../components/ResultsDisplay";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -15,6 +15,7 @@ import { useAddMeal } from "../hooks/useMeals";
 
 const HomePage = () => {
   const token = useToken();
+  const isTelegramMiniApp = useIsTelegramMiniApp();
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
   const subscriptionQuery = useSubscriptionStatus();
@@ -83,6 +84,16 @@ const HomePage = () => {
       }
 
       const response = await paymePayMutation.mutateAsync(amount);
+      const tgOpen = response.telegram_open_url?.trim();
+      if (isTelegramMiniApp && tgOpen) {
+        const tg = window.Telegram?.WebApp;
+        if (tg?.openLink) {
+          tg.openLink(tgOpen, { try_instant_view: false });
+        } else {
+          window.open(tgOpen, "_blank", "noopener,noreferrer");
+        }
+        return;
+      }
       if (
         response.pay_method === "post" &&
         response.pay_form_fields &&

@@ -211,6 +211,8 @@ export interface PaymePayLinkResponse {
   pay_url: string;
   pay_method: "post" | string;
   pay_form_fields: Record<string, string> | null;
+  /** Telegram: bitta havola — brauzer / openLink */
+  telegram_open_url?: string | null;
 }
 
 // Telegram WebApp types
