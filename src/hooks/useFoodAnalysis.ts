@@ -1,6 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToken } from "../stores";
-import { analyzeFood, getClickPayLink, getSubscriptionStatus } from "../services/api";
+import {
+  analyzeFood,
+  getClickPayLink,
+  getPaymePayLink,
+  getSubscriptionStatus,
+} from "../services/api";
 import { compressImage, needsCompression } from "../utils/imageUtils";
 
 // Analyze food mutation with image compression
@@ -42,6 +47,17 @@ export const useCreateClickPayLink = () => {
     mutationFn: (amount: number) => {
       if (!token) throw new Error("Token mavjud emas");
       return getClickPayLink(token, amount);
+    },
+  });
+};
+
+export const useCreatePaymePayLink = () => {
+  const token = useToken();
+
+  return useMutation({
+    mutationFn: (amount: number) => {
+      if (!token) throw new Error("Token mavjud emas");
+      return getPaymePayLink(token, amount);
     },
   });
 };

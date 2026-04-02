@@ -8,6 +8,7 @@ import type { AnalysisResults } from "../types";
 import {
   useAnalyzeFood,
   useCreateClickPayLink,
+  useCreatePaymePayLink,
   useSubscriptionStatus,
 } from "../hooks/useFoodAnalysis";
 import { useAddMeal } from "../hooks/useMeals";
@@ -18,6 +19,7 @@ const HomePage = () => {
   const addMealMutation = useAddMeal();
   const subscriptionQuery = useSubscriptionStatus();
   const clickPayMutation = useCreateClickPayLink();
+  const paymePayMutation = useCreatePaymePayLink();
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -70,6 +72,42 @@ const HomePage = () => {
       window.open(response.pay_url, "_blank");
     } catch (err) {
       console.error("Click link olishda xatolik:", err);
+    }
+  };
+
+  const handleOpenPaymePayment = async () => {
+    try {
+      const amount = Number(paymentAmount);
+      if (!amount || amount <= 0) {
+        throw new Error("To'lov summasi noto'g'ri");
+      }
+
+      const response = await paymePayMutation.mutateAsync(amount);
+      if (
+        response.pay_method === "post" &&
+        response.pay_form_fields &&
+        Object.keys(response.pay_form_fields).length > 0
+      ) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = response.pay_url;
+        form.target = "_blank";
+        form.acceptCharset = "UTF-8";
+        for (const [name, value] of Object.entries(response.pay_form_fields)) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+      } else {
+        window.open(response.pay_url, "_blank");
+      }
+    } catch (err) {
+      console.error("Payme link olishda xatolik:", err);
     }
   };
 
@@ -204,7 +242,7 @@ const HomePage = () => {
                 <span className="font-bold">{defaultPrice.toLocaleString("uz-UZ")} so'm</span>
                 {" "}({subscription?.monthly_days ?? 30} kun). Summani o'zgartirsangiz, kunlar proporsional ochiladi.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                 <input
                   type="number"
                   min={1000}
@@ -214,13 +252,24 @@ const HomePage = () => {
                   className="flex-1 px-3 py-2 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:outline-none text-sm"
                   placeholder="Masalan 20000"
                 />
-                <button
-                  onClick={handleOpenClickPayment}
-                  disabled={clickPayMutation.isPending}
-                  className="px-4 py-2 rounded-xl bg-food-blue-500 hover:bg-food-blue-600 text-white text-sm font-bold disabled:opacity-60"
-                >
-                  {clickPayMutation.isPending ? "..." : "Click to'lash"}
-                </button>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleOpenClickPayment}
+                    disabled={clickPayMutation.isPending}
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-food-blue-500 hover:bg-food-blue-600 text-white text-sm font-bold disabled:opacity-60"
+                  >
+                    {clickPayMutation.isPending ? "..." : "Click"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenPaymePayment}
+                    disabled={paymePayMutation.isPending}
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#00b277] hover:bg-[#009966] text-white text-sm font-bold disabled:opacity-60"
+                  >
+                    {paymePayMutation.isPending ? "..." : "Payme"}
+                  </button>
+                </div>
               </div>
             </div>
           )}

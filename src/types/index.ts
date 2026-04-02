@@ -203,6 +203,16 @@ export interface ClickPayLinkResponse {
   pay_url: string;
 }
 
+/** Payme POST form → checkout.paycom.uz */
+export interface PaymePayLinkResponse {
+  amount: number;
+  days: number;
+  /** POST action URL */
+  pay_url: string;
+  pay_method: "post" | string;
+  pay_form_fields: Record<string, string> | null;
+}
+
 // Telegram WebApp types
 export interface TelegramWebApp {
   initData: string;
