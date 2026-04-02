@@ -26,7 +26,7 @@ const HomePage = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
-  const [paymentAmount, setPaymentAmount] = useState<number>(20000);
+  const [paymentAmount, setPaymentAmount] = useState<number>(200);
 
   const handleImageSelect = (file: File) => {
     if (file) {
@@ -86,9 +86,10 @@ const HomePage = () => {
       const response = await paymePayMutation.mutateAsync(amount);
       const tgOpen = response.telegram_open_url?.trim();
       if (isTelegramMiniApp && tgOpen) {
-        const tg = window.Telegram?.WebApp;
-        if (tg?.openLink) {
-          tg.openLink(tgOpen, { try_instant_view: false });
+        const webApp = window.Telegram?.WebApp;
+        const open = webApp && "openLink" in webApp ? webApp.openLink : undefined;
+        if (typeof open === "function") {
+          open.call(webApp, tgOpen, { try_instant_view: false });
         } else {
           window.open(tgOpen, "_blank", "noopener,noreferrer");
         }
@@ -256,12 +257,12 @@ const HomePage = () => {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                 <input
                   type="number"
-                  min={1000}
-                  step={1000}
+                  min={100}
+                  step={100}
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(Number(e.target.value))}
                   className="flex-1 px-3 py-2 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:outline-none text-sm"
-                  placeholder="Masalan 20000"
+                  placeholder="Masalan 200"
                 />
                 <div className="flex gap-2 shrink-0">
                   <button
