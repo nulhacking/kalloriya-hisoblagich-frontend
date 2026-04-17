@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
         includeAssets: ["logo.png", "favicon.ico"],
         manifest: {
           name: "Kaloriya Hisoblagich",
-          short_name: "Check Eat",
+          short_name: "Kaloriya Hisoblagich",
           description:
             "Ovqatlarni suratga olib kaloriyalarni hisoblang - AI yordamida",
           theme_color: "#22c55e",

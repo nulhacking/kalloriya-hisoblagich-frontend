@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../stores";
 import { submitFeedback, getMyFeedbacks, FeedbackItem } from "../services/api";
+import { useToast } from "./Toast";
 
 const CATEGORIES = [
   { value: "general", label: "Umumiy", icon: "💬" },
@@ -18,6 +19,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 const Feedback = () => {
   const token = useAuthStore((state) => state.token);
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
   
   // New feedback form state
@@ -75,17 +77,20 @@ const Feedback = () => {
         feedbackData.rating = rating;
       }
       await submitFeedback(token, feedbackData);
-      
+
       setSubmitted(true);
+      toast.success("Fikringiz qabul qilindi!");
       setSubject("");
       setMessage("");
       setCategory("general");
       setRating(null);
-      setHistoryLoaded(false); // Refresh history on next view
-      
+      setHistoryLoaded(false);
+
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
+      const msg = err instanceof Error ? err.message : "Xatolik yuz berdi";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -104,27 +109,32 @@ const Feedback = () => {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex bg-food-green-100 rounded-xl p-1">
+      {/* Segment Control */}
+      <div className="relative bg-food-brown-100/60 rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
+        <div
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-md transition-transform duration-300 ease-out"
+          style={{
+            transform: activeTab === "new" ? "translateX(0)" : "translateX(100%)",
+            marginLeft: "2px",
+          }}
+        />
         <button
           onClick={() => handleTabChange("new")}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
-            activeTab === "new"
-              ? "bg-white text-food-green-700 shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800"
+          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
+            activeTab === "new" ? "text-food-green-700" : "text-food-brown-500"
           }`}
         >
-          ✍️ Yangi
+          <span>✍️</span>
+          <span>Yangi</span>
         </button>
         <button
           onClick={() => handleTabChange("history")}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
-            activeTab === "history"
-              ? "bg-white text-food-green-700 shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800"
+          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
+            activeTab === "history" ? "text-food-green-700" : "text-food-brown-500"
           }`}
         >
-          📋 Tarix
+          <span>📋</span>
+          <span>Tarix</span>
         </button>
       </div>
 

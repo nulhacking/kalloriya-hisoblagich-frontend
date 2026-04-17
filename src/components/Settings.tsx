@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { UserSettings } from "../types";
 import { useAuthStore, useIsRegistered, useUser } from "../stores";
+import { useToast } from "./Toast";
 
 interface SettingsProps {
   settings: UserSettings;
@@ -12,11 +13,11 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
   const isRegistered = useIsRegistered();
   const user = useUser();
   const logout = useAuthStore((state) => state.logout);
+  const toast = useToast();
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Sync local settings when props change
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
@@ -26,9 +27,11 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
     try {
       await onSaveSettings(localSettings);
       setSaved(true);
+      toast.success("Sozlamalar saqlandi");
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error("Saqlashda xatolik:", error);
+      toast.error("Saqlashda xatolik yuz berdi");
     } finally {
       setSaving(false);
     }

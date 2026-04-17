@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useHistory, useDateRangeStats, useLogByDate } from "../hooks/useMeals";
 import LoadingSpinner from "./LoadingSpinner";
+import BottomSheet from "./BottomSheet";
 import { HistoryListSkeleton, RangeStatsSkeleton } from "./Skeleton";
 import {
   useUIStore,
@@ -323,101 +324,114 @@ const History = () => {
         )}
       </div>
 
-      {/* Selected Day Details Modal */}
-      {selectedDayLog && selectedDate && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-food-brown-800">
-                {formatDate(selectedDate)}
-              </h3>
-              <button
-                onClick={clearSelectedDayLog}
-                className="w-8 h-8 rounded-full bg-food-red-100 text-food-red-600 flex items-center justify-center hover:bg-food-red-200"
-              >
-                ✕
-              </button>
+      {/* Selected Day Details BottomSheet */}
+      <BottomSheet
+        open={!!(selectedDayLog && selectedDate)}
+        onClose={clearSelectedDayLog}
+        icon="📅"
+        accent="green"
+        heroHeader
+        title={selectedDate ? formatDate(selectedDate) : ""}
+        maxHeight="max-h-[88vh]"
+      >
+        {dateLogLoading ? (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" />
+          </div>
+        ) : selectedDayLog ? (
+          <div className="space-y-4 pt-3">
+            {/* Macros */}
+            <div className="grid grid-cols-4 gap-2">
+              <div className="bg-gradient-to-br from-food-red-50 to-food-red-100 rounded-2xl p-3 text-center border border-food-red-200">
+                <div className="text-lg">🔥</div>
+                <div className="font-extrabold text-food-red-600 text-lg leading-tight">
+                  {Math.round(selectedDayLog.total_calories)}
+                </div>
+                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                  kkal
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-food-green-50 to-food-green-100 rounded-2xl p-3 text-center border border-food-green-200">
+                <div className="text-lg">🥩</div>
+                <div className="font-extrabold text-food-green-600 text-lg leading-tight">
+                  {Math.round(selectedDayLog.total_protein)}g
+                </div>
+                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                  oqsil
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-food-yellow-50 to-food-yellow-100 rounded-2xl p-3 text-center border border-food-yellow-200">
+                <div className="text-lg">🍞</div>
+                <div className="font-extrabold text-food-yellow-600 text-lg leading-tight">
+                  {Math.round(selectedDayLog.total_carbs)}g
+                </div>
+                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                  uglevod
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-food-orange-50 to-food-orange-100 rounded-2xl p-3 text-center border border-food-orange-200">
+                <div className="text-lg">🧈</div>
+                <div className="font-extrabold text-food-orange-600 text-lg leading-tight">
+                  {Math.round(selectedDayLog.total_fat)}g
+                </div>
+                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                  yog'
+                </div>
+              </div>
             </div>
 
-            {dateLogLoading ? (
-              <div className="flex justify-center py-8">
-                <LoadingSpinner size="lg" />
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="bg-food-red-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-food-brown-600">Kaloriya</div>
-                    <div className="font-bold text-food-red-600">
-                      {Math.round(selectedDayLog.total_calories)}
-                    </div>
-                  </div>
-                  <div className="bg-food-green-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-food-brown-600">Oqsil</div>
-                    <div className="font-bold text-food-green-600">
-                      {Math.round(selectedDayLog.total_protein)}g
-                    </div>
-                  </div>
-                  <div className="bg-food-yellow-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-food-brown-600">Uglevod</div>
-                    <div className="font-bold text-food-yellow-600">
-                      {Math.round(selectedDayLog.total_carbs)}g
-                    </div>
-                  </div>
-                  <div className="bg-food-orange-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-food-brown-600">Yog'</div>
-                    <div className="font-bold text-food-orange-600">
-                      {Math.round(selectedDayLog.total_fat)}g
-                    </div>
-                  </div>
+            <div>
+              <h4 className="font-extrabold text-food-brown-800 mb-3 flex items-center gap-2">
+                <span>🍽️</span>
+                <span>Ovqatlar</span>
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-food-green-100 text-food-green-700">
+                  {selectedDayLog.meals.length}
+                </span>
+              </h4>
+              {selectedDayLog.meals.length === 0 ? (
+                <div className="bg-food-brown-50 rounded-2xl p-6 text-center">
+                  <div className="text-3xl mb-2 opacity-60">🍳</div>
+                  <p className="text-food-brown-500 text-sm font-medium">
+                    Bu kunda ovqat qo'shilmagan
+                  </p>
                 </div>
-
-                <div>
-                  <h4 className="font-bold text-food-brown-800 mb-2">
-                    Ovqatlar ({selectedDayLog.meals.length})
-                  </h4>
-                  {selectedDayLog.meals.length === 0 ? (
-                    <p className="text-food-brown-500 text-sm">
-                      Bu kunda ovqat qo'shilmagan
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedDayLog.meals.map((meal) => (
-                        <div
-                          key={meal.id}
-                          className="bg-food-green-50 rounded-lg p-3 border border-food-green-200"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-bold text-food-brown-800">
-                                {meal.food_name}
-                              </p>
-                              <p className="text-xs text-food-brown-500">
-                                {meal.weight_grams}g
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-food-red-600">
-                                {Math.round(meal.calories)} kkal
-                              </p>
-                              <p className="text-xs text-food-brown-500">
-                                {new Date(meal.timestamp).toLocaleTimeString("uz-UZ", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                          </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedDayLog.meals.map((meal) => (
+                    <div
+                      key={meal.id}
+                      className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-2xl p-3 border border-food-green-100"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-food-brown-800 capitalize truncate">
+                            {meal.food_name}
+                          </p>
+                          <p className="text-xs text-food-brown-500 mt-0.5">
+                            {meal.weight_grams}g •{" "}
+                            {new Date(meal.timestamp).toLocaleTimeString("uz-UZ", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
                         </div>
-                      ))}
+                        <div className="text-right shrink-0">
+                          <p className="font-extrabold text-food-red-600">
+                            {Math.round(meal.calories)}
+                          </p>
+                          <p className="text-[10px] text-food-brown-500 font-bold uppercase">
+                            kkal
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        ) : null}
+      </BottomSheet>
     </div>
   );
 };

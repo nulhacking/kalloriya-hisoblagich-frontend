@@ -79,13 +79,13 @@ define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.rksj5qu1qvo"
+    "revision": "0.o793eavvitg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^https:\/\/kalloriya-hisoblagich-backend-production\.up\.railway\.app\/.*/i, new workbox.NetworkFirst({
+  workbox.registerRoute(/^http:\/\/localhost:5000\/.*/i, new workbox.NetworkFirst({
     "cacheName": "api-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 100,

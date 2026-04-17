@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useIsTelegramMiniApp, useToken } from "../stores";
+import { useToken } from "../stores";
 import ImageUpload from "../components/ImageUpload";
 import ResultsDisplay from "../components/ResultsDisplay";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -7,18 +7,15 @@ import PrivacyPolicy from "../components/PrivacyPolicy";
 import type { AnalysisResults } from "../types";
 import {
   useAnalyzeFood,
-  useCreatePaymePayLink,
   useSubscriptionStatus,
 } from "../hooks/useFoodAnalysis";
 import { useAddMeal } from "../hooks/useMeals";
 
 const HomePage = () => {
   const token = useToken();
-  const isTelegramMiniApp = useIsTelegramMiniApp();
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
   const subscriptionQuery = useSubscriptionStatus();
-  const paymePayMutation = useCreatePaymePayLink();
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -42,7 +39,7 @@ const HomePage = () => {
     if (!image) return;
 
     const status = subscriptionQuery.data;
-    if (status && !status.is_active && status.free_attempts_left_today <= 0) {
+    if (status && status.free_attempts_left_today <= 0) {
       return;
     }
 
@@ -55,50 +52,6 @@ const HomePage = () => {
         subscriptionQuery.refetch();
       },
     });
-  };
-
-  const handleOpenPaymePayment = async () => {
-    try {
-      const amount = subscription?.monthly_price ?? 20000;
-
-      const response = await paymePayMutation.mutateAsync(amount);
-      const tgOpen = response.telegram_open_url?.trim();
-      if (isTelegramMiniApp && tgOpen) {
-        const webApp = window.Telegram?.WebApp;
-        const open = webApp && "openLink" in webApp ? webApp.openLink : undefined;
-        if (typeof open === "function") {
-          open.call(webApp, tgOpen, { try_instant_view: false });
-        } else {
-          window.open(tgOpen, "_blank", "noopener,noreferrer");
-        }
-        return;
-      }
-      if (
-        response.pay_method === "post" &&
-        response.pay_form_fields &&
-        Object.keys(response.pay_form_fields).length > 0
-      ) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = response.pay_url;
-        form.target = "_blank";
-        form.acceptCharset = "UTF-8";
-        for (const [name, value] of Object.entries(response.pay_form_fields)) {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = name;
-          input.value = value;
-          form.appendChild(input);
-        }
-        document.body.appendChild(form);
-        form.submit();
-        form.remove();
-      } else {
-        window.open(response.pay_url, "_blank");
-      }
-    } catch (err) {
-      console.error("Payme link olishda xatolik:", err);
-    }
   };
 
   const handleReset = () => {
@@ -150,94 +103,27 @@ const HomePage = () => {
     : null;
   const subscription = subscriptionQuery.data;
   const canAnalyze =
-    !subscription ||
-    subscription.is_active ||
-    subscription.free_attempts_left_today > 0;
-  const attemptsLabel = `${subscription?.free_attempts_left_today ?? 0}/${subscription?.free_attempts_per_day ?? 3}`;
-  const defaultPrice = subscription?.monthly_price ?? 20000;
+    !subscription || subscription.free_attempts_left_today > 0;
 
   return (
     <>
       {/* Header */}
-      <header className="text-center mb-4 md:mb-8">
-        <div className="inline-block">
-          <div className="relative">
-            <div className="text-5xl md:text-6xl mb-2 animate-bounce-soft">
-              🍽️
-            </div>
-            <h1 className="text-2xl md:text-4xl font-extrabold gradient-text-food mb-1 md:mb-2">
+      <header className="text-center mb-4 md:mb-6">
+        <div className="inline-flex items-center gap-3 mb-2">
+          <div className="text-4xl md:text-5xl animate-bounce-soft">🍽️</div>
+          <div className="text-left">
+            <h1 className="text-xl md:text-3xl font-extrabold gradient-text-food leading-tight">
               Kaloriya Hisoblagich
             </h1>
-            <p className="text-sm md:text-base text-food-brown-600 font-medium">
-              AI bilan ovqat kaloriyalarini aniqlang
+            <p className="text-xs md:text-sm text-food-brown-600 font-medium">
+              AI ovqat tahlilchi
             </p>
           </div>
-        </div>
-        <div className="flex justify-center gap-2 mt-3">
-          <span className="px-2.5 py-1 bg-food-green-100 text-food-green-700 rounded-full text-xs font-bold border border-food-green-200">
-            ⚡ Tezkor
-          </span>
-          <span className="px-2.5 py-1 bg-food-yellow-100 text-food-yellow-700 rounded-full text-xs font-bold border border-food-yellow-200">
-            🎯 Aniq
-          </span>
-          <span className="px-2.5 py-1 bg-food-orange-100 text-food-orange-700 rounded-full text-xs font-bold border border-food-orange-200">
-            🤖 AI
-          </span>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
-        {/* Subscription Card */}
-        <div className="mb-4 rounded-2xl border-2 border-food-blue-200 bg-gradient-to-br from-food-blue-50 to-white p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-bold text-food-brown-800">
-                Obuna holati
-              </p>
-              <p className="text-xs text-food-brown-600 mt-1">
-                Bugungi urinishlar:{" "}
-                <span className="font-bold">{attemptsLabel}</span>
-              </p>
-              {subscription?.subscription_expires_at && (
-                <p className="text-xs text-food-green-700 mt-1">
-                  Aktiv muddat:{" "}
-                  {new Date(subscription.subscription_expires_at).toLocaleDateString(
-                    "uz-UZ",
-                  )}
-                </p>
-              )}
-            </div>
-            <span
-              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                subscription?.is_active
-                  ? "bg-food-green-100 text-food-green-700"
-                  : "bg-food-orange-100 text-food-orange-700"
-              }`}
-            >
-              {subscription?.is_active ? "AKTIV" : "FREE"}
-            </span>
-          </div>
-
-          {!subscription?.is_active && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-food-brown-600">
-                Bepul: kuniga 3 ta tahlil. Obuna:{" "}
-                <span className="font-bold">{defaultPrice.toLocaleString("uz-UZ")} so'm</span>
-                {" "}/ {subscription?.monthly_days ?? 30} kun — kuniga 20 ta AI tahlil.
-              </p>
-              <button
-                type="button"
-                onClick={handleOpenPaymePayment}
-                disabled={paymePayMutation.isPending}
-                className="w-full px-4 py-2.5 rounded-xl bg-[#00b277] hover:bg-[#009966] text-white text-sm font-bold disabled:opacity-60 transition-colors"
-              >
-                {paymePayMutation.isPending ? "..." : "💚 Payme orqali to'lash"}
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Image Upload Section */}
         <ImageUpload
           onImageSelect={handleImageSelect}
@@ -294,7 +180,7 @@ const HomePage = () => {
               <span className="text-xl">🔒</span>
               {subscription?.is_active
                 ? "Kunlik limit tugadi (20 ta). Ertaga yana davom ettirishingiz mumkin."
-                : "Kunlik 3 ta bepul urinish tugadi. Obunani faollashtiring — kuniga 20 ta."}
+                : "Kunlik 3 ta bepul urinish tugadi. O'ngdagi ⚡ tugmasini bosing — kuniga 20 ta."}
             </p>
           </div>
         )}
