@@ -153,9 +153,7 @@ const HomePage = () => {
     !subscription ||
     subscription.is_active ||
     subscription.free_attempts_left_today > 0;
-  const attemptsLabel = subscription?.is_active
-    ? "Cheksiz"
-    : `${subscription?.free_attempts_left_today ?? 0}/${subscription?.free_attempts_per_day ?? 20}`;
+  const attemptsLabel = `${subscription?.free_attempts_left_today ?? 0}/${subscription?.free_attempts_per_day ?? 3}`;
   const defaultPrice = subscription?.monthly_price ?? 20000;
 
   return (
@@ -198,7 +196,7 @@ const HomePage = () => {
                 Obuna holati
               </p>
               <p className="text-xs text-food-brown-600 mt-1">
-                Bugungi bepul urinishlar:{" "}
+                Bugungi urinishlar:{" "}
                 <span className="font-bold">{attemptsLabel}</span>
               </p>
               {subscription?.subscription_expires_at && (
@@ -224,9 +222,9 @@ const HomePage = () => {
           {!subscription?.is_active && (
             <div className="mt-3 space-y-2">
               <p className="text-xs text-food-brown-600">
-                Oylik obuna:{" "}
+                Bepul: kuniga 3 ta tahlil. Obuna:{" "}
                 <span className="font-bold">{defaultPrice.toLocaleString("uz-UZ")} so'm</span>
-                {" "}({subscription?.monthly_days ?? 30} kun, kuniga 20 ta AI tahlil).
+                {" "}/ {subscription?.monthly_days ?? 30} kun — kuniga 20 ta AI tahlil.
               </p>
               <button
                 type="button"
@@ -294,7 +292,9 @@ const HomePage = () => {
           <div className="mt-4 p-4 bg-gradient-to-r from-food-orange-50 to-food-red-50 border-2 border-food-orange-300 rounded-2xl">
             <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
               <span className="text-xl">🔒</span>
-              Kunlik bepul urinish tugadi. Davom etish uchun obunani faollashtiring.
+              {subscription?.is_active
+                ? "Kunlik limit tugadi (20 ta). Ertaga yana davom ettirishingiz mumkin."
+                : "Kunlik 3 ta bepul urinish tugadi. Obunani faollashtiring — kuniga 20 ta."}
             </p>
           </div>
         )}
