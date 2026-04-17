@@ -197,12 +197,6 @@ export interface SubscriptionStatus {
   monthly_days: number;
 }
 
-export interface ClickPayLinkResponse {
-  amount: number;
-  days: number;
-  pay_url: string;
-}
-
 /** Payme POST form → checkout.paycom.uz */
 export interface PaymePayLinkResponse {
   amount: number;

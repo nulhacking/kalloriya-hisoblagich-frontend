@@ -5,7 +5,6 @@ import type {
   AuthResponse,
   User,
   SubscriptionStatus,
-  ClickPayLinkResponse,
   PaymePayLinkResponse,
   DailyLogResponse,
   MealEntryResponse,
@@ -390,23 +389,6 @@ export const getSubscriptionStatus = async (
     const response = await api.get<SubscriptionStatus>("/subscription/status", {
       headers: getAuthHeaders(token),
     });
-    return response.data;
-  } catch (error) {
-    return handleError(error);
-  }
-};
-
-export const getClickPayLink = async (
-  token: string,
-  amount: number,
-): Promise<ClickPayLinkResponse> => {
-  try {
-    const response = await api.get<ClickPayLinkResponse>(
-      `/subscription/click/pay-link?amount=${amount}`,
-      {
-        headers: getAuthHeaders(token),
-      },
-    );
     return response.data;
   } catch (error) {
     return handleError(error);

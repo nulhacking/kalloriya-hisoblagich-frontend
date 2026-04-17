@@ -7,7 +7,6 @@ import PrivacyPolicy from "../components/PrivacyPolicy";
 import type { AnalysisResults } from "../types";
 import {
   useAnalyzeFood,
-  useCreateClickPayLink,
   useCreatePaymePayLink,
   useSubscriptionStatus,
 } from "../hooks/useFoodAnalysis";
@@ -19,21 +18,18 @@ const HomePage = () => {
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
   const subscriptionQuery = useSubscriptionStatus();
-  const clickPayMutation = useCreateClickPayLink();
   const paymePayMutation = useCreatePaymePayLink();
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
-  const [paymentAmount, setPaymentAmount] = useState<number>(200);
 
   const handleImageSelect = (file: File) => {
     if (file) {
       setImage(file);
       setResults(null);
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -56,32 +52,14 @@ const HomePage = () => {
         subscriptionQuery.refetch();
       },
       onError: () => {
-        // Error is handled by mutation
         subscriptionQuery.refetch();
       },
     });
   };
 
-  const handleOpenClickPayment = async () => {
-    try {
-      const amount = Number(paymentAmount);
-      if (!amount || amount <= 0) {
-        throw new Error("To'lov summasi noto'g'ri");
-      }
-
-      const response = await clickPayMutation.mutateAsync(amount);
-      window.open(response.pay_url, "_blank");
-    } catch (err) {
-      console.error("Click link olishda xatolik:", err);
-    }
-  };
-
   const handleOpenPaymePayment = async () => {
     try {
-      const amount = Number(paymentAmount);
-      if (!amount || amount <= 0) {
-        throw new Error("To'lov summasi noto'g'ri");
-      }
+      const amount = subscription?.monthly_price ?? 20000;
 
       const response = await paymePayMutation.mutateAsync(amount);
       const tgOpen = response.telegram_open_url?.trim();
@@ -130,7 +108,6 @@ const HomePage = () => {
     analyzeMutation.reset();
   };
 
-  // Ovqatni kunlik hisobga qo'shish
   const handleAddMeal = async (analysisResults: AnalysisResults) => {
     if (!token) return;
 
@@ -158,8 +135,7 @@ const HomePage = () => {
       };
 
       await addMealMutation.mutateAsync(mealData);
-      
-      // Reset after adding
+
       handleReset();
     } catch (err) {
       console.error("Ovqatni qo'shishda xatolik:", err);
@@ -179,16 +155,15 @@ const HomePage = () => {
     subscription.free_attempts_left_today > 0;
   const attemptsLabel = subscription?.is_active
     ? "Cheksiz"
-    : `${subscription?.free_attempts_left_today ?? 0}/${subscription?.free_attempts_per_day ?? 3}`;
+    : `${subscription?.free_attempts_left_today ?? 0}/${subscription?.free_attempts_per_day ?? 20}`;
   const defaultPrice = subscription?.monthly_price ?? 20000;
 
   return (
     <>
-      {/* Header - Mobile optimized */}
+      {/* Header */}
       <header className="text-center mb-4 md:mb-8">
         <div className="inline-block">
           <div className="relative">
-            {/* Logo/Icon */}
             <div className="text-5xl md:text-6xl mb-2 animate-bounce-soft">
               🍽️
             </div>
@@ -200,7 +175,6 @@ const HomePage = () => {
             </p>
           </div>
         </div>
-        {/* Tags */}
         <div className="flex justify-center gap-2 mt-3">
           <span className="px-2.5 py-1 bg-food-green-100 text-food-green-700 rounded-full text-xs font-bold border border-food-green-200">
             ⚡ Tezkor
@@ -250,39 +224,18 @@ const HomePage = () => {
           {!subscription?.is_active && (
             <div className="mt-3 space-y-2">
               <p className="text-xs text-food-brown-600">
-                Oylik narx:{" "}
+                Oylik obuna:{" "}
                 <span className="font-bold">{defaultPrice.toLocaleString("uz-UZ")} so'm</span>
-                {" "}({subscription?.monthly_days ?? 30} kun). Summani o'zgartirsangiz, kunlar proporsional ochiladi.
+                {" "}({subscription?.monthly_days ?? 30} kun, kuniga 20 ta AI tahlil).
               </p>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                <input
-                  type="number"
-                  min={100}
-                  step={100}
-                  value={paymentAmount}
-                  onChange={(e) => setPaymentAmount(Number(e.target.value))}
-                  className="flex-1 px-3 py-2 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:outline-none text-sm"
-                  placeholder="Masalan 200"
-                />
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleOpenClickPayment}
-                    disabled={clickPayMutation.isPending}
-                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-food-blue-500 hover:bg-food-blue-600 text-white text-sm font-bold disabled:opacity-60"
-                  >
-                    {clickPayMutation.isPending ? "..." : "Click"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOpenPaymePayment}
-                    disabled={paymePayMutation.isPending}
-                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#00b277] hover:bg-[#009966] text-white text-sm font-bold disabled:opacity-60"
-                  >
-                    {paymePayMutation.isPending ? "..." : "Payme"}
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={handleOpenPaymePayment}
+                disabled={paymePayMutation.isPending}
+                className="w-full px-4 py-2.5 rounded-xl bg-[#00b277] hover:bg-[#009966] text-white text-sm font-bold disabled:opacity-60 transition-colors"
+              >
+                {paymePayMutation.isPending ? "..." : "💚 Payme orqali to'lash"}
+              </button>
             </div>
           )}
         </div>
@@ -341,7 +294,7 @@ const HomePage = () => {
           <div className="mt-4 p-4 bg-gradient-to-r from-food-orange-50 to-food-red-50 border-2 border-food-orange-300 rounded-2xl">
             <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
               <span className="text-xl">🔒</span>
-              Kunlik 3 ta bepul urinish tugadi. Davom etish uchun obunani faollashtiring.
+              Kunlik bepul urinish tugadi. Davom etish uchun obunani faollashtiring.
             </p>
           </div>
         )}
@@ -354,7 +307,7 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* Footer - Mobile optimized */}
+      {/* Footer */}
       <footer className="text-center mt-4 md:mt-6 text-food-brown-600 text-xs md:text-sm">
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-3 md:p-4 shadow-md border border-food-green-100">
           <p className="font-medium flex items-center justify-center gap-1">
