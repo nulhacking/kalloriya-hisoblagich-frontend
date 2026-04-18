@@ -113,39 +113,6 @@ const HomePage = () => {
 
   return (
     <>
-      {/* Header */}
-      <header className="text-center mb-4 md:mb-6">
-        <div className="inline-flex items-center gap-3 mb-2">
-          <div className="text-4xl md:text-5xl animate-bounce-soft">🍽️</div>
-          <div className="text-left">
-            <h1 className="text-xl md:text-3xl font-extrabold gradient-text-food leading-tight">
-              Kaloriya Hisoblagich
-            </h1>
-            <p className="text-xs md:text-sm text-food-brown-600 font-medium">
-              AI ovqat tahlilchi
-            </p>
-          </div>
-        </div>
-      </header>
-
-      <div className="mb-4 rounded-2xl border border-food-green-100 bg-gradient-to-br from-food-green-50/90 via-white to-food-yellow-50/80 p-4 shadow-md text-left text-food-brown-800">
-        <p className="text-sm font-extrabold text-food-brown-900 mb-2">
-          🍽️ Kaloriya Hisoblagichga xush kelibsiz!
-        </p>
-        <p className="text-xs font-semibold text-food-brown-600 mb-2">
-          Bu ilova orqali siz:
-        </p>
-        <ul className="text-xs text-food-brown-700 space-y-1.5 list-none">
-          <li>• 📸 Ovqat rasmini yuborib kaloriyasini bilishingiz</li>
-          <li>• ✏️ Natijalarni tahrirlashingiz</li>
-          <li>• ✅ Tanovul qilganingizni bir tugma bilan saqlashingiz</li>
-          <li>• 📊 Kunlik ovqatlaringizni kuzatishingiz mumkin</li>
-        </ul>
-        <p className="text-xs text-food-brown-600 mt-3 font-medium">
-          🖼️ Ovqat rasmini yuboring — AI kaloriyasini hisoblab beradi.
-        </p>
-      </div>
-
       {/* Main Content */}
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
         {/* Image Upload Section */}

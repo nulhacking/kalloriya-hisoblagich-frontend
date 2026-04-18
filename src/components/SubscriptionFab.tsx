@@ -57,12 +57,13 @@ const SubscriptionFab = () => {
       const tgOpen = response.telegram_open_url?.trim();
       if (isTelegramMiniApp && tgOpen) {
         const webApp = window.Telegram?.WebApp;
+        const bridgeUrl = `${window.location.origin}/telegram-pay-bridge.html?u=${encodeURIComponent(tgOpen)}`;
         const openLink =
           webApp && "openLink" in webApp ? webApp.openLink : undefined;
         if (typeof openLink === "function") {
-          openLink.call(webApp, tgOpen, { try_instant_view: false });
+          openLink.call(webApp, bridgeUrl, { try_instant_view: false });
         } else {
-          window.open(tgOpen, "_blank", "noopener,noreferrer");
+          window.open(bridgeUrl, "_blank", "noopener,noreferrer");
         }
         setOpen(false);
         return;
