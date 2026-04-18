@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { getActivityCatalog, addActivity } from "../services/api";
-import { useAuthStore, useUser } from "../stores";
+import { getActivityCatalog } from "../services/api";
+import { useUser } from "../stores";
+import { useAddActivity } from "../hooks/useActivities";
 import BottomSheet from "./BottomSheet";
 import { useToast } from "./Toast";
 import type { ActivityCatalogItem, ActivityCategory } from "../types";
@@ -13,6 +14,8 @@ interface ActivityPickerProps {
 const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
   const user = useUser();
   const toast = useToast();
+  const addActivityMutation = useAddActivity();
+  const submitting = addActivityMutation.isPending;
 
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<ActivityCatalogItem[]>([]);
@@ -71,13 +74,11 @@ const ActivityPicker = ({ onClose, onActivityAdded }: ActivityPickerProps) => {
         distance_km: distance ? Number(distance) : undefined,
       });
       toast.success(`${selectedActivity.name} qo'shildi`);
-      onActivityAdded();
+      onActivityAdded?.();
       onClose();
     } catch (error) {
       console.error("Harakat qo'shishda xatolik:", error);
       toast.error("Qo'shishda xatolik");
-    } finally {
-      setSubmitting(false);
     }
   };
 

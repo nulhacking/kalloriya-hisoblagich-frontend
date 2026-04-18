@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuthStore } from "../stores";
-import { submitFeedback, getMyFeedbacks, FeedbackItem } from "../services/api";
+import { useMyFeedbacks, useSubmitFeedback } from "../hooks/useFeedback";
+import type { FeedbackCreateData } from "../services/api";
 import { useToast } from "./Toast";
 
 const CATEGORIES = [
@@ -18,7 +18,6 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const Feedback = () => {
-  const token = useAuthStore((state) => state.token);
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
 
@@ -55,7 +54,7 @@ const Feedback = () => {
       if (rating) {
         feedbackData.rating = rating;
       }
-      await submitFeedback(token, feedbackData);
+      await submitFeedbackMutation.mutateAsync(feedbackData);
 
       setSubmitted(true);
       toast.success("Fikringiz qabul qilindi!");
@@ -63,15 +62,12 @@ const Feedback = () => {
       setMessage("");
       setCategory("general");
       setRating(null);
-      setHistoryLoaded(false);
 
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Xatolik yuz berdi";
       setError(msg);
       toast.error(msg);
-    } finally {
-      setSubmitting(false);
     }
   };
 

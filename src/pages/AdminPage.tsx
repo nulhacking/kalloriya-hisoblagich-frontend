@@ -46,10 +46,6 @@ const AdminPage = () => {
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
   
-  // Broadcast state
-  const [broadcastText, setBroadcastText] = useState("");
-  const [broadcasting, setBroadcasting] = useState(false);
-
   // Check admin status
   useEffect(() => {
     const checkAdmin = async () => {
@@ -299,7 +295,7 @@ const AdminPage = () => {
                     >
                       💬 Javob berish
                     </button>
-                    {feedback.user?.telegram_id && (
+                    {feedback.user?.telegram_username && (
                       <button
                         onClick={() => {
                           setSelectedUser({
