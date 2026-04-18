@@ -56,15 +56,8 @@ const SubscriptionFab = () => {
       const response = await paymePayMutation.mutateAsync(amount);
       const tgOpen = response.telegram_open_url?.trim();
       if (isTelegramMiniApp && tgOpen) {
-        // Telegram WebView: openLink ko'pincha ichki brauzerda ochadi.
-        // <a target="_blank"> foydalanuvchi bosishi zanjirida — ko'pincha tizim brauzeri yoki Payme ilovasi.
-        const a = document.createElement("a");
-        a.href = tgOpen;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        // Shu oynada ochiladi → /payme/open HTML keyin xuddi shu oynada Payme ga POST
+        window.location.assign(tgOpen);
         setOpen(false);
         return;
       }
@@ -76,7 +69,8 @@ const SubscriptionFab = () => {
         const form = document.createElement("form");
         form.method = "POST";
         form.action = response.pay_url;
-        form.target = "_blank";
+        // _blank Telegram WebView da ko'pincha bloklanadi; shu oyna → Payme ochiladi
+        form.target = "_self";
         form.acceptCharset = "UTF-8";
         for (const [name, value] of Object.entries(response.pay_form_fields)) {
           const input = document.createElement("input");
@@ -89,7 +83,7 @@ const SubscriptionFab = () => {
         form.submit();
         form.remove();
       } else {
-        window.open(response.pay_url, "_blank");
+        window.location.assign(response.pay_url);
       }
       setOpen(false);
     } catch (err) {
