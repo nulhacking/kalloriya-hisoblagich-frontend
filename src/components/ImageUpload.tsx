@@ -20,9 +20,12 @@ const ImageUpload = ({
   const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
 
   const validateAndSelectFile = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      alert("Iltimos, to'g'ri rasm faylini tanlang (JPEG yoki PNG)");
+    const byName = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(file.name);
+    const byMime = file.type.startsWith("image/");
+    if (!byMime && !byName) {
+      alert(
+        "Iltimos, rasm faylini tanlang (JPEG, PNG, WebP yoki boshqa keng tarqalgan rasm formati).",
+      );
       return;
     }
 
@@ -382,7 +385,7 @@ const ImageUpload = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/*"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp,image/*"
         onChange={handleFileChange}
         className="hidden"
         disabled={disabled}
