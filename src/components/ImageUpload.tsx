@@ -123,12 +123,53 @@ const ImageUpload = ({
       }
 
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+      setCameraError(null);
+      setCameraPermissionDenied(false);
+      setPermissionState("granted");
+
+      // Video elementga stream-ni ulash va haqiqatan ijro etilguncha kutish.
+      // Aks holda ayrim brauzerlarda birinchi martada qora ekran chiqadi.
+      const attachStream = async () => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.srcObject = stream;
+        video.muted = true;
+        (video as any).playsInline = true;
+
+        const waitReady = new Promise<void>((resolve) => {
+          if (video.readyState >= 2) {
+            resolve();
+            return;
+          }
+          const onReady = () => {
+            video.removeEventListener("loadedmetadata", onReady);
+            video.removeEventListener("canplay", onReady);
+            resolve();
+          };
+          video.addEventListener("loadedmetadata", onReady);
+          video.addEventListener("canplay", onReady);
+        });
+
+        await waitReady;
+
+        try {
+          await video.play();
+        } catch (playErr) {
+          // autoplay bloklansa ham stream tayyor — UI ko'rinadi
+          console.warn("video.play() failed:", playErr);
+        }
+
         setCameraActive(true);
-        setCameraError(null);
-        setCameraPermissionDenied(false);
-        setPermissionState("granted");
+      };
+
+      // Video ref hali mount bo'lmagan bo'lishi mumkin — keyingi frame'da urinib ko'ramiz
+      if (videoRef.current) {
+        await attachStream();
+      } else {
+        requestAnimationFrame(() => {
+          void attachStream();
+        });
       }
     } catch (error: any) {
       console.error("Kamera xatosi:", error);
