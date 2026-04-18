@@ -32,7 +32,7 @@ const SubscriptionFab = () => {
 
   const isActive = subscription.is_active;
   const used = subscription.free_attempts_used_today ?? 0;
-  const limit = subscription.free_attempts_per_day ?? (isActive ? 20 : 3);
+  const limit = subscription.free_attempts_per_day ?? (isActive ? 40 : 3);
   const left = subscription.free_attempts_left_today ?? Math.max(limit - used, 0);
   const percentUsed = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
   const limitExhausted = left <= 0;
@@ -132,7 +132,7 @@ const SubscriptionFab = () => {
               </div>
               <p className="text-xs text-food-brown-500 mt-1">
                 {isActive
-                  ? "Kuniga 20 ta AI tahlil"
+                  ? "Kuniga 40 ta AI tahlil"
                   : "Kuniga 3 ta AI tahlil — tez, bepul"}
               </p>
             </div>
@@ -173,7 +173,7 @@ const SubscriptionFab = () => {
               {limitExhausted
                 ? isActive
                   ? "Kunlik limit tugadi. Ertaga avtomatik yangilanadi."
-                  : "Kunlik bepul limit tugadi. Obuna olib kuniga 20 ta tahlil qiling."
+                  : "Kunlik bepul limit tugadi. Obuna olib kuniga 40 ta tahlil qiling."
                 : `Bugun yana ${left} ta tahlil qilish imkoniyati bor.`}
             </p>
           </div>
@@ -221,7 +221,7 @@ const SubscriptionFab = () => {
                 <ul className="mt-2 space-y-1 text-sm">
                   <li className="flex items-center gap-2">
                     <span className="opacity-80">✓</span> Kuniga{" "}
-                    <b>20 ta</b> AI tahlil
+                    <b>40 ta</b> AI tahlil
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="opacity-80">✓</span>{" "}
