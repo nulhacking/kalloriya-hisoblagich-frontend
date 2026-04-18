@@ -56,8 +56,14 @@ const SubscriptionFab = () => {
       const response = await paymePayMutation.mutateAsync(amount);
       const tgOpen = response.telegram_open_url?.trim();
       if (isTelegramMiniApp && tgOpen) {
-        // Shu oynada ochiladi → /payme/open HTML keyin xuddi shu oynada Payme ga POST
-        window.location.assign(tgOpen);
+        const webApp = window.Telegram?.WebApp;
+        const openLink =
+          webApp && "openLink" in webApp ? webApp.openLink : undefined;
+        if (typeof openLink === "function") {
+          openLink.call(webApp, tgOpen, { try_instant_view: false });
+        } else {
+          window.open(tgOpen, "_blank", "noopener,noreferrer");
+        }
         setOpen(false);
         return;
       }
@@ -69,8 +75,7 @@ const SubscriptionFab = () => {
         const form = document.createElement("form");
         form.method = "POST";
         form.action = response.pay_url;
-        // _blank Telegram WebView da ko'pincha bloklanadi; shu oyna → Payme ochiladi
-        form.target = "_self";
+        form.target = "_blank";
         form.acceptCharset = "UTF-8";
         for (const [name, value] of Object.entries(response.pay_form_fields)) {
           const input = document.createElement("input");
@@ -83,7 +88,7 @@ const SubscriptionFab = () => {
         form.submit();
         form.remove();
       } else {
-        window.location.assign(response.pay_url);
+        window.open(response.pay_url, "_blank");
       }
       setOpen(false);
     } catch (err) {
@@ -156,10 +161,10 @@ const SubscriptionFab = () => {
             <div className="h-2.5 rounded-full bg-food-brown-100 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${limitExhausted
-                    ? "from-food-red-400 to-food-red-600"
-                    : percentUsed > 70
-                      ? "from-food-orange-400 to-food-orange-600"
-                      : "from-food-green-400 to-food-green-600"
+                  ? "from-food-red-400 to-food-red-600"
+                  : percentUsed > 70
+                    ? "from-food-orange-400 to-food-orange-600"
+                    : "from-food-green-400 to-food-green-600"
                   }`}
                 style={{ width: `${percentUsed}%` }}
               />

@@ -362,13 +362,13 @@ export const getFoodStats = async (
 export const analyzeFood = async (
   token: string,
   imageFile: File,
-  userHint?: string,
+  userNote?: string,
 ): Promise<AnalysisResults> => {
   const formData = new FormData();
   formData.append("image", imageFile);
-  const hint = userHint?.trim();
-  if (hint) {
-    formData.append("user_hint", hint);
+  const trimmed = userNote?.trim();
+  if (trimmed) {
+    formData.append("user_note", trimmed);
   }
 
   try {

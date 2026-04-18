@@ -19,7 +19,7 @@ const HomePage = () => {
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [userHint, setUserHint] = useState("");
+  const [userNote, setUserNote] = useState("");
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
@@ -27,7 +27,6 @@ const HomePage = () => {
     if (file) {
       setImage(file);
       setResults(null);
-      setUserHint("");
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -45,11 +44,9 @@ const HomePage = () => {
       return;
     }
 
+    const note = userNote.trim();
     analyzeMutation.mutate(
-      {
-        imageFile: image,
-        userHint: userHint.trim() || undefined,
-      },
+      { imageFile: image, userNote: note || undefined },
       {
         onSuccess: (data) => {
           setResults(data);
@@ -65,7 +62,7 @@ const HomePage = () => {
   const handleReset = () => {
     setImage(null);
     setImagePreview(null);
-    setUserHint("");
+    setUserNote("");
     setResults(null);
     analyzeMutation.reset();
   };
@@ -131,6 +128,24 @@ const HomePage = () => {
         </div>
       </header>
 
+      <div className="mb-4 rounded-2xl border border-food-green-100 bg-gradient-to-br from-food-green-50/90 via-white to-food-yellow-50/80 p-4 shadow-md text-left text-food-brown-800">
+        <p className="text-sm font-extrabold text-food-brown-900 mb-2">
+          🍽️ Kaloriya Hisoblagichga xush kelibsiz!
+        </p>
+        <p className="text-xs font-semibold text-food-brown-600 mb-2">
+          Bu ilova orqali siz:
+        </p>
+        <ul className="text-xs text-food-brown-700 space-y-1.5 list-none">
+          <li>• 📸 Ovqat rasmini yuborib kaloriyasini bilishingiz</li>
+          <li>• ✏️ Natijalarni tahrirlashingiz</li>
+          <li>• ✅ Tanovul qilganingizni bir tugma bilan saqlashingiz</li>
+          <li>• 📊 Kunlik ovqatlaringizni kuzatishingiz mumkin</li>
+        </ul>
+        <p className="text-xs text-food-brown-600 mt-3 font-medium">
+          🖼️ Ovqat rasmini yuboring — AI kaloriyasini hisoblab beradi.
+        </p>
+      </div>
+
       {/* Main Content */}
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
         {/* Image Upload Section */}
@@ -138,9 +153,35 @@ const HomePage = () => {
           onImageSelect={handleImageSelect}
           imagePreview={imagePreview}
           disabled={loading}
-          userHint={userHint}
-          onUserHintChange={setUserHint}
         />
+
+        {imagePreview && (
+          <div className="mt-4">
+            <label
+              htmlFor="food-user-note"
+              className="block text-xs font-bold text-food-brown-700 mb-1.5"
+            >
+              Ixtiyoriy: ovqat haqida qo'shimcha ma'lumot
+              <span className="font-normal text-food-brown-500">
+                {" "}
+                (aniqlikni oshirish uchun)
+              </span>
+            </label>
+            <textarea
+              id="food-user-note"
+              value={userNote}
+              onChange={(e) => setUserNote(e.target.value)}
+              disabled={loading}
+              maxLength={500}
+              rows={3}
+              placeholder="Masalan: lag'mon, go'sht ko'p; yoki stol ustidagi non va pishloq..."
+              className="w-full rounded-2xl border-2 border-food-green-100 bg-food-brown-50/40 px-3 py-2.5 text-sm text-food-brown-900 placeholder:text-food-brown-400 focus:border-food-green-400 focus:outline-none focus:ring-2 focus:ring-food-green-200 disabled:opacity-60 resize-none"
+            />
+            <p className="text-[11px] text-food-brown-500 mt-1">
+              {userNote.length}/500
+            </p>
+          </div>
+        )}
 
         {/* Action Buttons */}
         {imagePreview && (
