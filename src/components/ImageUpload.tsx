@@ -18,6 +18,10 @@ const ImageUpload = ({
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
+  // 'granted' => avtomatik yoqiladi; 'prompt'/'denied'/'unknown' => tugma ko'rsatiladi
+  const [permissionState, setPermissionState] = useState<
+    "granted" | "prompt" | "denied" | "unknown" | "checking"
+  >("checking");
 
   const validateAndSelectFile = (file: File) => {
     const byName = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(file.name);
@@ -124,6 +128,7 @@ const ImageUpload = ({
         setCameraActive(true);
         setCameraError(null);
         setCameraPermissionDenied(false);
+        setPermissionState("granted");
       }
     } catch (error: any) {
       console.error("Kamera xatosi:", error);
@@ -138,6 +143,7 @@ const ImageUpload = ({
           "Kamera ruxsati berilmagan. Iltimos, brauzer sozlamalaridan kamera ruxsatini bering.",
         );
         setCameraPermissionDenied(true);
+        setPermissionState("denied");
       } else if (
         error.name === "NotFoundError" ||
         error.name === "DevicesNotFoundError"
@@ -211,13 +217,57 @@ const ImageUpload = ({
     }
   };
 
-  // Start camera automatically on mount
+  // Kamera ruxsatini tekshirish — faqat 'granted' bo'lsa avtomatik yoqiladi.
+  // Aks holda foydalanuvchi "Kamerani yoqish" tugmasini bosishi kerak.
   useEffect(() => {
-    if (!disabled && !imagePreview && !cameraError) {
-      startCamera();
-    }
+    let cancelled = false;
+
+    const checkPermissionAndMaybeStart = async () => {
+      if (disabled || imagePreview) return;
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        if (!cancelled) setPermissionState("unknown");
+        return;
+      }
+
+      // Permissions API hamma brauzerda mavjud emas (masalan iOS Safari).
+      // U yerda ruxsat statusini aniqlab bo'lmaydi — tugma ko'rsatamiz.
+      const permsApi = (navigator as any).permissions;
+      if (!permsApi?.query) {
+        if (!cancelled) setPermissionState("prompt");
+        return;
+      }
+
+      try {
+        const status: PermissionStatus = await permsApi.query({
+          name: "camera" as PermissionName,
+        });
+        if (cancelled) return;
+
+        const apply = (state: PermissionState) => {
+          if (cancelled) return;
+          if (state === "granted") {
+            setPermissionState("granted");
+            startCamera();
+          } else if (state === "denied") {
+            setPermissionState("denied");
+          } else {
+            setPermissionState("prompt");
+          }
+        };
+
+        apply(status.state);
+        status.onchange = () => apply(status.state);
+      } catch {
+        // query("camera") ba'zi brauzerlarda throw qiladi — tugma ko'rsatamiz
+        if (!cancelled) setPermissionState("prompt");
+      }
+    };
+
+    checkPermissionAndMaybeStart();
 
     return () => {
+      cancelled = true;
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
@@ -270,36 +320,61 @@ const ImageUpload = ({
             </div>
           )}
 
-          {/* Skeleton Loader - shown while camera is loading (only if no error) */}
-          {!cameraActive && !cameraError && (
-            <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center">
-              {/* Animated skeleton */}
-              <div className="relative">
-                {/* Camera icon skeleton */}
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 animate-pulse flex items-center justify-center">
-                  <div className="text-4xl md:text-5xl animate-bounce-soft">
-                    📷
-                  </div>
+          {/* Ruxsat hali berilmagan yoki rad etilgan — "Kamerani yoqish" tugmasi */}
+          {!cameraActive &&
+            !cameraError &&
+            (permissionState === "prompt" ||
+              permissionState === "denied" ||
+              permissionState === "unknown") && (
+              <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center p-6">
+                <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 flex items-center justify-center mb-4 shadow-md">
+                  <div className="text-4xl md:text-5xl">📷</div>
                 </div>
-                {/* Pulsing ring */}
-                <div className="absolute inset-0 rounded-full border-4 border-food-green-400 animate-ping opacity-30"></div>
-              </div>
-
-              {/* Loading text */}
-              <div className="mt-6 text-center">
-                <p className="text-food-green-700 font-bold text-base md:text-lg">
-                  Kamera yuklanmoqda...
+                <p className="text-food-green-800 font-bold text-base md:text-lg mb-1 text-center">
+                  Kamera yoqilmagan
                 </p>
+                <p className="text-food-brown-600 text-xs md:text-sm mb-5 text-center max-w-xs">
+                  {permissionState === "denied"
+                    ? "Ruxsat rad etilgan. Brauzer sozlamalaridan ruxsat bering yoki rasm yuklang."
+                    : "Ovqatni darhol suratga olish uchun kamerani yoqing."}
+                </p>
+                <button
+                  onClick={startCamera}
+                  disabled={disabled}
+                  className="bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 flex items-center gap-2"
+                >
+                  <span className="text-xl">📸</span>
+                  <span className="text-sm md:text-base">Kamerani yoqish</span>
+                </button>
               </div>
+            )}
 
-              {/* Skeleton bars */}
-              <div className="mt-6 space-y-2 w-48">
-                <div className="h-2 bg-food-green-200 rounded-full animate-pulse"></div>
-                <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-3/4 mx-auto"></div>
-                <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-1/2 mx-auto"></div>
+          {/* Skeleton — faqat ruxsat berilgan, kamera hali yuklanmoqda holatida */}
+          {!cameraActive &&
+            !cameraError &&
+            (permissionState === "granted" ||
+              permissionState === "checking") && (
+              <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center">
+                <div className="relative">
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 animate-pulse flex items-center justify-center">
+                    <div className="text-4xl md:text-5xl animate-bounce-soft">
+                      📷
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-food-green-400 animate-ping opacity-30"></div>
+                </div>
+                <div className="mt-6 text-center">
+                  <p className="text-food-green-700 font-bold text-base md:text-lg">
+                    Kamera yuklanmoqda...
+                  </p>
+                </div>
+                <div className="mt-6 space-y-2 w-48">
+                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse"></div>
+                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-3/4 mx-auto"></div>
+                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-1/2 mx-auto"></div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <video
             ref={videoRef}
