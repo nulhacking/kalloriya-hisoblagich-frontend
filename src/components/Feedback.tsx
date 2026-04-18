@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useMyFeedbacks, useSubmitFeedback } from "../hooks/useFeedback";
-import type { FeedbackCreateData } from "../services/api";
+import { useAuthStore } from "../stores";
+import { submitFeedback, getMyFeedbacks, FeedbackItem } from "../services/api";
+import { useToast } from "./Toast";
 
 const CATEGORIES = [
   { value: "general", label: "Umumiy", icon: "💬" },
@@ -17,12 +18,14 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const Feedback = () => {
+  const token = useAuthStore((state) => state.token);
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
-  
+
   // React Query hooks for data fetching
   const { data: feedbacks = [], isLoading: loadingHistory } = useMyFeedbacks();
   const submitFeedbackMutation = useSubmitFeedback();
-  
+
   // New feedback form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -52,19 +55,23 @@ const Feedback = () => {
       if (rating) {
         feedbackData.rating = rating;
       }
-      
-      // Optimistic update orqali tezkor qo'shish
-      await submitFeedbackMutation.mutateAsync(feedbackData);
-      
+      await submitFeedback(token, feedbackData);
+
       setSubmitted(true);
+      toast.success("Fikringiz qabul qilindi!");
       setSubject("");
       setMessage("");
       setCategory("general");
       setRating(null);
-      
+      setHistoryLoaded(false);
+
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
+      const msg = err instanceof Error ? err.message : "Xatolik yuz berdi";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -81,27 +88,30 @@ const Feedback = () => {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex bg-food-green-100 rounded-xl p-1">
+      {/* Segment Control */}
+      <div className="relative bg-food-brown-100/60 rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
+        <div
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-md transition-transform duration-300 ease-out"
+          style={{
+            transform: activeTab === "new" ? "translateX(0)" : "translateX(100%)",
+            marginLeft: "2px",
+          }}
+        />
         <button
           onClick={() => handleTabChange("new")}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
-            activeTab === "new"
-              ? "bg-white text-food-green-700 shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800"
-          }`}
+          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "new" ? "text-food-green-700" : "text-food-brown-500"
+            }`}
         >
-          ✍️ Yangi
+          <span>✍️</span>
+          <span>Yangi</span>
         </button>
         <button
           onClick={() => handleTabChange("history")}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
-            activeTab === "history"
-              ? "bg-white text-food-green-700 shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800"
-          }`}
+          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "history" ? "text-food-green-700" : "text-food-brown-500"
+            }`}
         >
-          📋 Tarix
+          <span>📋</span>
+          <span>Tarix</span>
         </button>
       </div>
 
@@ -138,11 +148,10 @@ const Feedback = () => {
                 <button
                   key={cat.value}
                   onClick={() => setCategory(cat.value)}
-                  className={`py-2 px-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
-                    category === cat.value
+                  className={`py-2 px-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${category === cat.value
                       ? "bg-food-green-500 text-white shadow-md"
                       : "bg-white text-food-brown-700 border-2 border-food-green-200 hover:border-food-green-400"
-                  }`}
+                    }`}
                 >
                   <span>{cat.icon}</span>
                   <span>{cat.label}</span>
@@ -194,9 +203,8 @@ const Feedback = () => {
                 <button
                   key={star}
                   onClick={() => setRating(rating === star ? null : star)}
-                  className={`text-3xl transition-transform hover:scale-110 ${
-                    rating && rating >= star ? "opacity-100" : "opacity-30"
-                  }`}
+                  className={`text-3xl transition-transform hover:scale-110 ${rating && rating >= star ? "opacity-100" : "opacity-30"
+                    }`}
                 >
                   ⭐
                 </button>
@@ -217,11 +225,10 @@ const Feedback = () => {
           <button
             onClick={handleSubmit}
             disabled={submitFeedbackMutation.isPending || !subject.trim() || !message.trim()}
-            className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${
-              submitFeedbackMutation.isPending
+            className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${submitFeedbackMutation.isPending
                 ? "bg-gray-400"
                 : "bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-400 disabled:to-gray-500"
-            }`}
+              }`}
           >
             {submitFeedbackMutation.isPending ? (
               <>
@@ -293,9 +300,8 @@ const Feedback = () => {
                       </p>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-bold ${
-                        STATUS_LABELS[feedback.status]?.color || "bg-gray-100"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-bold ${STATUS_LABELS[feedback.status]?.color || "bg-gray-100"
+                        }`}
                     >
                       {STATUS_LABELS[feedback.status]?.label || feedback.status}
                     </span>
@@ -312,9 +318,8 @@ const Feedback = () => {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <span
                           key={star}
-                          className={`text-sm ${
-                            star <= feedback.rating! ? "opacity-100" : "opacity-30"
-                          }`}
+                          className={`text-sm ${star <= feedback.rating! ? "opacity-100" : "opacity-30"
+                            }`}
                         >
                           ⭐
                         </span>

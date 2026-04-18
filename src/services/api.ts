@@ -4,6 +4,8 @@ import type {
   HealthStatus,
   AuthResponse,
   User,
+  SubscriptionStatus,
+  PaymePayLinkResponse,
   DailyLogResponse,
   MealEntryResponse,
   DailyLogSummary,
@@ -13,10 +15,12 @@ import type {
   ActivityCatalogResponse,
 } from "../types";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  // "https://kalloriya-hisoblagich-backend-production.up.railway.app";
-  "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+if (!API_BASE_URL) {
+  throw new Error(
+    "VITE_API_URL mavjud emas. .env faylida VITE_API_URL=... ni belgilang.",
+  );
+}
 
 // Create axios instance with default config
 const api = axios.create({
@@ -357,24 +361,57 @@ export const getFoodStats = async (
  * @returns Nutrition analysis results
  */
 export const analyzeFood = async (
+  token: string,
   imageFile: File,
-  foodHint?: string,
+  userNote?: string,
 ): Promise<AnalysisResults> => {
   const formData = new FormData();
   formData.append("image", imageFile);
-  if (foodHint && foodHint.trim()) {
-    formData.append("food_hint", foodHint.trim());
+  const trimmed = userNote?.trim();
+  if (trimmed) {
+    formData.append("user_note", trimmed);
   }
 
   try {
-    const response = await axios.post<AnalysisResults>(
-      `${API_BASE_URL}/analyze-food`,
+    const response = await api.post<AnalysisResults>(
+      "/analyze-food",
       formData,
       {
+        headers: getAuthHeaders(token),
         timeout: 30000,
       },
     );
 
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getSubscriptionStatus = async (
+  token: string,
+): Promise<SubscriptionStatus> => {
+  try {
+    const response = await api.get<SubscriptionStatus>("/subscription/status", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getPaymePayLink = async (
+  token: string,
+  amount: number,
+): Promise<PaymePayLinkResponse> => {
+  try {
+    const response = await api.get<PaymePayLinkResponse>(
+      `/subscription/payme/pay-link?amount=${amount}`,
+      {
+        headers: getAuthHeaders(token),
+      },
+    );
     return response.data;
   } catch (error) {
     return handleError(error);

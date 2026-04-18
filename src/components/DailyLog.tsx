@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { DailyLog as DailyLogType, UserSettings } from "../types";
 import { useUser, useAuthStore } from "../stores";
 import ActivityPicker from "./ActivityPicker";
+import BottomSheet from "./BottomSheet";
+import { useToast } from "./Toast";
 import { deleteActivity, addCustomActivity, addMeal } from "../services/api";
 
 interface DailyLogProps {
@@ -19,6 +21,7 @@ const DailyLogComponent = ({
 }: DailyLogProps) => {
   const user = useUser();
   const token = useAuthStore((state) => state.token);
+  const toast = useToast();
   const [showActivityPicker, setShowActivityPicker] = useState(false);
   const [showCustomBurnedModal, setShowCustomBurnedModal] = useState(false);
   const [showCustomConsumedModal, setShowCustomConsumedModal] = useState(false);
@@ -46,9 +49,11 @@ const DailyLogComponent = ({
     if (!token || !confirm("Bu harakatni o'chirmoqchimisiz?")) return;
     try {
       await deleteActivity(token, id);
+      toast.success("Harakat o'chirildi");
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Harakat o'chirishda xatolik:", error);
+      toast.error("O'chirishda xatolik yuz berdi");
     }
   };
 
@@ -63,9 +68,11 @@ const DailyLogComponent = ({
       setCustomName("");
       setCustomCalories("");
       setShowCustomBurnedModal(false);
+      toast.success("Harakat qo'shildi");
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Maxsus harakat qo'shishda xatolik:", error);
+      toast.error("Qo'shishda xatolik");
     } finally {
       setIsSubmitting(false);
     }
@@ -86,12 +93,26 @@ const DailyLogComponent = ({
       setCustomName("");
       setCustomCalories("");
       setShowCustomConsumedModal(false);
+      toast.success("Ovqat qo'shildi");
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Maxsus ovqat qo'shishda xatolik:", error);
+      toast.error("Qo'shishda xatolik");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const closeBurnedSheet = () => {
+    setShowCustomBurnedModal(false);
+    setCustomName("");
+    setCustomCalories("");
+  };
+
+  const closeConsumedSheet = () => {
+    setShowCustomConsumedModal(false);
+    setCustomName("");
+    setCustomCalories("");
   };
 
   const getProgressColor = (current: number, goal: number): string => {
@@ -474,121 +495,149 @@ const DailyLogComponent = ({
         />
       )}
 
-      {/* Custom Burned Calories Modal */}
-      {showCustomBurnedModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-5 w-full max-w-sm">
-            <h3 className="text-lg font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-              <span>🔥</span> Maxsus sarflangan kaloriya
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-food-brown-700 mb-1">
-                  Harakat nomi
-                </label>
-                <input
-                  type="text"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="Masalan: Uy mashqi"
-                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-orange-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-food-brown-700 mb-1">
-                  Sarflangan kaloriya (kkal)
-                </label>
-                <input
-                  type="number"
-                  value={customCalories}
-                  onChange={(e) => setCustomCalories(e.target.value)}
-                  placeholder="Masalan: 200"
-                  min="1"
-                  max="5000"
-                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-orange-400 focus:outline-none"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-5">
-              <button
-                onClick={() => {
-                  setShowCustomBurnedModal(false);
-                  setCustomName("");
-                  setCustomCalories("");
-                }}
-                className="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-              >
-                Bekor qilish
-              </button>
-              <button
-                onClick={handleAddCustomBurned}
-                disabled={!customName.trim() || !customCalories || isSubmitting}
-                className="flex-1 py-2 bg-food-orange-500 text-white rounded-xl font-bold hover:bg-food-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
-              </button>
-            </div>
+      {/* Custom Burned Calories BottomSheet */}
+      <BottomSheet
+        open={showCustomBurnedModal}
+        onClose={closeBurnedSheet}
+        title="Maxsus sarflangan kaloriya"
+        icon="🔥"
+        accent="orange"
+        heroHeader
+        footer={
+          <div className="flex gap-3">
+            <button
+              onClick={closeBurnedSheet}
+              className="flex-1 py-3 bg-food-brown-50 text-food-brown-700 rounded-2xl font-bold hover:bg-food-brown-100 transition-colors active:scale-95"
+            >
+              Bekor qilish
+            </button>
+            <button
+              onClick={handleAddCustomBurned}
+              disabled={!customName.trim() || !customCalories || isSubmitting}
+              className="flex-1 py-3 bg-gradient-to-r from-food-orange-500 to-food-orange-600 text-white rounded-2xl font-bold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+            >
+              {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <div className="space-y-4 pt-2">
+          <p className="text-sm text-food-brown-600">
+            Katalogda yo'q mashq yoki harakatingizni qo'lda qo'shing.
+          </p>
 
-      {/* Custom Consumed Calories Modal */}
-      {showCustomConsumedModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-5 w-full max-w-sm">
-            <h3 className="text-lg font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-              <span>🍽️</span> Maxsus iste'mol kaloriyasi
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-food-brown-700 mb-1">
-                  Ovqat nomi
-                </label>
-                <input
-                  type="text"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="Masalan: Shirinlik"
-                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-green-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-food-brown-700 mb-1">
-                  Kaloriya (kkal)
-                </label>
-                <input
-                  type="number"
-                  value={customCalories}
-                  onChange={(e) => setCustomCalories(e.target.value)}
-                  placeholder="Masalan: 150"
-                  min="1"
-                  max="5000"
-                  className="w-full px-4 py-2 border-2 border-food-brown-200 rounded-xl focus:border-food-green-400 focus:outline-none"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-5">
-              <button
-                onClick={() => {
-                  setShowCustomConsumedModal(false);
-                  setCustomName("");
-                  setCustomCalories("");
-                }}
-                className="flex-1 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-              >
-                Bekor qilish
-              </button>
-              <button
-                onClick={handleAddCustomConsumed}
-                disabled={!customName.trim() || !customCalories || isSubmitting}
-                className="flex-1 py-2 bg-food-green-500 text-white rounded-xl font-bold hover:bg-food-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
-              </button>
+          <div>
+            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+              Harakat nomi
+            </label>
+            <input
+              type="text"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              placeholder="Masalan: Uy mashqi"
+              className="w-full px-4 py-3 border-2 border-food-orange-100 bg-food-orange-50/40 rounded-2xl focus:border-food-orange-400 focus:bg-white outline-none transition-all font-medium"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+              Sarflangan kaloriya (kkal)
+            </label>
+            <input
+              type="number"
+              value={customCalories}
+              onChange={(e) => setCustomCalories(e.target.value)}
+              placeholder="Masalan: 200"
+              min="1"
+              max="5000"
+              className="w-full px-4 py-3 border-2 border-food-orange-100 bg-food-orange-50/40 rounded-2xl focus:border-food-orange-400 focus:bg-white outline-none transition-all font-bold text-lg"
+            />
+            <div className="flex flex-wrap gap-2 mt-3">
+              {[100, 200, 300, 500].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setCustomCalories(String(v))}
+                  className="px-3 py-1.5 rounded-full bg-food-orange-100 text-food-orange-700 text-xs font-bold hover:bg-food-orange-200 transition-colors"
+                >
+                  {v} kkal
+                </button>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </BottomSheet>
+
+      {/* Custom Consumed Calories BottomSheet */}
+      <BottomSheet
+        open={showCustomConsumedModal}
+        onClose={closeConsumedSheet}
+        title="Maxsus iste'mol kaloriyasi"
+        icon="🍽️"
+        accent="green"
+        heroHeader
+        footer={
+          <div className="flex gap-3">
+            <button
+              onClick={closeConsumedSheet}
+              className="flex-1 py-3 bg-food-brown-50 text-food-brown-700 rounded-2xl font-bold hover:bg-food-brown-100 transition-colors active:scale-95"
+            >
+              Bekor qilish
+            </button>
+            <button
+              onClick={handleAddCustomConsumed}
+              disabled={!customName.trim() || !customCalories || isSubmitting}
+              className="flex-1 py-3 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white rounded-2xl font-bold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+            >
+              {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4 pt-2">
+          <p className="text-sm text-food-brown-600">
+            Rasmsiz, qo'lda ovqat yoki ichimlik kaloriyasini qo'shing.
+          </p>
+
+          <div>
+            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+              Ovqat nomi
+            </label>
+            <input
+              type="text"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              placeholder="Masalan: Shirinlik"
+              className="w-full px-4 py-3 border-2 border-food-green-100 bg-food-green-50/40 rounded-2xl focus:border-food-green-400 focus:bg-white outline-none transition-all font-medium"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+              Kaloriya (kkal)
+            </label>
+            <input
+              type="number"
+              value={customCalories}
+              onChange={(e) => setCustomCalories(e.target.value)}
+              placeholder="Masalan: 150"
+              min="1"
+              max="5000"
+              className="w-full px-4 py-3 border-2 border-food-green-100 bg-food-green-50/40 rounded-2xl focus:border-food-green-400 focus:bg-white outline-none transition-all font-bold text-lg"
+            />
+            <div className="flex flex-wrap gap-2 mt-3">
+              {[100, 200, 300, 500].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setCustomCalories(String(v))}
+                  className="px-3 py-1.5 rounded-full bg-food-green-100 text-food-green-700 text-xs font-bold hover:bg-food-green-200 transition-colors"
+                >
+                  {v} kkal
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 };

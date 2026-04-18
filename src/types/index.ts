@@ -183,6 +183,32 @@ export interface User {
   telegram_id?: string;
   telegram_username?: string;
   telegram_photo_url?: string;
+  // Subscription
+  subscription_expires_at?: string;
+  free_attempts_date?: string;
+  free_attempts_used_today?: number;
+}
+
+export interface SubscriptionStatus {
+  is_active: boolean;
+  subscription_expires_at?: string | null;
+  free_attempts_per_day: number;
+  free_attempts_used_today: number;
+  free_attempts_left_today: number;
+  monthly_price: number;
+  monthly_days: number;
+}
+
+/** Payme POST form → checkout.paycom.uz */
+export interface PaymePayLinkResponse {
+  amount: number;
+  days: number;
+  /** POST action URL */
+  pay_url: string;
+  pay_method: "post" | string;
+  pay_form_fields: Record<string, string> | null;
+  /** Telegram: bitta havola — brauzer / openLink */
+  telegram_open_url?: string | null;
 }
 
 // Telegram WebApp types
@@ -204,6 +230,8 @@ export interface TelegramWebApp {
   ready: () => void;
   close: () => void;
   expand: () => void;
+  /** Tashqi brauzerda havola (to'lov sahifalari) */
+  openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
   MainButton: {
     text: string;
     color: string;

@@ -1,4 +1,4 @@
-# Check Eat - Frontend
+# Kaloriya Hisoblagich - Frontend
 
 React frontend for the Food Nutrition Analyzer application.
 
@@ -20,6 +20,7 @@ React frontend for the Food Nutrition Analyzer application.
 ## Installation
 
 1. Install dependencies:
+
 ```bash
 npm install
 # or
@@ -27,7 +28,8 @@ yarn install
 ```
 
 2. (Optional) Configure environment variables:
-Create a `.env` file in the `frontend` directory:
+   Create a `.env` file in the `frontend` directory:
+
 ```bash
 # Backend API URL
 VITE_API_URL=http://localhost:8000
@@ -39,6 +41,7 @@ VITE_TELEGRAM_BOT_USERNAME=YourBotUsername
 ## Development
 
 Start the development server:
+
 ```bash
 npm run dev
 # or
@@ -50,6 +53,7 @@ The app will be available at `http://localhost:3000`
 ## Build
 
 Build for production:
+
 ```bash
 npm run build
 # or
@@ -57,6 +61,7 @@ yarn build
 ```
 
 Preview production build:
+
 ```bash
 npm run preview
 # or
@@ -103,4 +108,3 @@ frontend/
 - **Vite** - Build tool and dev server
 - **Tailwind CSS** - Styling
 - **Axios** - HTTP client
-

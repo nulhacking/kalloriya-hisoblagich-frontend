@@ -5,9 +5,10 @@ import { useDailyLog } from "./hooks/useDailyLog";
 import LoadingSpinner from "./components/LoadingSpinner";
 import BottomNavigation from "./components/BottomNavigation";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import SubscriptionFab from "./components/SubscriptionFab";
+import { ToastProvider } from "./components/Toast";
 import { lazyWithRetry } from "./utils/lazyWithRetry";
 
-// Lazy load pages with retry logic for chunk loading errors
 const HomePage = lazyWithRetry(() => import("./pages/HomePage"));
 const DailyLogPage = lazyWithRetry(() => import("./pages/DailyLogPage"));
 const HistoryPage = lazyWithRetry(() => import("./pages/HistoryPage"));
@@ -16,10 +17,17 @@ const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const AdminPage = lazyWithRetry(() => import("./pages/AdminPage"));
 
-// Loading fallback component
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <LoadingSpinner size="lg" />
+  </div>
+);
+
+const BackgroundBlobs = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute top-10 left-5 w-32 h-32 md:w-64 md:h-64 bg-food-green-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob"></div>
+    <div className="absolute top-20 right-5 w-32 h-32 md:w-64 md:h-64 bg-food-yellow-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div className="absolute bottom-10 left-1/3 w-32 h-32 md:w-64 md:h-64 bg-food-orange-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
   </div>
 );
 
@@ -30,17 +38,12 @@ function App() {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const { dailyLog } = useDailyLog();
 
-  // Initialize auth on mount (only if not already initialized)
-  // Note: onRehydrateStorage callback in authStore will also call initAuth
-  // This is a fallback in case onRehydrateStorage doesn't fire
   useEffect(() => {
-    // Initialize immediately - no delay needed
     if (!isInitialized) {
       initAuth();
     }
   }, [initAuth, isInitialized]);
 
-  // Auth loading screen
   if (authLoading) {
     return (
       <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 flex items-center justify-center">
@@ -53,23 +56,18 @@ function App() {
     );
   }
 
-  // Redirect to auth page if not authenticated
   if (!user) {
     return (
-      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-10 left-5 w-32 h-32 md:w-64 md:h-64 bg-food-green-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob"></div>
-          <div className="absolute top-20 right-5 w-32 h-32 md:w-64 md:h-64 bg-food-yellow-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-10 left-1/3 w-32 h-32 md:w-64 md:h-64 bg-food-orange-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      <ToastProvider>
+        <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
+          <BackgroundBlobs />
+          <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10">
+            <Suspense fallback={<PageLoader />}>
+              <AuthPage />
+            </Suspense>
+          </div>
         </div>
-
-        <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10">
-          <Suspense fallback={<PageLoader />}>
-            <AuthPage />
-          </Suspense>
-        </div>
-      </div>
+      </ToastProvider>
     );
   }
 
@@ -77,35 +75,30 @@ function App() {
   const dailyGoal = user?.daily_calorie_goal || 2000;
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-5 w-32 h-32 md:w-64 md:h-64 bg-food-green-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-20 right-5 w-32 h-32 md:w-64 md:h-64 bg-food-yellow-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-10 left-1/3 w-32 h-32 md:w-64 md:h-64 bg-food-orange-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    <ToastProvider>
+      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
+        <BackgroundBlobs />
+
+        <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10 pb-24">
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/daily" element={<DailyLogPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/stats" element={<StatsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </div>
+
+        <SubscriptionFab />
+        <BottomNavigation dailyCalories={dailyCalories} dailyGoal={dailyGoal} />
+        <PWAUpdatePrompt />
       </div>
-
-      <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10 pb-24">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/daily" element={<DailyLogPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/stats" element={<StatsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </div>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation dailyCalories={dailyCalories} dailyGoal={dailyGoal} />
-
-      {/* PWA Update Prompt */}
-      <PWAUpdatePrompt />
-    </div>
+    </ToastProvider>
   );
 }
 

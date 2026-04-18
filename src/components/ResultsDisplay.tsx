@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AnalysisResults } from "../types";
+import { useToast } from "./Toast";
 
 interface ResultsDisplayProps {
   results: AnalysisResults;
@@ -8,11 +9,13 @@ interface ResultsDisplayProps {
 
 const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
   const [added, setAdded] = useState(false);
+  const toast = useToast();
 
   const handleAddMeal = () => {
     if (onAddMeal && !added) {
       onAddMeal(results);
       setAdded(true);
+      toast.success("Kunlik hisobga qo'shildi");
     }
   };
   const {
@@ -79,23 +82,37 @@ const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
   return (
     <div className="space-y-4">
       {/* Food Name and Confidence */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-food-green-500 via-food-green-600 to-food-green-500 rounded-2xl p-4 md:p-5 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+      <div className="relative overflow-hidden bg-gradient-to-br from-food-green-500 via-food-green-600 to-food-green-700 rounded-3xl p-5 text-white shadow-xl">
+        <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-food-yellow-300/20 rounded-full blur-3xl"></div>
         <div className="relative z-10">
-          <h2 className="text-xl md:text-2xl font-extrabold capitalize mb-2">
-            {food === "noma'lum" || food === "unknown"
-              ? "❓ Noma'lum ovqat"
-              : `🍽️ ${food}`}
-          </h2>
+          <div className="flex items-start gap-3 mb-3">
+            <div className="text-3xl md:text-4xl">
+              {food === "noma'lum" || food === "unknown" ? "❓" : "🍽️"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs uppercase tracking-wider font-bold text-white/80 mb-0.5">
+                Tahlil natijasi
+              </div>
+              <h2 className="text-xl md:text-2xl font-extrabold capitalize leading-tight">
+                {food === "noma'lum" || food === "unknown" ? "Noma'lum ovqat" : food}
+              </h2>
+            </div>
+          </div>
           {food !== "noma'lum" && food !== "unknown" && (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-food-green-100 text-sm">
-                AI ishonch: <span className="font-bold text-white">{Math.round(confidence * 100)}%</span>
-              </span>
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full pl-1 pr-3 py-1">
+                <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-extrabold">
+                  AI
+                </div>
+                <span className="text-sm font-bold">
+                  {Math.round(confidence * 100)}%
+                </span>
+              </div>
               <span
                 className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getConfidenceColor(confidence)}`}
               >
-                {getConfidenceLabel(confidence)}
+                {getConfidenceLabel(confidence)} ishonch
               </span>
             </div>
           )}

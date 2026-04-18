@@ -55,39 +55,44 @@ const SettingsPage = () => {
     navigate("/auth");
   };
 
+  const tabs: { id: "settings" | "feedback"; icon: string; label: string }[] = [
+    { id: "settings", icon: "⚙️", label: "Sozlamalar" },
+    { id: "feedback", icon: "💬", label: "Fikr" },
+  ];
+
   return (
     <div className="space-y-4">
-      {/* Section Tabs */}
-      <div className="flex bg-white/80 backdrop-blur-md rounded-2xl p-1.5 shadow-lg border-2 border-food-green-100">
-        <button
-          onClick={() => setActiveSection("settings")}
-          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-            activeSection === "settings"
-              ? "bg-gradient-to-r from-food-green-500 to-food-green-600 text-white shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800 hover:bg-food-green-50"
-          }`}
-        >
-          <span>⚙️</span>
-          <span>Sozlamalar</span>
-        </button>
-        <button
-          onClick={() => setActiveSection("feedback")}
-          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-            activeSection === "feedback"
-              ? "bg-gradient-to-r from-food-green-500 to-food-green-600 text-white shadow-md"
-              : "text-food-brown-600 hover:text-food-brown-800 hover:bg-food-green-50"
-          }`}
-        >
-          <span>💬</span>
-          <span>Fikr-mulohaza</span>
-        </button>
+      {/* Segment Control */}
+      <div className="relative bg-food-brown-100/60 backdrop-blur-sm rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
+        <div
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-md transition-transform duration-300 ease-out"
+          style={{
+            transform: activeSection === "settings" ? "translateX(0)" : "translateX(100%)",
+            marginLeft: "2px",
+          }}
+        />
+        {tabs.map((tab) => {
+          const active = activeSection === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSection(tab.id)}
+              className={`relative z-10 py-2.5 font-bold text-sm transition-colors flex items-center justify-center gap-2 ${
+                active ? "text-food-green-700" : "text-food-brown-500"
+              }`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Admin Button */}
       {isAdmin && (
         <button
           onClick={() => navigate("/admin")}
-          className="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all"
+          className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-bold shadow-md flex items-center justify-center gap-2 hover:from-purple-600 hover:to-purple-700 active:scale-[0.98] transition-all"
         >
           <span>👨‍💼</span>
           <span>Admin Panel</span>

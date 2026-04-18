@@ -5,17 +5,21 @@ import ResultsDisplay from "../components/ResultsDisplay";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PrivacyPolicy from "../components/PrivacyPolicy";
 import type { AnalysisResults } from "../types";
-import { useAnalyzeFood } from "../hooks/useFoodAnalysis";
+import {
+  useAnalyzeFood,
+  useSubscriptionStatus,
+} from "../hooks/useFoodAnalysis";
 import { useAddMeal } from "../hooks/useMeals";
 
 const HomePage = () => {
   const token = useToken();
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
+  const subscriptionQuery = useSubscriptionStatus();
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [foodHint, setFoodHint] = useState<string>("");
+  const [userNote, setUserNote] = useState("");
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
@@ -24,7 +28,6 @@ const HomePage = () => {
       setImage(file);
       setResults(null);
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -36,27 +39,34 @@ const HomePage = () => {
   const handleAnalyze = () => {
     if (!image) return;
 
+    const status = subscriptionQuery.data;
+    if (status && status.free_attempts_left_today <= 0) {
+      return;
+    }
+
+    const note = userNote.trim();
     analyzeMutation.mutate(
-      { imageFile: image, foodHint: foodHint.trim() },
+      { imageFile: image, userNote: note || undefined },
       {
         onSuccess: (data) => {
           setResults(data);
+          subscriptionQuery.refetch();
         },
         onError: () => {
-          // Error is handled by mutation
+          subscriptionQuery.refetch();
         },
-      });
+      },
+    );
   };
 
   const handleReset = () => {
     setImage(null);
     setImagePreview(null);
-    setFoodHint("");
+    setUserNote("");
     setResults(null);
     analyzeMutation.reset();
   };
 
-  // Ovqatni kunlik hisobga qo'shish
   const handleAddMeal = async (analysisResults: AnalysisResults) => {
     if (!token) return;
 
@@ -89,7 +99,6 @@ const HomePage = () => {
 
       await addMealMutation.mutateAsync(mealData);
 
-      // Reset after adding
       handleReset();
     } catch (err) {
       console.error("Ovqatni qo'shishda xatolik:", err);
@@ -102,10 +111,12 @@ const HomePage = () => {
       ? analyzeMutation.error.message
       : "Rasmni tahlil qilishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
     : null;
+  const subscription = subscriptionQuery.data;
+  const canAnalyze =
+    !subscription || subscription.free_attempts_left_today > 0;
 
   return (
     <>
-
       {/* Main Content */}
       <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
         {/* Image Upload Section */}
@@ -115,32 +126,40 @@ const HomePage = () => {
           disabled={loading}
         />
 
-        {/* Optional food hint - helps improve accuracy */}
-        <div className="mt-3">
-          <label
-            htmlFor="food-hint"
-            className="block text-sm font-medium text-food-brown-600 mb-1.5"
-          >
-            <span className="opacity-80">💡 Ixtiyoriy:</span>             Ovqat haqida
-            qo'shimcha ma'lumot (aniqlikni oshirish uchun)
-          </label>
-          <input
-            id="food-hint"
-            type="text"
-            value={foodHint}
-            onChange={(e) => setFoodHint(e.target.value)}
-            placeholder="Misol: osh, lag'mon, qo'shimcha pishloq bilan..."
-            disabled={loading}
-            className="w-full px-4 py-3 rounded-xl border-2 border-food-green-100 focus:border-food-green-400 focus:ring-2 focus:ring-food-green-200 outline-none transition-all placeholder:text-food-brown-400 text-food-brown-700 disabled:bg-gray-50 disabled:opacity-60"
-          />
-        </div>
+        {imagePreview && (
+          <div className="mt-4">
+            <label
+              htmlFor="food-user-note"
+              className="block text-xs font-bold text-food-brown-700 mb-1.5"
+            >
+              Ixtiyoriy: ovqat haqida qo'shimcha ma'lumot
+              <span className="font-normal text-food-brown-500">
+                {" "}
+                (aniqlikni oshirish uchun)
+              </span>
+            </label>
+            <textarea
+              id="food-user-note"
+              value={userNote}
+              onChange={(e) => setUserNote(e.target.value)}
+              disabled={loading}
+              maxLength={500}
+              rows={3}
+              placeholder="Masalan: lag'mon, go'sht ko'p; yoki stol ustidagi non va pishloq..."
+              className="w-full rounded-2xl border-2 border-food-green-100 bg-food-brown-50/40 px-3 py-2.5 text-sm text-food-brown-900 placeholder:text-food-brown-400 focus:border-food-green-400 focus:outline-none focus:ring-2 focus:ring-food-green-200 disabled:opacity-60 resize-none"
+            />
+            <p className="text-[11px] text-food-brown-500 mt-1">
+              {userNote.length}/500
+            </p>
+          </div>
+        )}
 
         {/* Action Buttons */}
         {imagePreview && (
           <div className="flex gap-3 mt-4">
             <button
               onClick={handleAnalyze}
-              disabled={!image || loading}
+              disabled={!image || loading || !canAnalyze}
               className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 via-food-green-600 to-food-green-500 hover:from-food-green-600 hover:via-food-green-700 hover:to-food-green-600 disabled:from-gray-300 disabled:via-gray-400 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 md:py-4 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95"
             >
               {analyzeMutation.isPending ? (
@@ -178,6 +197,17 @@ const HomePage = () => {
           </div>
         )}
 
+        {!canAnalyze && (
+          <div className="mt-4 p-4 bg-gradient-to-r from-food-orange-50 to-food-red-50 border-2 border-food-orange-300 rounded-2xl">
+            <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
+              <span className="text-xl">🔒</span>
+              {subscription?.is_active
+                ? "Kunlik limit tugadi (20 ta). Ertaga yana davom ettirishingiz mumkin."
+                : "Kunlik 3 ta bepul urinish tugadi. O'ngdagi ⚡ tugmasini bosing — kuniga 20 ta."}
+            </p>
+          </div>
+        )}
+
         {/* Results Display */}
         {results && (
           <div className="mt-4 animate-fade-in-up">
@@ -186,7 +216,7 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* Footer - Mobile optimized */}
+      {/* Footer */}
       <footer className="text-center mt-4 md:mt-6 text-food-brown-600 text-xs md:text-sm">
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-3 md:p-4 shadow-md border border-food-green-100">
           <p className="font-medium flex items-center justify-center gap-1">

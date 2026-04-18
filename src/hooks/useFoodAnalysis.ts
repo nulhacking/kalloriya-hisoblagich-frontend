@@ -1,30 +1,55 @@
-import { useMutation } from "@tanstack/react-query";
-import { analyzeFood } from "../services/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useToken } from "../stores";
+import {
+  analyzeFood,
+  getPaymePayLink,
+  getSubscriptionStatus,
+} from "../services/api";
 import { compressImage, needsCompression } from "../utils/imageUtils";
 
-export interface AnalyzeFoodInput {
-  imageFile: File;
-  foodHint?: string;
-}
-
-// Analyze food mutation with image compression
 export const useAnalyzeFood = () => {
-  return useMutation({
-    mutationFn: async (input: AnalyzeFoodInput | File) => {
-      // Support both legacy (File) and new (object) format
-      const imageFile = typeof input === "object" && "imageFile" in input
-        ? input.imageFile
-        : input;
-      const foodHint = typeof input === "object" && "foodHint" in input
-        ? input.foodHint
-        : undefined;
+  const token = useToken();
 
-      // Compress image if needed (>300KB)
+  return useMutation({
+    mutationFn: async ({
+      imageFile,
+      userNote,
+    }: {
+      imageFile: File;
+      userNote?: string;
+    }) => {
+      if (!token) throw new Error("Token mavjud emas");
+
       const fileToSend = needsCompression(imageFile)
         ? await compressImage(imageFile)
         : imageFile;
 
-      return analyzeFood(fileToSend, foodHint);
+      return analyzeFood(token, fileToSend, userNote);
+    },
+  });
+};
+
+export const useSubscriptionStatus = () => {
+  const token = useToken();
+
+  return useQuery({
+    queryKey: ["subscription", "status"],
+    queryFn: () => {
+      if (!token) throw new Error("Token mavjud emas");
+      return getSubscriptionStatus(token);
+    },
+    enabled: !!token,
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useCreatePaymePayLink = () => {
+  const token = useToken();
+
+  return useMutation({
+    mutationFn: (amount: number) => {
+      if (!token) throw new Error("Token mavjud emas");
+      return getPaymePayLink(token, amount);
     },
   });
 };
