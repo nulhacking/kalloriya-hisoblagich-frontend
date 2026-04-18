@@ -11,14 +11,14 @@ export const useAnalyzeFood = () => {
   const token = useToken();
 
   return useMutation({
-    mutationFn: async (imageFile: File) => {
+    mutationFn: async (input: { imageFile: File; userHint?: string }) => {
       if (!token) throw new Error("Token mavjud emas");
 
-      const fileToSend = needsCompression(imageFile)
-        ? await compressImage(imageFile)
-        : imageFile;
+      const fileToSend = needsCompression(input.imageFile)
+        ? await compressImage(input.imageFile)
+        : input.imageFile;
 
-      return analyzeFood(token, fileToSend);
+      return analyzeFood(token, fileToSend, input.userHint);
     },
   });
 };

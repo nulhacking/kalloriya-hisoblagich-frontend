@@ -56,14 +56,15 @@ const SubscriptionFab = () => {
       const response = await paymePayMutation.mutateAsync(amount);
       const tgOpen = response.telegram_open_url?.trim();
       if (isTelegramMiniApp && tgOpen) {
-        const webApp = window.Telegram?.WebApp;
-        const openLink =
-          webApp && "openLink" in webApp ? webApp.openLink : undefined;
-        if (typeof openLink === "function") {
-          openLink.call(webApp, tgOpen, { try_instant_view: false });
-        } else {
-          window.open(tgOpen, "_blank", "noopener,noreferrer");
-        }
+        // Telegram WebView: openLink ko'pincha ichki brauzerda ochadi.
+        // <a target="_blank"> foydalanuvchi bosishi zanjirida — ko'pincha tizim brauzeri yoki Payme ilovasi.
+        const a = document.createElement("a");
+        a.href = tgOpen;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
         setOpen(false);
         return;
       }
@@ -160,13 +161,12 @@ const SubscriptionFab = () => {
             </div>
             <div className="h-2.5 rounded-full bg-food-brown-100 overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
-                  limitExhausted
+                className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${limitExhausted
                     ? "from-food-red-400 to-food-red-600"
                     : percentUsed > 70
                       ? "from-food-orange-400 to-food-orange-600"
                       : "from-food-green-400 to-food-green-600"
-                }`}
+                  }`}
                 style={{ width: `${percentUsed}%` }}
               />
             </div>
@@ -201,8 +201,8 @@ const SubscriptionFab = () => {
                 {isActive
                   ? subscription.subscription_expires_at
                     ? `${new Date(
-                        subscription.subscription_expires_at,
-                      ).toLocaleDateString("uz-UZ")} gacha`
+                      subscription.subscription_expires_at,
+                    ).toLocaleDateString("uz-UZ")} gacha`
                     : "aktiv"
                   : "bepul plan"}
               </p>
@@ -276,8 +276,8 @@ const SubscriptionFab = () => {
               <p className="text-xs text-food-brown-600 mt-1">
                 {subscription.subscription_expires_at
                   ? `${new Date(
-                      subscription.subscription_expires_at,
-                    ).toLocaleDateString("uz-UZ")} gacha amal qiladi`
+                    subscription.subscription_expires_at,
+                  ).toLocaleDateString("uz-UZ")} gacha amal qiladi`
                   : "obuna aktiv"}
               </p>
             </div>
@@ -294,9 +294,8 @@ const SubscriptionFab = () => {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Obuna holati"
-        className={`fixed right-3 z-40 animate-fab-in active:scale-95 transition-transform duration-200 ${
-          limitExhausted ? "animate-fab-pulse" : ""
-        }`}
+        className={`fixed right-3 z-40 animate-fab-in active:scale-95 transition-transform duration-200 ${limitExhausted ? "animate-fab-pulse" : ""
+          }`}
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 88px)",
         }}

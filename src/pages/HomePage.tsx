@@ -19,6 +19,7 @@ const HomePage = () => {
 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [userHint, setUserHint] = useState("");
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
 
@@ -26,6 +27,7 @@ const HomePage = () => {
     if (file) {
       setImage(file);
       setResults(null);
+      setUserHint("");
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -43,20 +45,27 @@ const HomePage = () => {
       return;
     }
 
-    analyzeMutation.mutate(image, {
-      onSuccess: (data) => {
-        setResults(data);
-        subscriptionQuery.refetch();
+    analyzeMutation.mutate(
+      {
+        imageFile: image,
+        userHint: userHint.trim() || undefined,
       },
-      onError: () => {
-        subscriptionQuery.refetch();
+      {
+        onSuccess: (data) => {
+          setResults(data);
+          subscriptionQuery.refetch();
+        },
+        onError: () => {
+          subscriptionQuery.refetch();
+        },
       },
-    });
+    );
   };
 
   const handleReset = () => {
     setImage(null);
     setImagePreview(null);
+    setUserHint("");
     setResults(null);
     analyzeMutation.reset();
   };
@@ -129,6 +138,8 @@ const HomePage = () => {
           onImageSelect={handleImageSelect}
           imagePreview={imagePreview}
           disabled={loading}
+          userHint={userHint}
+          onUserHintChange={setUserHint}
         />
 
         {/* Action Buttons */}

@@ -4,12 +4,16 @@ interface ImageUploadProps {
   onImageSelect: (file: File) => void;
   imagePreview: string | null;
   disabled: boolean;
+  userHint?: string;
+  onUserHintChange?: (value: string) => void;
 }
 
 const ImageUpload = ({
   onImageSelect,
   imagePreview,
   disabled,
+  userHint = "",
+  onUserHintChange,
 }: ImageUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -227,17 +231,43 @@ const ImageUpload = ({
     <div className="space-y-3">
       {/* Camera View or Image Preview */}
       {imagePreview ? (
-        <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-food-green-50">
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-contain mx-auto bg-white"
-          />
-          {/* Success indicator */}
-          <div className="absolute top-3 right-3 bg-food-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
-            <span>✓</span> Tayyor
+        <>
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-food-green-50">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-contain mx-auto bg-white"
+            />
+            {/* Success indicator */}
+            <div className="absolute top-3 right-3 bg-food-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+              <span>✓</span> Tayyor
+            </div>
           </div>
-        </div>
+          {onUserHintChange && (
+            <div className="rounded-2xl border-2 border-food-green-100 bg-gradient-to-br from-white to-food-green-50/80 p-3 shadow-inner">
+              <label
+                htmlFor="food-user-hint"
+                className="block text-xs font-extrabold text-food-brown-700 mb-1.5"
+              >
+                Ixtiyoriy: ovqat haqida qo&apos;shimcha ma&apos;lumot
+                <span className="font-semibold text-food-brown-500">
+                  {" "}
+                  (aniqlikni oshirish uchun)
+                </span>
+              </label>
+              <textarea
+                id="food-user-hint"
+                value={userHint}
+                onChange={(e) => onUserHintChange(e.target.value)}
+                disabled={disabled}
+                maxLength={800}
+                rows={3}
+                placeholder="Masalan: lagmon, go'shtsiz / 300 g atrofida / uyda tayyorlangan"
+                className="w-full rounded-xl border border-food-brown-200 bg-white/90 px-3 py-2.5 text-sm text-food-brown-800 placeholder:text-food-brown-400 focus:outline-none focus:ring-2 focus:ring-food-green-400 disabled:opacity-60 resize-y min-h-[4.5rem]"
+              />
+            </div>
+          )}
+        </>
       ) : (
         <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-gray-900">
           {/* Error Message - shown when camera fails */}
