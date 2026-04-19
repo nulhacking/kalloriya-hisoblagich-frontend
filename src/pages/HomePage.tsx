@@ -40,7 +40,11 @@ const HomePage = () => {
     if (!image) return;
 
     const status = subscriptionQuery.data;
-    if (status && status.free_attempts_left_today <= 0) {
+    if (
+      status &&
+      !status.unlimited_daily &&
+      status.free_attempts_left_today <= 0
+    ) {
       return;
     }
 
@@ -113,7 +117,9 @@ const HomePage = () => {
     : null;
   const subscription = subscriptionQuery.data;
   const canAnalyze =
-    !subscription || subscription.free_attempts_left_today > 0;
+    !subscription ||
+    subscription.unlimited_daily ||
+    subscription.free_attempts_left_today > 0;
 
   return (
     <>
