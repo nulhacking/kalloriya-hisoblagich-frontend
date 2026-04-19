@@ -202,8 +202,8 @@ const HomePage = () => {
             <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
               <span className="text-xl">🔒</span>
               {subscription?.is_active
-                ? "Kunlik limit tugadi (40 ta). Ertaga yana davom ettirishingiz mumkin."
-                : "Kunlik 3 ta bepul urinish tugadi. O'ngdagi ⚡ tugmasini bosing — kuniga 40 ta."}
+                ? "Kunlik limit tugadi. Ertaga yana davom ettirishingiz mumkin."
+                : "Kunlik 3 ta bepul urinish tugadi. O'ngdagi ⚡ tugmasini bosing — ko'p tahlil."}
             </p>
           </div>
         )}

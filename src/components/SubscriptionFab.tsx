@@ -61,11 +61,13 @@ const SubscriptionFab = () => {
   if (!subscription) return null;
 
   const isActive = subscription.is_active;
+  const unlimited = isActive && (subscription.unlimited_daily ?? false);
   const used = subscription.free_attempts_used_today ?? 0;
   const limit = subscription.free_attempts_per_day ?? (isActive ? 40 : 3);
   const left = subscription.free_attempts_left_today ?? Math.max(limit - used, 0);
-  const percentUsed = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-  const limitExhausted = left <= 0;
+  const percentUsed =
+    !unlimited && limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+  const limitExhausted = !unlimited && left <= 0;
 
   const fabGradient = isActive
     ? "from-emerald-500 via-food-green-500 to-emerald-600"
@@ -74,11 +76,13 @@ const SubscriptionFab = () => {
       : "from-food-orange-500 via-food-yellow-500 to-food-orange-500";
 
   const fabIcon = isActive ? "💎" : limitExhausted ? "🔒" : "⚡";
-  const fabLabel = isActive
-    ? `${left}/${limit}`
-    : limitExhausted
-      ? "Limit"
-      : `${left}/${limit}`;
+  const fabLabel = unlimited
+    ? "PRO"
+    : isActive
+      ? `${left}/${limit}`
+      : limitExhausted
+        ? "Limit"
+        : `${left}/${limit}`;
 
   const openPaymeUrl = (url: string) => {
     const webApp = window.Telegram?.WebApp;
@@ -173,8 +177,10 @@ const SubscriptionFab = () => {
               </div>
               <p className="text-xs text-food-brown-500 mt-1">
                 {isActive
-                  ? "Kuniga 40 ta AI tahlil"
-                  : "Kuniga 3 ta AI tahlil — tez, bepul"}
+                  ? unlimited
+                    ? "Ko'p AI tahlil"
+                    : `Kuniga ${limit} ta AI tahlil`
+                  : `Kuniga ${limit} ta AI tahlil — tez, bepul`}
               </p>
             </div>
             <button
@@ -190,34 +196,50 @@ const SubscriptionFab = () => {
 
         {/* Progress */}
         <div className="px-5">
-          <div className="rounded-2xl bg-gradient-to-br from-food-green-50 via-white to-food-yellow-50 border border-food-green-100 p-4">
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-xs font-bold text-food-brown-600 uppercase tracking-wider">
-                Bugungi tahlil
-              </span>
-              <span className="text-xs font-bold text-food-brown-500">
-                {used} / {limit}
-              </span>
+          {unlimited ? (
+            <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-food-green-50 border border-emerald-200 p-4">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-food-brown-600 uppercase tracking-wider">
+                  Bugungi tahlil
+                </span>
+                <span className="text-xs font-bold text-emerald-700">
+                  PRO
+                </span>
+              </div>
+              <p className="text-xs text-food-brown-600 mt-1">
+                Bugun <b>{used}</b> ta tahlil qildingiz. PRO rejimda ko'p tahlil qilishingiz mumkin.
+              </p>
             </div>
-            <div className="h-2.5 rounded-full bg-food-brown-100 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${limitExhausted
-                  ? "from-food-red-400 to-food-red-600"
-                  : percentUsed > 70
-                    ? "from-food-orange-400 to-food-orange-600"
-                    : "from-food-green-400 to-food-green-600"
-                  }`}
-                style={{ width: `${percentUsed}%` }}
-              />
+          ) : (
+            <div className="rounded-2xl bg-gradient-to-br from-food-green-50 via-white to-food-yellow-50 border border-food-green-100 p-4">
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-xs font-bold text-food-brown-600 uppercase tracking-wider">
+                  Bugungi tahlil
+                </span>
+                <span className="text-xs font-bold text-food-brown-500">
+                  {used} / {limit}
+                </span>
+              </div>
+              <div className="h-2.5 rounded-full bg-food-brown-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${limitExhausted
+                    ? "from-food-red-400 to-food-red-600"
+                    : percentUsed > 70
+                      ? "from-food-orange-400 to-food-orange-600"
+                      : "from-food-green-400 to-food-green-600"
+                    }`}
+                  style={{ width: `${percentUsed}%` }}
+                />
+              </div>
+              <p className="text-xs text-food-brown-600 mt-2">
+                {limitExhausted
+                  ? isActive
+                    ? "Kunlik limit tugadi. Ertaga avtomatik yangilanadi."
+                    : "Kunlik bepul limit tugadi. Obuna olib ko'p tahlil qiling."
+                  : `Bugun yana ${left} ta tahlil qilish imkoniyati bor.`}
+              </p>
             </div>
-            <p className="text-xs text-food-brown-600 mt-2">
-              {limitExhausted
-                ? isActive
-                  ? "Kunlik limit tugadi. Ertaga avtomatik yangilanadi."
-                  : "Kunlik bepul limit tugadi. Obuna olib kuniga 40 ta tahlil qiling."
-                : `Bugun yana ${left} ta tahlil qilish imkoniyati bor.`}
-            </p>
-          </div>
+          )}
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3 mt-3">
@@ -226,9 +248,11 @@ const SubscriptionFab = () => {
                 Qolgan
               </p>
               <p className="text-2xl font-extrabold text-food-brown-800 mt-0.5">
-                {left}
+                {unlimited ? "PRO" : left}
               </p>
-              <p className="text-[11px] text-food-brown-500">ta tahlil</p>
+              <p className="text-[11px] text-food-brown-500">
+                {unlimited ? "ko'p tahlil" : "ta tahlil"}
+              </p>
             </div>
             <div className="rounded-2xl bg-food-green-50 border border-food-green-100 p-3">
               <p className="text-[10px] uppercase tracking-wider font-bold text-food-brown-500">
@@ -261,8 +285,8 @@ const SubscriptionFab = () => {
                 </div>
                 <ul className="mt-2 space-y-1 text-sm">
                   <li className="flex items-center gap-2">
-                    <span className="opacity-80">✓</span> Kuniga{" "}
-                    <b>40 ta</b> AI tahlil
+                    <span className="opacity-80">✓</span>{" "}
+                    <b>Ko'p</b> AI tahlil
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="opacity-80">✓</span>{" "}

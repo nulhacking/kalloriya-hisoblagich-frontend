@@ -197,6 +197,8 @@ export interface SubscriptionStatus {
   free_attempts_left_today: number;
   monthly_price: number;
   monthly_days: number;
+  /** Pro + PAID_UNLIMITED: kunlik limit yo'q — UI "Cheksiz" ko'rsatadi. */
+  unlimited_daily?: boolean;
   /** Mavjud bo'lsa frontend Payme GET-linkni o'zi quradi (backend chaqirilmaydi). */
   payme_merchant_id?: string | null;
   payme_account_key?: string | null;
