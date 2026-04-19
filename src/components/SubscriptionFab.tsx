@@ -5,6 +5,36 @@ import {
   useCreatePaymePayLink,
   useSubscriptionStatus,
 } from "../hooks/useFoodAnalysis";
+import type { SubscriptionStatus } from "../types";
+
+const buildPaymeGetUrlFromStatus = (
+  status: SubscriptionStatus,
+  amount: number,
+): string | null => {
+  const merchant = status.payme_merchant_id?.trim();
+  const accKey = status.payme_account_key?.trim();
+  const accVal = status.payme_account_value?.trim();
+  if (!merchant || !accKey || !accVal) return null;
+  const amountTiyin = Math.round(amount * 100);
+  if (amountTiyin <= 0) return null;
+  const base =
+    status.payme_checkout_base_url?.trim().replace(/\/+$/, "") ||
+    "https://checkout.paycom.uz";
+  const parts = [
+    `m=${merchant}`,
+    `ac.${accKey}=${accVal}`,
+    `a=${amountTiyin}`,
+  ];
+  const cb = status.payme_callback_url?.trim();
+  if (cb) {
+    parts.push(`c=${cb}`);
+    const ct = status.payme_callback_timeout_ms?.trim();
+    if (ct) parts.push(`ct=${ct}`);
+  }
+  // btoa faqat latin-1: Payme payloadi ASCII, xavfsiz.
+  const encoded = btoa(parts.join(";"));
+  return `${base}/${encoded}`;
+};
 
 const SubscriptionFab = () => {
   const isTelegramMiniApp = useIsTelegramMiniApp();
@@ -50,23 +80,34 @@ const SubscriptionFab = () => {
       ? "Limit"
       : `${left}/${limit}`;
 
+  const openPaymeUrl = (url: string) => {
+    const webApp = window.Telegram?.WebApp;
+    const openLink =
+      webApp && "openLink" in webApp ? webApp.openLink : undefined;
+    if (isTelegramMiniApp && typeof openLink === "function") {
+      openLink.call(webApp, url, { try_instant_view: false });
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const handlePay = async () => {
     try {
       const amount = subscription.monthly_price ?? 20000;
-      const response = await paymePayMutation.mutateAsync(amount);
-      const tgOpen = response.telegram_open_url?.trim();
-      if (isTelegramMiniApp && tgOpen) {
-        const webApp = window.Telegram?.WebApp;
-        const openLink =
-          webApp && "openLink" in webApp ? webApp.openLink : undefined;
-        if (typeof openLink === "function") {
-          openLink.call(webApp, tgOpen, { try_instant_view: false });
-        } else {
-          window.open(tgOpen, "_blank", "noopener,noreferrer");
-        }
+
+      // Tez yo'l: /status javobidan to'g'ridan-to'g'ri GET-link quramiz — tarmoq so'rovi yo'q.
+      const localUrl = buildPaymeGetUrlFromStatus(subscription, amount);
+      if (localUrl) {
+        openPaymeUrl(localUrl);
         setOpen(false);
         return;
       }
+
+      // Zaxira: intent yoqilgan yoki status maydonlari yo'q — backend /pay-link.
+      const response = await paymePayMutation.mutateAsync(amount);
+      const tgOpen = response.telegram_open_url?.trim();
+      const target = isTelegramMiniApp && tgOpen ? tgOpen : response.pay_url;
+
       if (
         response.pay_method === "post" &&
         response.pay_form_fields &&
@@ -88,7 +129,7 @@ const SubscriptionFab = () => {
         form.submit();
         form.remove();
       } else {
-        window.open(response.pay_url, "_blank");
+        openPaymeUrl(target);
       }
       setOpen(false);
     } catch (err) {

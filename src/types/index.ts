@@ -197,15 +197,22 @@ export interface SubscriptionStatus {
   free_attempts_left_today: number;
   monthly_price: number;
   monthly_days: number;
+  /** Mavjud bo'lsa frontend Payme GET-linkni o'zi quradi (backend chaqirilmaydi). */
+  payme_merchant_id?: string | null;
+  payme_account_key?: string | null;
+  payme_account_value?: string | null;
+  payme_checkout_base_url?: string | null;
+  payme_callback_url?: string | null;
+  payme_callback_timeout_ms?: string | null;
 }
 
-/** Payme POST form → checkout.paycom.uz */
+/** Payme checkout havolasi: pay_method="get" — window.open / openLink. */
 export interface PaymePayLinkResponse {
   amount: number;
   days: number;
-  /** POST action URL */
+  /** GET URL (base64-encoded payload) yoki legacy POST action. */
   pay_url: string;
-  pay_method: "post" | string;
+  pay_method: "get" | "post" | string;
   pay_form_fields: Record<string, string> | null;
   /** Telegram: bitta havola — brauzer / openLink */
   telegram_open_url?: string | null;
