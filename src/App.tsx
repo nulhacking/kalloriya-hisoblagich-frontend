@@ -16,6 +16,7 @@ const StatsPage = lazyWithRetry(() => import("./pages/StatsPage"));
 const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const AdminPage = lazyWithRetry(() => import("./pages/AdminPage"));
+const CoachPage = lazyWithRetry(() => import("./pages/CoachPage"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -83,6 +84,7 @@ function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/coach" element={<CoachPage />} />
               <Route path="/daily" element={<DailyLogPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/stats" element={<StatsPage />} />

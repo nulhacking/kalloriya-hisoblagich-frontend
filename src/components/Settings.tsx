@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import type { UserSettings } from "../types";
 import { useAuthStore, useIsRegistered, useUser } from "../stores";
 import { useToast } from "./Toast";
+import GoalPicker from "./GoalPicker";
+import ReminderSettings from "./ReminderSettings";
 
 // Faoliyat darajasi koeffitsiyentlari (backend bilan bir xil)
 const ACTIVITY_MULTIPLIERS: Record<string, number> = {
@@ -357,6 +359,12 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
           )}
         </div>
       )}
+
+      {/* Maqsad (Weight coach) */}
+      <GoalPicker />
+
+      {/* Eslatmalar */}
+      <ReminderSettings />
 
       {/* Saqlash tugmasi */}
       <button

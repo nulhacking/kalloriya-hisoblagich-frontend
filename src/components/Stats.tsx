@@ -6,6 +6,8 @@ import {
   FoodStatsListSkeleton,
   DailyChartSkeleton,
 } from "./Skeleton";
+import WeightTrendChart from "./WeightTrendChart";
+import ProjectionCard from "./ProjectionCard";
 
 const Stats = () => {
   const user = useUser();
@@ -65,6 +67,12 @@ const Stats = () => {
           Ovqatlanish tahlili va statistikasi
         </p>
       </div>
+
+      {/* Goal projection */}
+      <ProjectionCard />
+
+      {/* Weight trend */}
+      <WeightTrendChart />
 
       {/* Date Range Selector */}
       <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">

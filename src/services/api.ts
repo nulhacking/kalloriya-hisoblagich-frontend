@@ -13,6 +13,14 @@ import type {
   FoodStats,
   ActivityEntry,
   ActivityCatalogResponse,
+  GoalSetupPayload,
+  GoalSummary,
+  TargetBreakdown,
+  WeightEntry,
+  WeightHistoryResponse,
+  WeightTrendResponse,
+  CoachToday,
+  WeeklyReport,
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
@@ -739,6 +747,118 @@ export const getTodayActivities = async (
 ): Promise<ActivityEntry[]> => {
   try {
     const response = await api.get<ActivityEntry[]>("/activities/today", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// ==================== GOAL COACH API ====================
+
+/**
+ * Save goal + weekly pace, recompute daily calorie/macro target.
+ */
+export const setupGoal = async (
+  token: string,
+  payload: GoalSetupPayload,
+): Promise<TargetBreakdown> => {
+  try {
+    const response = await api.post<TargetBreakdown>("/goals/setup", payload, {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Get today's target vs. eaten, projection.
+ */
+export const getGoalSummary = async (token: string): Promise<GoalSummary> => {
+  try {
+    const response = await api.get<GoalSummary>("/goals/summary", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Log weight (upsert per date).
+ */
+export const logWeight = async (
+  token: string,
+  payload: { weight_kg: number; date?: string; note?: string },
+): Promise<WeightEntry> => {
+  try {
+    const response = await api.post<WeightEntry>("/weight", payload, {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Weight history + 7-day moving average.
+ */
+export const getWeightHistory = async (
+  token: string,
+  days = 90,
+): Promise<WeightHistoryResponse> => {
+  try {
+    const response = await api.get<WeightHistoryResponse>(
+      `/weight/history?days=${days}`,
+      { headers: getAuthHeaders(token) },
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Weight trend + projection.
+ */
+export const getWeightTrend = async (
+  token: string,
+): Promise<WeightTrendResponse> => {
+  try {
+    const response = await api.get<WeightTrendResponse>("/weight/trend", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Daily meal plan + exercise + nudge.
+ */
+export const getCoachToday = async (token: string): Promise<CoachToday> => {
+  try {
+    const response = await api.get<CoachToday>("/coach/today", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Weekly summary.
+ */
+export const getWeeklyReport = async (token: string): Promise<WeeklyReport> => {
+  try {
+    const response = await api.get<WeeklyReport>("/coach/weekly-report", {
       headers: getAuthHeaders(token),
     });
     return response.data;

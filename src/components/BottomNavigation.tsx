@@ -14,8 +14,8 @@ const BottomNavigation = ({
 
   const tabs: { path: string; label: string; icon: string }[] = [
     { path: "/", label: "Bosh", icon: "🏠" },
+    { path: "/coach", label: "Coach", icon: "🧭" },
     { path: "/daily", label: "Kunlik", icon: "📊" },
-    { path: "/history", label: "Tarix", icon: "📅" },
     { path: "/stats", label: "Statistika", icon: "📈" },
     { path: "/settings", label: "Sozlamalar", icon: "⚙️" },
   ];

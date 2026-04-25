@@ -161,6 +161,8 @@ export interface UserSettings {
   activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 }
 
+export type GoalType = 'lose' | 'maintain' | 'gain';
+
 // User model from backend
 export interface User {
   id: string;
@@ -179,6 +181,16 @@ export interface User {
   activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
   bmr?: number;
   tdee?: number;
+  // Goal
+  goal_type?: GoalType;
+  target_weight_kg?: number;
+  target_date?: string;
+  weekly_pace_kg?: number;
+  // Reminders
+  reminder_enabled?: boolean;
+  reminder_morning?: string;
+  reminder_evening?: string;
+  timezone?: string;
   // Telegram
   telegram_id?: string;
   telegram_username?: string;
@@ -187,6 +199,112 @@ export interface User {
   subscription_expires_at?: string;
   free_attempts_date?: string;
   free_attempts_used_today?: number;
+}
+
+// Goal-coach types
+export interface TargetBreakdown {
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  delta_kcal: number;
+  bmr: number;
+  tdee: number;
+  goal_type: GoalType;
+  weekly_pace_kg: number;
+}
+
+export interface GoalSummary {
+  goal_type: GoalType;
+  target_weight_kg?: number | null;
+  target_date?: string | null;
+  weekly_pace_kg?: number | null;
+  current_weight_kg?: number | null;
+  target: TargetBreakdown;
+  eaten_calories: number;
+  eaten_protein: number;
+  eaten_carbs: number;
+  eaten_fat: number;
+  burned_calories: number;
+  remaining_calories: number;
+  projected_goal_date?: string | null;
+}
+
+export interface GoalSetupPayload {
+  goal_type: GoalType;
+  target_weight_kg?: number | null;
+  target_date?: string | null;
+  weekly_pace_kg?: number | null;
+}
+
+export interface WeightEntry {
+  id: string;
+  date: string;
+  weight_kg: number;
+  note?: string | null;
+  created_at: string;
+}
+
+export interface WeightHistoryPoint {
+  date: string;
+  weight_kg: number;
+  ma7_kg?: number | null;
+}
+
+export interface WeightHistoryResponse {
+  entries: WeightEntry[];
+  history: WeightHistoryPoint[];
+  current_kg?: number | null;
+  start_kg?: number | null;
+  change_kg?: number | null;
+}
+
+export interface WeightTrendResponse {
+  history: WeightHistoryPoint[];
+  target_weight_kg?: number | null;
+  projected_goal_date?: string | null;
+  slope_kg_per_week?: number | null;
+}
+
+// Coach
+export interface MealSuggestion {
+  name: string;
+  kcal: number;
+}
+
+export interface MealSlot {
+  key: 'breakfast' | 'lunch' | 'dinner' | 'snack' | string;
+  icon: string;
+  label: string;
+  target_kcal: number;
+  suggestions: MealSuggestion[];
+}
+
+export interface ExerciseSuggestion {
+  name: string;
+  icon: string;
+  minutes: number;
+  intensity: string;
+  kcal: number;
+  note: string;
+}
+
+export interface CoachToday {
+  nudge: string;
+  meal_plan: MealSlot[];
+  exercise: ExerciseSuggestion | null;
+  target_kcal: number;
+  eaten_kcal: number;
+  burned_kcal: number;
+  remaining_kcal: number;
+}
+
+export interface WeeklyReport {
+  days: number;
+  avg_kcal: number;
+  target_kcal: number;
+  weight_change_kg: number | null;
+  text: string;
 }
 
 export interface SubscriptionStatus {
