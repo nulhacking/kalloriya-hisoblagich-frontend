@@ -9,6 +9,7 @@ import {
   getFoodStats,
   getDateRangeStats,
 } from "../services/api";
+import { GOAL_SUMMARY_QUERY_KEY } from "./useGoal";
 
 // Query keys
 export const mealKeys = {
@@ -116,21 +117,21 @@ export const useAddMeal = () => {
       if (!token) throw new Error("Token mavjud emas");
       return addMeal(token, meal);
     },
-    // Optimistic update - darhol UI'ni yangilash
+    // Optimistic update - darhol UI'ni yangilash (daily log + goal summary)
     onMutate: async (newMeal) => {
       // Cancel outgoing refetches so they don't overwrite optimistic update
       await queryClient.cancelQueries({ queryKey: mealKeys.today() });
+      await queryClient.cancelQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
 
-      // Snapshot the previous value
+      // Snapshot previous values for rollback
       const previousLog = queryClient.getQueryData(mealKeys.today());
+      const previousGoalSummary = queryClient.getQueryData(GOAL_SUMMARY_QUERY_KEY);
 
-      // Optimistically update to the new value
+      // 1) Optimistically update today's log
       queryClient.setQueryData(mealKeys.today(), (old: any) => {
         if (!old) return old;
-
-        // Create temporary meal entry
         const tempMeal = {
-          id: `temp-${Date.now()}`, // Temporary ID
+          id: `temp-${Date.now()}`,
           food_name: newMeal.food_name,
           weight_grams: newMeal.weight_grams,
           calories: newMeal.calories,
@@ -140,7 +141,6 @@ export const useAddMeal = () => {
           image_preview: newMeal.image_preview,
           timestamp: new Date().toISOString(),
         };
-
         return {
           ...old,
           meals: [...old.meals, tempMeal],
@@ -151,18 +151,37 @@ export const useAddMeal = () => {
         };
       });
 
-      // Return context with the previous value
-      return { previousLog };
+      // 2) Optimistically bump goal summary (HomePage rings, Coach progress)
+      queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          eaten_calories: (old.eaten_calories || 0) + newMeal.calories,
+          eaten_protein: (old.eaten_protein || 0) + newMeal.protein,
+          eaten_carbs: (old.eaten_carbs || 0) + newMeal.carbs,
+          eaten_fat: (old.eaten_fat || 0) + newMeal.fat,
+          remaining_calories: Math.max(
+            0,
+            (old.remaining_calories || 0) - newMeal.calories,
+          ),
+        };
+      });
+
+      return { previousLog, previousGoalSummary };
     },
-    // If mutation fails, use the context to roll back
+    // If mutation fails, roll back BOTH caches
     onError: (_err, _newMeal, context) => {
       if (context?.previousLog) {
         queryClient.setQueryData(mealKeys.today(), context.previousLog);
       }
+      if (context?.previousGoalSummary) {
+        queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, context.previousGoalSummary);
+      }
     },
-    // Always refetch after error or success
+    // Refetch in the background to reconcile (no UI wait — caches already updated)
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: mealKeys.all });
+      queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
     },
   });
 };
@@ -177,22 +196,20 @@ export const useDeleteMeal = () => {
       if (!token) throw new Error("Token mavjud emas");
       return deleteMeal(token, mealId);
     },
-    // Optimistic update - darhol UI'dan o'chirish
+    // Optimistic update - darhol UI'dan o'chirish (daily log + goal summary)
     onMutate: async (mealId) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: mealKeys.today() });
+      await queryClient.cancelQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
 
-      // Snapshot the previous value
       const previousLog = queryClient.getQueryData(mealKeys.today());
+      const previousGoalSummary = queryClient.getQueryData(GOAL_SUMMARY_QUERY_KEY);
 
-      // Optimistically remove the meal
+      let removed: any = null;
       queryClient.setQueryData(mealKeys.today(), (old: any) => {
         if (!old) return old;
-
-        // Find the meal to remove
         const mealToRemove = old.meals.find((m: any) => m.id === mealId);
         if (!mealToRemove) return old;
-
+        removed = mealToRemove;
         return {
           ...old,
           meals: old.meals.filter((m: any) => m.id !== mealId),
@@ -203,18 +220,34 @@ export const useDeleteMeal = () => {
         };
       });
 
-      // Return context with the previous value
-      return { previousLog };
+      // Bump goal summary down
+      if (removed) {
+        queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            eaten_calories: Math.max(0, (old.eaten_calories || 0) - removed.calories),
+            eaten_protein: Math.max(0, (old.eaten_protein || 0) - removed.protein),
+            eaten_carbs: Math.max(0, (old.eaten_carbs || 0) - removed.carbs),
+            eaten_fat: Math.max(0, (old.eaten_fat || 0) - removed.fat),
+            remaining_calories: (old.remaining_calories || 0) + removed.calories,
+          };
+        });
+      }
+
+      return { previousLog, previousGoalSummary };
     },
-    // If mutation fails, use the context to roll back
     onError: (_err, _mealId, context) => {
       if (context?.previousLog) {
         queryClient.setQueryData(mealKeys.today(), context.previousLog);
       }
+      if (context?.previousGoalSummary) {
+        queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, context.previousGoalSummary);
+      }
     },
-    // Always refetch after error or success
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: mealKeys.all });
+      queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
     },
   });
 };

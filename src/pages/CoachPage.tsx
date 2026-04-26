@@ -1,16 +1,42 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useUser } from "../stores";
 import { useCoachToday, useWeeklyReport } from "../hooks/useCoach";
+import { useTodayLog } from "../hooks/useMeals";
 import MealPlanCard from "../components/MealPlanCard";
 import ExercisePlanCard from "../components/ExercisePlanCard";
 import LoadingSpinner from "../components/LoadingSpinner";
+
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, "")
+    .replace(/[—–-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 const CoachPage = () => {
   const user = useUser();
   const ready = !!user?.bmr && !!user?.tdee;
   const { data, isLoading, error } = useCoachToday(ready);
+  const todayLog = useTodayLog();
   const [weeklyOpen, setWeeklyOpen] = useState(false);
   const weekly = useWeeklyReport(weeklyOpen && ready);
+
+  // Today's logged meal names + done activity names — for ✓ persistence
+  const loggedNames = useMemo(() => {
+    const set = new Set<string>();
+    todayLog.data?.meals?.forEach((m) => set.add(normalize(m.food_name)));
+    return set;
+  }, [todayLog.data?.meals]);
+
+  const exerciseDone = useMemo(() => {
+    if (!data?.exercise) return false;
+    const target = normalize(data.exercise.name);
+    return !!todayLog.data?.activities?.some(
+      (a) => normalize(a.activity_name) === target,
+    );
+  }, [data?.exercise, todayLog.data?.activities]);
 
   if (!ready) {
     return (
@@ -75,9 +101,9 @@ const CoachPage = () => {
         </div>
       </div>
 
-      <ExercisePlanCard exercise={data.exercise} />
+      <ExercisePlanCard exercise={data.exercise} done={exerciseDone} />
 
-      <MealPlanCard plan={data.meal_plan} />
+      <MealPlanCard plan={data.meal_plan} loggedNames={loggedNames} />
 
       {/* Weekly report */}
       <div className="bg-white/95 rounded-2xl border-2 border-food-blue-100 overflow-hidden">

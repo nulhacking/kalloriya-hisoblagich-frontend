@@ -1,30 +1,45 @@
-import { useState } from "react";
 import type { MealSlot } from "../types";
 import { useAddMeal } from "../hooks/useMeals";
 import { useToast } from "./Toast";
 
 interface MealPlanCardProps {
   plan: MealSlot[];
+  /** Today's logged food names (lowercased, normalized) — for ✓ persistence */
+  loggedNames: Set<string>;
 }
 
-const MealPlanCard = ({ plan }: MealPlanCardProps) => {
+/** Normalize a meal name for matching: lowercase, strip "(...)", trim. */
+function normalizeName(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, "")
+    .replace(/[—–-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const MealPlanCard = ({ plan, loggedNames }: MealPlanCardProps) => {
   const addMeal = useAddMeal();
   const toast = useToast();
-  const [logged, setLogged] = useState<Record<string, boolean>>({});
 
-  const handleLog = async (slotKey: string, name: string, kcal: number) => {
-    const id = `${slotKey}:${name}`;
-    if (logged[id]) return;
+  const handleLog = async (
+    name: string,
+    kcal: number,
+    protein: number,
+    carbs: number,
+    fat: number,
+    alreadyDone: boolean,
+  ) => {
+    if (alreadyDone || addMeal.isPending) return;
     try {
       await addMeal.mutateAsync({
         food_name: name,
         weight_grams: 100,
         calories: kcal,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
+        protein,
+        carbs,
+        fat,
       });
-      setLogged((prev) => ({ ...prev, [id]: true }));
       toast.success("Qo'shildi ✓");
       if (window.Telegram?.WebApp) {
         // @ts-expect-error — HapticFeedback may not be typed
@@ -57,12 +72,11 @@ const MealPlanCard = ({ plan }: MealPlanCardProps) => {
           </div>
           <div className="space-y-1.5">
             {slot.suggestions.map((s) => {
-              const id = `${slot.key}:${s.name}`;
-              const done = logged[id];
+              const done = loggedNames.has(normalizeName(s.name));
               return (
                 <button
                   key={s.name}
-                  onClick={() => handleLog(slot.key, s.name, s.kcal)}
+                  onClick={() => handleLog(s.name, s.kcal, s.protein, s.carbs, s.fat, done)}
                   disabled={done || addMeal.isPending}
                   className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border transition-all ${
                     done
@@ -71,8 +85,12 @@ const MealPlanCard = ({ plan }: MealPlanCardProps) => {
                   }`}
                 >
                   <span className="text-sm font-medium flex items-center gap-2 text-left">
-                    {done ? <span>✓</span> : <span className="text-food-brown-400">+</span>}
-                    {s.name}
+                    {done ? (
+                      <span className="w-5 h-5 rounded-full bg-food-green-500 text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">✓</span>
+                    ) : (
+                      <span className="text-food-brown-400">+</span>
+                    )}
+                    <span className={done ? "line-through opacity-70" : ""}>{s.name}</span>
                   </span>
                   <span className="text-xs font-bold flex-shrink-0">{s.kcal} kkal</span>
                 </button>

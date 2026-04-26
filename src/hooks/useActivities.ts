@@ -6,6 +6,10 @@ import {
   deleteActivity,
   addCustomActivity,
 } from "../services/api";
+import { GOAL_SUMMARY_QUERY_KEY } from "./useGoal";
+
+// Daily log key (reuse from useMeals)
+const TODAY_LOG_KEY = ["meals", "today"] as const;
 
 // Query keys
 export const activityKeys = {
@@ -101,38 +105,80 @@ export const useAddCustomActivity = () => {
       if (!token) throw new Error("Token mavjud emas");
       return addCustomActivity(token, activity);
     },
-    // Optimistic update
+    // Optimistic update — activities list + daily log + goal summary
     onMutate: async (newActivity) => {
       await queryClient.cancelQueries({ queryKey: activityKeys.today() });
+      await queryClient.cancelQueries({ queryKey: TODAY_LOG_KEY });
+      await queryClient.cancelQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
 
       const previousActivities = queryClient.getQueryData(activityKeys.today());
+      const previousLog = queryClient.getQueryData(TODAY_LOG_KEY);
+      const previousGoalSummary = queryClient.getQueryData(GOAL_SUMMARY_QUERY_KEY);
 
+      // 1) Activities list — use activity_name to match backend shape (so
+      //    CoachPage's exerciseDone matching picks it up immediately)
       queryClient.setQueryData(activityKeys.today(), (old: any) => {
-        if (!old) return [];
-
         const tempActivity = {
           id: `temp-${Date.now()}`,
-          name: newActivity.name,
+          activity_id: "custom",
+          activity_name: newActivity.name,
+          activity_icon: "🏋️",
+          category: "custom",
+          duration_minutes: newActivity.duration_minutes || 0,
           calories_burned: newActivity.calories_burned,
-          duration_minutes: newActivity.duration_minutes,
           timestamp: new Date().toISOString(),
-          date: newActivity.date || new Date().toISOString().split("T")[0],
-          is_custom: true,
         };
-
-        return [...old, tempActivity];
+        return Array.isArray(old) ? [...old, tempActivity] : [tempActivity];
       });
 
-      return { previousActivities };
+      // 2) Daily log activities (so CoachPage exerciseDone via useTodayLog matches)
+      queryClient.setQueryData(TODAY_LOG_KEY, (old: any) => {
+        if (!old) return old;
+        const tempActivity = {
+          id: `temp-${Date.now()}`,
+          activity_id: "custom",
+          activity_name: newActivity.name,
+          activity_icon: "🏋️",
+          duration_minutes: newActivity.duration_minutes || 0,
+          calories_burned: newActivity.calories_burned,
+          timestamp: new Date().toISOString(),
+        };
+        return {
+          ...old,
+          activities: [...(old.activities || []), tempActivity],
+          total_activity_calories:
+            (old.total_activity_calories || 0) + newActivity.calories_burned,
+        };
+      });
+
+      // 3) Goal summary — burned_calories goes up, remaining_calories goes up
+      queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          burned_calories: (old.burned_calories || 0) + newActivity.calories_burned,
+          remaining_calories:
+            (old.remaining_calories || 0) + newActivity.calories_burned,
+        };
+      });
+
+      return { previousActivities, previousLog, previousGoalSummary };
     },
     onError: (_err, _newActivity, context) => {
       if (context?.previousActivities) {
         queryClient.setQueryData(activityKeys.today(), context.previousActivities);
       }
+      if (context?.previousLog) {
+        queryClient.setQueryData(TODAY_LOG_KEY, context.previousLog);
+      }
+      if (context?.previousGoalSummary) {
+        queryClient.setQueryData(GOAL_SUMMARY_QUERY_KEY, context.previousGoalSummary);
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: activityKeys.all });
       queryClient.invalidateQueries({ queryKey: ["meals"] });
+      queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
     },
   });
 };

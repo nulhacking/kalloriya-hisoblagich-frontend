@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useToken } from "../stores";
 import { getCoachToday, getWeeklyReport } from "../services/api";
 import type { CoachToday, WeeklyReport } from "../types";
@@ -9,6 +9,8 @@ export const useCoachToday = (enabled = true) => {
     queryKey: ["coach", "today"],
     enabled: enabled && !!token,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (!token) throw new Error("Token mavjud emas");
       return getCoachToday(token);
@@ -22,6 +24,8 @@ export const useWeeklyReport = (enabled = false) => {
     queryKey: ["coach", "weekly"],
     enabled: enabled && !!token,
     staleTime: 5 * 60_000,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (!token) throw new Error("Token mavjud emas");
       return getWeeklyReport(token);

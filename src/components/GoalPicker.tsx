@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../stores";
-import { useSetupGoal } from "../hooks/useGoal";
-import { useToast } from "./Toast";
 import type { GoalType } from "../types";
 
 interface GoalOption {
@@ -13,7 +11,6 @@ interface GoalOption {
   textClass: string;
 }
 
-// Full classnames so Tailwind JIT can pick them up.
 const GOAL_OPTIONS: GoalOption[] = [
   {
     key: "lose",
@@ -28,7 +25,7 @@ const GOAL_OPTIONS: GoalOption[] = [
     key: "maintain",
     icon: "⚖️",
     label: "Saqlash",
-    sub: "Hozirgi vaznni ushlab turish",
+    sub: "Hozirgi vaznni ushlash",
     activeClass:
       "bg-gradient-to-br from-food-yellow-100 to-food-yellow-50 border-food-yellow-500 shadow-md",
     textClass: "text-food-yellow-700",
@@ -37,7 +34,7 @@ const GOAL_OPTIONS: GoalOption[] = [
     key: "gain",
     icon: "💪",
     label: "Semirish",
-    sub: "Vazn oshirish / mushak",
+    sub: "Vazn / mushak yig'ish",
     activeClass:
       "bg-gradient-to-br from-food-orange-100 to-food-orange-50 border-food-orange-500 shadow-md",
     textClass: "text-food-orange-700",
@@ -45,7 +42,7 @@ const GOAL_OPTIONS: GoalOption[] = [
 ];
 
 const PACE_OPTIONS = [
-  { value: 0.25, label: "Yumshoq", sub: "≈ 0.25 kg/hafta" },
+  { value: 0.25, label: "Sekin", sub: "≈ 0.25 kg/hafta" },
   { value: 0.5, label: "O'rtacha", sub: "≈ 0.5 kg/hafta" },
   { value: 0.75, label: "Tez", sub: "≈ 0.75 kg/hafta" },
 ];
@@ -78,7 +75,7 @@ function estimateEta(
 ): string | null {
   if (!currentKg || !targetKg || pace <= 0) return null;
   const diff = Math.abs(targetKg - currentKg);
-  if (diff < 0.1) return "Siz allaqachon maqsad yaqinidasiz!";
+  if (diff < 0.1) return "Maqsadingizga yaqinsiz!";
   const weeks = diff / pace;
   const days = Math.round(weeks * 7);
   const eta = new Date();
@@ -90,75 +87,80 @@ function estimateEta(
   });
 }
 
-const GoalPicker = () => {
-  const user = useUser();
-  const setupGoal = useSetupGoal();
-  const toast = useToast();
+export interface GoalDraft {
+  goal_type: GoalType;
+  target_weight_kg: number | null;
+  weekly_pace_kg: number;
+}
 
-  const [goal, setGoal] = useState<GoalType>((user?.goal_type as GoalType) || "maintain");
-  const [targetKg, setTargetKg] = useState<number | "">(
-    user?.target_weight_kg ?? (user?.weight_kg ? user.weight_kg - 5 : ""),
+interface GoalPickerProps {
+  value: GoalDraft;
+  onChange: (next: GoalDraft) => void;
+  /** Live preview uchun current weight + bmr + tdee — UI faqat ko'rsatadi */
+  currentWeightKg?: number;
+}
+
+const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
+  const user = useUser();
+
+  // Local mirror for the input field (so user can clear and retype)
+  const [targetInput, setTargetInput] = useState<string>(
+    value.target_weight_kg != null ? String(value.target_weight_kg) : "",
   );
-  const [pace, setPace] = useState<number>(user?.weekly_pace_kg || 0.5);
 
   useEffect(() => {
-    if (user?.goal_type) setGoal(user.goal_type as GoalType);
-    if (user?.target_weight_kg) setTargetKg(user.target_weight_kg);
-    if (user?.weekly_pace_kg) setPace(user.weekly_pace_kg);
-  }, [user?.goal_type, user?.target_weight_kg, user?.weekly_pace_kg]);
+    setTargetInput(value.target_weight_kg != null ? String(value.target_weight_kg) : "");
+  }, [value.target_weight_kg]);
 
-  const effectivePace = goal === "maintain" ? 0 : pace;
+  const setGoal = (g: GoalType) => {
+    onChange({
+      ...value,
+      goal_type: g,
+      weekly_pace_kg: g === "maintain" ? 0 : value.weekly_pace_kg || 0.5,
+    });
+  };
+
+  const setPace = (p: number) => onChange({ ...value, weekly_pace_kg: p });
+
+  const setTarget = (raw: string) => {
+    setTargetInput(raw);
+    const n = Number(raw);
+    onChange({
+      ...value,
+      target_weight_kg: raw === "" || isNaN(n) ? null : n,
+    });
+  };
+
+  const effectivePace = value.goal_type === "maintain" ? 0 : value.weekly_pace_kg;
 
   const preview = useMemo(
-    () => estimateTarget(user?.tdee, user?.bmr, goal, effectivePace),
-    [user?.tdee, user?.bmr, goal, effectivePace],
+    () => estimateTarget(user?.tdee, user?.bmr, value.goal_type, effectivePace),
+    [user?.tdee, user?.bmr, value.goal_type, effectivePace],
   );
 
   const eta = useMemo(
-    () => (goal === "maintain" ? null : estimateEta(user?.weight_kg, Number(targetKg) || undefined, effectivePace)),
-    [user?.weight_kg, targetKg, effectivePace, goal],
+    () =>
+      value.goal_type === "maintain"
+        ? null
+        : estimateEta(currentWeightKg ?? user?.weight_kg, value.target_weight_kg ?? undefined, effectivePace),
+    [currentWeightKg, user?.weight_kg, value.target_weight_kg, effectivePace, value.goal_type],
   );
-
-  const ready = !!user?.tdee && !!user?.bmr && !!user?.weight_kg;
-
-  const handleSave = async () => {
-    if (!ready) {
-      toast.error("Avval tana ma'lumotlarini to'ldirib saqlang");
-      return;
-    }
-    try {
-      await setupGoal.mutateAsync({
-        goal_type: goal,
-        target_weight_kg: goal === "maintain" ? user?.weight_kg : Number(targetKg) || null,
-        weekly_pace_kg: goal === "maintain" ? 0 : pace,
-        target_date: null,
-      });
-      toast.success("Maqsad saqlandi ✅");
-      if (window.Telegram?.WebApp) {
-        // @ts-expect-error — HapticFeedback may not be typed here
-        window.Telegram.WebApp.HapticFeedback?.impactOccurred?.("light");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Saqlashda xatolik");
-    }
-  };
 
   return (
     <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200 space-y-4">
       <div>
         <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
-          <span>🎯</span> Maqsadingiz
+          <span>🎯</span> Maqsad
         </h3>
         <p className="text-xs text-food-brown-600 mt-1">
-          Biz kunlik kaloriya va makro targetlarni avtomatik hisoblaymiz
+          Kunlik kaloriya targetingiz avtomatik hisoblanadi
         </p>
       </div>
 
       {/* Goal type */}
       <div className="grid grid-cols-3 gap-2">
         {GOAL_OPTIONS.map((opt) => {
-          const active = goal === opt.key;
+          const active = value.goal_type === opt.key;
           return (
             <button
               key={opt.key}
@@ -179,7 +181,7 @@ const GoalPicker = () => {
       </div>
 
       {/* Target weight + pace */}
-      {goal !== "maintain" && (
+      {value.goal_type !== "maintain" && (
         <>
           <div>
             <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
@@ -187,9 +189,9 @@ const GoalPicker = () => {
             </label>
             <input
               type="number"
-              value={targetKg}
-              onChange={(e) => setTargetKg(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder={goal === "lose" ? "Masalan: 65" : "Masalan: 75"}
+              value={targetInput}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder={value.goal_type === "lose" ? "65" : "75"}
               min={20}
               max={500}
               step={0.1}
@@ -203,7 +205,7 @@ const GoalPicker = () => {
             </label>
             <div className="grid grid-cols-3 gap-2">
               {PACE_OPTIONS.map((p) => {
-                const active = pace === p.value;
+                const active = value.weekly_pace_kg === p.value;
                 return (
                   <button
                     key={p.value}
@@ -249,35 +251,17 @@ const GoalPicker = () => {
           </div>
           {eta && (
             <div className="text-xs text-food-brown-600 mt-2">
-              📅 Taxminiy yetish sanasi: <span className="font-bold">{eta}</span>
+              📅 Yetish sanasi: <span className="font-bold">{eta}</span>
             </div>
           )}
         </div>
       )}
 
-      {!ready && (
+      {!user?.tdee && (
         <div className="bg-food-yellow-50 border border-food-yellow-300 rounded-xl p-3 text-sm text-food-brown-700">
-          ⚠️ Maqsadni faollashtirish uchun yuqoridagi <b>Tana ma'lumotlari</b> bo'limini to'ldirib saqlang.
+          ⚠️ Quyidagi <b>Sizning ma'lumotlaringiz</b> bo'limini to'ldiring — kunlik kaloriya hisoblanishi uchun.
         </div>
       )}
-
-      <button
-        onClick={handleSave}
-        disabled={!ready || setupGoal.isPending}
-        className="w-full py-3.5 rounded-2xl font-bold text-white bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-400 disabled:to-gray-500 shadow-md active:scale-95 transition-all flex items-center justify-center gap-2"
-      >
-        {setupGoal.isPending ? (
-          <>
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            <span>Saqlanmoqda...</span>
-          </>
-        ) : (
-          <>
-            <span>💾</span>
-            <span>Maqsadni saqlash</span>
-          </>
-        )}
-      </button>
     </div>
   );
 };

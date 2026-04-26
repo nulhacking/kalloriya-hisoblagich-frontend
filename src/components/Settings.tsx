@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import type { UserSettings } from "../types";
-import { useAuthStore, useIsRegistered, useUser } from "../stores";
+import type { UserSettings, GoalType } from "../types";
+import { useAuthStore, useIsRegistered, useToken, useUser } from "../stores";
 import { useToast } from "./Toast";
-import GoalPicker from "./GoalPicker";
-import ReminderSettings from "./ReminderSettings";
+import GoalPicker, { type GoalDraft } from "./GoalPicker";
+import ReminderSettings, { type ReminderDraft } from "./ReminderSettings";
+import { useSetupGoal } from "../hooks/useGoal";
+import { updateUserSettings } from "../services/api";
 
 // Faoliyat darajasi koeffitsiyentlari (backend bilan bir xil)
 const ACTIVITY_MULTIPLIERS: Record<string, number> = {
@@ -40,15 +42,49 @@ interface SettingsProps {
 const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps) => {
   const isRegistered = useIsRegistered();
   const user = useUser();
+  const token = useToken();
+  const setUser = useAuthStore((state) => state.setUser);
   const logout = useAuthStore((state) => state.logout);
   const toast = useToast();
+  const setupGoal = useSetupGoal();
+
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Goal draft (controlled GoalPicker)
+  const [goalDraft, setGoalDraft] = useState<GoalDraft>({
+    goal_type: (user?.goal_type as GoalType) || "maintain",
+    target_weight_kg: user?.target_weight_kg ?? null,
+    weekly_pace_kg: user?.weekly_pace_kg ?? 0.5,
+  });
+
+  // Reminder draft (controlled ReminderSettings)
+  const [reminderDraft, setReminderDraft] = useState<ReminderDraft>({
+    enabled: user?.reminder_enabled ?? true,
+    morning: user?.reminder_morning || "08:00",
+    evening: user?.reminder_evening || "20:00",
+  });
+
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
+
+  // Sync drafts when user updates from elsewhere
+  useEffect(() => {
+    if (user) {
+      setGoalDraft({
+        goal_type: (user.goal_type as GoalType) || "maintain",
+        target_weight_kg: user.target_weight_kg ?? null,
+        weekly_pace_kg: user.weekly_pace_kg ?? 0.5,
+      });
+      setReminderDraft({
+        enabled: user.reminder_enabled ?? true,
+        morning: user.reminder_morning || "08:00",
+        evening: user.reminder_evening || "20:00",
+      });
+    }
+  }, [user?.goal_type, user?.target_weight_kg, user?.weekly_pace_kg, user?.reminder_enabled, user?.reminder_morning, user?.reminder_evening]);
 
   // Faoliyat darajasi tanlanganda kaloriya sarfini hisoblash (preview yoki saqlangan)
   const tdeeData = useMemo(() => {
@@ -69,16 +105,76 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
     return null;
   }, [localSettings.weight_kg, localSettings.height_cm, localSettings.age, localSettings.gender, localSettings.activity_level, user?.bmr, user?.tdee]);
 
+  const hasGoal = !!user?.goal_type;
+  const bodyMetricsReady = !!(
+    localSettings.weight_kg &&
+    localSettings.height_cm &&
+    localSettings.age &&
+    localSettings.gender &&
+    localSettings.activity_level
+  );
+
+  const goalChanged = (() => {
+    if (!user) return goalDraft.goal_type !== "maintain";
+    return (
+      goalDraft.goal_type !== (user.goal_type || "maintain") ||
+      goalDraft.target_weight_kg !== (user.target_weight_kg ?? null) ||
+      goalDraft.weekly_pace_kg !== (user.weekly_pace_kg ?? 0.5)
+    );
+  })();
+
   const handleSave = async () => {
+    if (!token) {
+      toast.error("Avval tizimga kiring");
+      return;
+    }
     setSaving(true);
     try {
-      await onSaveSettings(localSettings);
+      // 1) Update name + body metrics + manual macros + reminder fields in one call
+      const updatedUser = await updateUserSettings(token, {
+        name: localSettings.name,
+        daily_calorie_goal: localSettings.dailyCalorieGoal,
+        daily_protein_goal: localSettings.dailyOqsilGoal,
+        daily_carbs_goal: localSettings.dailyCarbsGoal,
+        daily_fat_goal: localSettings.dailyFatGoal,
+        weight_kg: localSettings.weight_kg,
+        height_cm: localSettings.height_cm,
+        age: localSettings.age,
+        gender: localSettings.gender,
+        activity_level: localSettings.activity_level,
+        reminder_enabled: reminderDraft.enabled,
+        reminder_morning: reminderDraft.morning,
+        reminder_evening: reminderDraft.evening,
+      });
+      setUser(updatedUser);
+
+      // 2) Save goal if user picked one (or changed it) and body metrics are ready
+      if (goalChanged && bodyMetricsReady) {
+        await setupGoal.mutateAsync({
+          goal_type: goalDraft.goal_type,
+          target_weight_kg: goalDraft.target_weight_kg,
+          weekly_pace_kg:
+            goalDraft.goal_type === "maintain" ? 0 : goalDraft.weekly_pace_kg,
+          target_date: null,
+        });
+      } else if (goalChanged && !bodyMetricsReady) {
+        toast.error("Maqsad uchun avval ma'lumotlaringizni to'ldiring");
+      }
+
       setSaved(true);
-      toast.success("Sozlamalar saqlandi");
+      toast.success("Saqlandi ✅");
+      // Notify legacy onSaveSettings (mostly for old screens still using it)
+      try {
+        await onSaveSettings(localSettings);
+      } catch { /* ignored — main update already succeeded */ }
+      if (window.Telegram?.WebApp) {
+        // @ts-expect-error — HapticFeedback may not be typed
+        window.Telegram.WebApp.HapticFeedback?.impactOccurred?.("light");
+      }
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error("Saqlashda xatolik:", error);
-      toast.error("Saqlashda xatolik yuz berdi");
+      toast.error("Saqlashda xatolik");
     } finally {
       setSaving(false);
     }
@@ -148,10 +244,54 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
         />
       </div>
 
-      {/* Kunlik maqsadlar */}
+      {/* Kunlik maqsadlar — agar maqsad qo'yilgan bo'lsa, kart sifatida ko'rinadi (read-only),
+          aks holda manual kiritish formasi */}
+      {hasGoal ? (
+        <div className="bg-gradient-to-br from-food-green-100 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
+          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
+            <span>🎯</span> Kunlik target
+            <span className="ml-auto text-[10px] font-bold bg-food-green-200 text-food-green-800 px-2 py-0.5 rounded-full">
+              Avtomatik
+            </span>
+          </h3>
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <div className="bg-white rounded-xl p-2">
+              <div className="text-[10px] text-food-brown-500">Kaloriya</div>
+              <div className="font-extrabold text-food-orange-600">
+                {user?.daily_calorie_goal}
+              </div>
+              <div className="text-[10px] text-food-brown-500">kkal</div>
+            </div>
+            <div className="bg-white rounded-xl p-2">
+              <div className="text-[10px] text-food-brown-500">🥩 Oqsil</div>
+              <div className="font-extrabold text-food-green-600">
+                {user?.daily_protein_goal}
+              </div>
+              <div className="text-[10px] text-food-brown-500">g</div>
+            </div>
+            <div className="bg-white rounded-xl p-2">
+              <div className="text-[10px] text-food-brown-500">🍞 Uglevod</div>
+              <div className="font-extrabold text-food-yellow-600">
+                {user?.daily_carbs_goal}
+              </div>
+              <div className="text-[10px] text-food-brown-500">g</div>
+            </div>
+            <div className="bg-white rounded-xl p-2">
+              <div className="text-[10px] text-food-brown-500">🧈 Yog'</div>
+              <div className="font-extrabold text-food-orange-700">
+                {user?.daily_fat_goal}
+              </div>
+              <div className="text-[10px] text-food-brown-500">g</div>
+            </div>
+          </div>
+          <p className="text-[11px] text-food-brown-600 mt-3 text-center">
+            💡 Maqsadingizga ko'ra hisoblangan. O'zgartirish uchun maqsadingizni qayta tanlang.
+          </p>
+        </div>
+      ) : (
       <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
         <h3 className="text-base font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-          <span>🎯</span> Kunlik maqsadlar
+          <span>🎯</span> Kunlik maqsadlar (qo'lda)
         </h3>
 
         <div className="space-y-4">
@@ -228,11 +368,12 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
           </div>
         </div>
       </div>
+      )}
 
-      {/* Tana ma'lumotlari */}
+      {/* Sizning ma'lumotlaringiz */}
       <div className="bg-gradient-to-br from-food-blue-50 to-food-green-50 rounded-2xl p-4 border-2 border-food-blue-200">
         <h3 className="text-base font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-          <span>📏</span> Tana ma'lumotlari (TDEE hisoblash uchun)
+          <span>📏</span> Sizning ma'lumotlaringiz
         </h3>
 
         <div className="space-y-4">
@@ -325,46 +466,47 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
         </div>
       </div>
 
-      {/* BMR va TDEE — faoliyat darajasi tanlanganda yoki saqlangan qiymatlar */}
+      {/* Kunlik kaloriya sarfi — faoliyat darajasi tanlanganda yoki saqlangan */}
       {tdeeData && (
         <div className="bg-gradient-to-r from-food-green-100 to-food-blue-100 rounded-2xl p-4 border-2 border-food-green-300">
           <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
             <span>⚡</span> Kunlik kaloriya sarfi
           </h3>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-xl p-3 text-center">
-              <div className="text-2xl mb-1">🔥</div>
+              <div className="text-2xl mb-1">😴</div>
               <div className="font-extrabold text-food-orange-600 text-xl">
                 {Math.round(tdeeData.bmr)}
               </div>
-              <div className="text-xs text-food-brown-500">BMR (tinch holat)</div>
+              <div className="text-xs text-food-brown-500">Tinch holatda</div>
             </div>
             <div className="bg-white rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">⚡</div>
               <div className="font-extrabold text-food-green-600 text-xl">
                 {Math.round(tdeeData.tdee)}
               </div>
-              <div className="text-xs text-food-brown-500">TDEE (kunlik sarf)</div>
+              <div className="text-xs text-food-brown-500">Faollik bilan</div>
             </div>
           </div>
-          
-          <p className="text-xs text-food-brown-600 mt-3 text-center">
-            💡 Vazn ushlab turish uchun kuniga ~{Math.round(tdeeData.tdee)} kkal yeng
-          </p>
-          {tdeeData.isPreview && (
-            <p className="text-xs text-food-orange-600 mt-1 text-center font-medium">
-              ⚠️ Natijani saqlash uchun &quot;Saqlash&quot; tugmasini bosing
+
+          {!hasGoal && (
+            <p className="text-xs text-food-brown-600 mt-3 text-center">
+              💡 Vaznni saqlab turish uchun kuniga ~{Math.round(tdeeData.tdee)} kkal
             </p>
           )}
         </div>
       )}
 
       {/* Maqsad (Weight coach) */}
-      <GoalPicker />
+      <GoalPicker
+        value={goalDraft}
+        onChange={setGoalDraft}
+        currentWeightKg={localSettings.weight_kg}
+      />
 
       {/* Eslatmalar */}
-      <ReminderSettings />
+      <ReminderSettings value={reminderDraft} onChange={setReminderDraft} />
 
       {/* Saqlash tugmasi */}
       <button

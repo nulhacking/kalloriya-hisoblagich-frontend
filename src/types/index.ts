@@ -270,6 +270,9 @@ export interface WeightTrendResponse {
 export interface MealSuggestion {
   name: string;
   kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 export interface MealSlot {
