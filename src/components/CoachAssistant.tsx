@@ -28,6 +28,7 @@ const CoachAssistant = () => {
 
   const [messages, setMessages] = useState<CoachHistoryItem[]>([]);
   const [animatedKey, setAnimatedKey] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [paywalled, setPaywalled] = useState(false);
 
@@ -44,6 +45,7 @@ const CoachAssistant = () => {
     if (historyQuery.data) {
       setMessages(historyQuery.data.messages);
       setAnimatedKey(null);
+      setSuggestion(null);
     }
   }, [historyQuery.data]);
 
@@ -74,6 +76,7 @@ const CoachAssistant = () => {
       { role: "user", content: text, created_at: now },
     ]);
     setAnimatedKey(null);
+    setSuggestion(null);
 
     sendMutation.mutate(text, {
       onSuccess: (reply) => {
@@ -87,6 +90,7 @@ const CoachAssistant = () => {
           setAnimatedKey(`${createdAt}-${next.length - 1}`);
           return next;
         });
+        setSuggestion(reply.ok ? (reply.suggestion ?? null) : null);
         if (!reply.ok) {
           toast.info("Murabbiy hozir to'liq javob bera olmadi — qayta urinib ko'ring.");
         }
@@ -182,6 +186,7 @@ const CoachAssistant = () => {
           isLocked={isLocked}
           messagesLeft={messagesLeft}
           isFreeTrial={!hasAccess}
+          suggestion={suggestion}
           onSend={handleSend}
           onChangePersona={() => setPickerOpen(true)}
           paywall={

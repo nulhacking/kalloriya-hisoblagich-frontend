@@ -143,6 +143,8 @@ interface CoachChatProps {
   isLocked: boolean;
   messagesLeft: number;
   isFreeTrial: boolean;
+  /** Murabbiy taklif qilgan keyingi savol — bosilganda chatga yoziladi. */
+  suggestion?: string | null;
   onSend: (message: string) => void;
   onChangePersona: () => void;
   paywall?: ReactNode;
@@ -156,6 +158,7 @@ const CoachChat = ({
   isLocked,
   messagesLeft,
   isFreeTrial,
+  suggestion,
   onSend,
   onChangePersona,
   paywall,
@@ -173,10 +176,8 @@ const CoachChat = ({
     scrollToBottom();
   }, [messages.length, isSending, scrollToBottom]);
 
-  const quickQuestions = useMemo(
-    () => getQuickQuestions(persona.id),
-    [persona.id],
-  );
+  // Faqat suhbat bo'sh bo'lganda ko'rsatiladi — keyin murabbiyning o'z taklifi chiqadi.
+  const starters = useMemo(() => getQuickQuestions(persona.id), [persona.id]);
 
   const submit = (text: string) => {
     const value = text.trim();
@@ -259,20 +260,21 @@ const CoachChat = ({
         {isSending && <TypingBubble gradient={theme.gradient} />}
       </div>
 
-      {/* Tez savollar */}
-      {!isLocked && messages.length < 6 && (
+      {/* Suhbatdan kelib chiqqan bitta taklif. Bo'sh ekranda — boshlang'ich savollar. */}
+      {!isLocked && !isSending && (
         <div className="px-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
-          {quickQuestions.map((question) => (
-            <button
-              key={question}
-              type="button"
-              disabled={isSending}
-              onClick={() => submit(question)}
-              className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 ${theme.border} ${theme.soft} ${theme.text} disabled:opacity-50 active:scale-95 transition-transform`}
-            >
-              💬 {question}
-            </button>
-          ))}
+          {(suggestion ? [suggestion] : messages.length === 0 ? starters : []).map(
+            (question) => (
+              <button
+                key={question}
+                type="button"
+                onClick={() => submit(question)}
+                className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 ${theme.border} ${theme.soft} ${theme.text} active:scale-95 transition-transform`}
+              >
+                💬 {question}
+              </button>
+            ),
+          )}
         </div>
       )}
 
