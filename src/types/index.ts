@@ -310,6 +310,8 @@ export interface WeeklyReport {
   text: string;
 }
 
+export type SubscriptionPlan = "free" | "pro" | "pro_plus";
+
 export interface SubscriptionStatus {
   is_active: boolean;
   subscription_expires_at?: string | null;
@@ -318,6 +320,12 @@ export interface SubscriptionStatus {
   free_attempts_left_today: number;
   monthly_price: number;
   monthly_days: number;
+  /** Tarif: 'free' | 'pro' | 'pro_plus' — AI murabbiy faqat pro_plus da. */
+  plan?: SubscriptionPlan;
+  plan_label?: string;
+  has_coach_access?: boolean;
+  pro_plus_price?: number;
+  pro_plus_days?: number;
   /** Pro + PAID_UNLIMITED: kunlik limit yo'q — UI "Cheksiz" ko'rsatadi. */
   unlimited_daily?: boolean;
   /** Mavjud bo'lsa frontend Payme GET-linkni o'zi quradi (backend chaqirilmaydi). */
@@ -412,3 +420,49 @@ export interface AuthResponse {
 
 // Tab turlari
 export type TabType = 'home' | 'daily' | 'history' | 'stats' | 'settings' | 'auth';
+
+// ---------------------------------------------------------- AI murabbiy (chat)
+
+/** Bitta murabbiy uslubi. `is_active=false` — "tez kunda". */
+export interface CoachPersona {
+  id: string;
+  name: string;
+  emoji: string;
+  tagline: string;
+  bullets: string[];
+  is_active: boolean;
+  is_selected: boolean;
+}
+
+export interface CoachPersonaList {
+  personas: CoachPersona[];
+  selected_id: string | null;
+  chat_active: boolean;
+  plan: SubscriptionPlan;
+  /** Pro Plus mi — cheklovsiz suhbat shu bilan ochiladi. */
+  has_access: boolean;
+  messages_left_today: number;
+  daily_limit: number;
+  voice_enabled: boolean;
+}
+
+export interface CoachChatResponse {
+  reply: string;
+  persona_id: string;
+  persona_name: string;
+  messages_left_today: number;
+  is_free_trial: boolean;
+  /** false — Gemini javob bermadi, fallback matn keldi (limit sarflanmadi). */
+  ok: boolean;
+}
+
+export interface CoachHistoryItem {
+  role: "user" | "coach";
+  content: string;
+  created_at: string;
+}
+
+export interface CoachHistory {
+  persona_id: string | null;
+  messages: CoachHistoryItem[];
+}

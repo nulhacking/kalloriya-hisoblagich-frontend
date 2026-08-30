@@ -317,3 +317,77 @@ body {
     radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(249, 115, 22, 0.08) 0%, transparent 50%);
 }
+
+/* ============ AI murabbiy suhbati ============ */
+
+/* "Yozyapti…" — uchta sakrab turgan nuqta */
+@keyframes coach-dot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.coach-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #a18072; /* food-brown-600 */
+  animation: coach-dot 1.1s ease-in-out infinite;
+}
+
+/* Typewriter kursori — javob ochilib borayotganda */
+@keyframes coach-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.coach-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background-color: currentColor;
+  animation: coach-caret 0.8s step-end infinite;
+}
+
+/* Xabar pufakchasi chiqishi */
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-bubble-in {
+  animation: bubble-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Tez savollar qatori — gorizontal scroll, ko'rinmas scrollbar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Harakatni kamaytirish sozlamasi yoqilgan qurilmalarda animatsiyasiz */
+@media (prefers-reduced-motion: reduce) {
+  .coach-dot,
+  .coach-caret,
+  .animate-bubble-in {
+    animation: none;
+  }
+}

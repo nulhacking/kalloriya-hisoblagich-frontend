@@ -21,6 +21,9 @@ import type {
   WeightTrendResponse,
   CoachToday,
   WeeklyReport,
+  CoachPersonaList,
+  CoachChatResponse,
+  CoachHistory,
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
@@ -862,6 +865,87 @@ export const getWeeklyReport = async (token: string): Promise<WeeklyReport> => {
       headers: getAuthHeaders(token),
     });
     return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// ---------------------------------------------------------- AI murabbiy (chat)
+
+/**
+ * 7 murabbiy ro'yxati + foydalanuvchining tarifi, kunlik limiti.
+ */
+export const getCoachPersonas = async (
+  token: string,
+): Promise<CoachPersonaList> => {
+  try {
+    const response = await api.get<CoachPersonaList>("/coach/personas", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Murabbiyni tanlash. Yopiq murabbiy tanlansa — 400.
+ */
+export const selectCoachPersona = async (
+  token: string,
+  personaId: string,
+): Promise<CoachPersonaList> => {
+  try {
+    const response = await api.post<CoachPersonaList>(
+      `/coach/personas/${personaId}/select`,
+      null,
+      { headers: getAuthHeaders(token) },
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Murabbiyga savol. Gemini javobi 25 soniyagacha cho'zilishi mumkin —
+ * shu so'rov uchun alohida, uzunroq timeout.
+ */
+export const sendCoachMessage = async (
+  token: string,
+  message: string,
+  personaId?: string,
+): Promise<CoachChatResponse> => {
+  try {
+    const response = await api.post<CoachChatResponse>(
+      "/coach/chat",
+      { message, persona_id: personaId ?? null },
+      { headers: getAuthHeaders(token), timeout: 40000 },
+    );
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getCoachHistory = async (
+  token: string,
+): Promise<CoachHistory> => {
+  try {
+    const response = await api.get<CoachHistory>("/coach/chat/history", {
+      headers: getAuthHeaders(token),
+    });
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const clearCoachHistory = async (token: string): Promise<void> => {
+  try {
+    await api.delete("/coach/chat/history", {
+      headers: getAuthHeaders(token),
+    });
   } catch (error) {
     return handleError(error);
   }
