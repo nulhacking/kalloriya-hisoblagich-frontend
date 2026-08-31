@@ -5,6 +5,28 @@ export interface NutritionData {
   calories?: number;
 }
 
+/** Kaloriyani yopadigan mashq varianti (backend `coach/burn.py`). */
+export interface BurnOption {
+  name: string;
+  icon: string;
+  minutes: number;
+}
+
+/**
+ * "Yeysizmi?" bahosi va yegandan keyingi mashq rejasi.
+ *
+ * Backendda modelsiz hisoblanadi — botdagi xabar bilan bir xil raqamlar.
+ * `verdict`: fits | tight | over | full | unknown (maqsad qo'yilmagan).
+ */
+export interface MealAdvice {
+  verdict: "fits" | "tight" | "over" | "full" | "unknown";
+  text: string;
+  remaining_kcal: number | null;
+  walk_after_minutes: number;
+  train_after_minutes: number;
+  burn: BurnOption[];
+}
+
 export interface AnalysisResults {
   food: string;
   confidence: number;
@@ -15,6 +37,8 @@ export interface AnalysisResults {
   note: string;
   /** R2 da saqlangan rasm URL (agar mavjud bo'lsa) */
   image_url?: string | null;
+  /** Tahlildan keyingi amaliy maslahat — maqsad qo'yilmagan bo'lsa ham keladi. */
+  advice?: MealAdvice | null;
 }
 
 export interface HealthStatus {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToken, useUser } from "../stores";
 import ImageUpload from "../components/ImageUpload";
 import ResultsDisplay from "../components/ResultsDisplay";
@@ -22,6 +23,7 @@ const HomePage = () => {
   const analyzeMutation = useAnalyzeFood();
   const addMealMutation = useAddMeal();
   const subscriptionQuery = useSubscriptionStatus();
+  const navigate = useNavigate();
   const goalSummary = useGoalSummary(!!user?.bmr && !!user?.tdee);
 
   const [image, setImage] = useState<File | null>(null);
@@ -319,7 +321,12 @@ const HomePage = () => {
         {/* Results Display */}
         {results && (
           <div className="mt-4 animate-fade-in-up">
-            <ResultsDisplay results={results} onAddMeal={handleAddMeal} />
+            <ResultsDisplay
+              results={results}
+              onAddMeal={handleAddMeal}
+              showCoachUpsell={!subscription?.has_coach_access}
+              onOpenCoach={() => navigate("/coach")}
+            />
           </div>
         )}
       </div>

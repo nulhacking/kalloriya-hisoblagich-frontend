@@ -1,13 +1,22 @@
 import { useState } from "react";
 import type { AnalysisResults } from "../types";
+import MealAdviceCard from "./MealAdviceCard";
 import { useToast } from "./Toast";
 
 interface ResultsDisplayProps {
   results: AnalysisResults;
   onAddMeal?: (results: AnalysisResults) => void;
+  /** Pro Plus emas — maslahat kartochkasida murabbiy taklifi ko'rsatiladi. */
+  showCoachUpsell?: boolean;
+  onOpenCoach?: () => void;
 }
 
-const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
+const ResultsDisplay = ({
+  results,
+  onAddMeal,
+  showCoachUpsell = false,
+  onOpenCoach,
+}: ResultsDisplayProps) => {
   const [added, setAdded] = useState(false);
   const toast = useToast();
 
@@ -26,6 +35,7 @@ const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
     nutrition_per_100g,
     total_nutrition,
     note,
+    advice,
   } = results;
 
   const getConfidenceColor = (conf: number): string => {
@@ -118,6 +128,16 @@ const ResultsDisplay = ({ results, onAddMeal }: ResultsDisplayProps) => {
           )}
         </div>
       </div>
+
+      {/* "Yeysizmi?" + yegandan keyingi reja — eng muhim javob, shuning uchun
+          raqamlardan oldin turadi. */}
+      {advice && (
+        <MealAdviceCard
+          advice={advice}
+          showCoachUpsell={showCoachUpsell}
+          onOpenCoach={onOpenCoach}
+        />
+      )}
 
       {/* Ingredients */}
       {ingredients && ingredients.length > 0 && (
