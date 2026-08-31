@@ -457,10 +457,24 @@ export interface CoachChatResponse {
   /** Suhbatda aytilgan ovqat kunlik hisobga yozilgan bo'lsa — tayyor izoh. */
   meal_note?: string | null;
   logged_meals?: LoggedCoachMeal[];
+  /** Murabbiy bajargan amal (vazn, maqsad vazni, mashq) — tayyor izoh. */
+  action_note?: string | null;
+  logged_activities?: LoggedCoachActivity[];
+  /** Qaysi ma'lumot o'zgardi: "weight" | "target_weight" | "activity". */
+  action_kinds?: string[];
   messages_left_today: number;
   is_free_trial: boolean;
   /** false — Gemini javob bermadi, fallback matn keldi (limit sarflanmadi). */
   ok: boolean;
+}
+
+/** Suhbatdan avtomatik yozilgan mashq (backend `coach/actions.py`). */
+export interface LoggedCoachActivity {
+  id: string;
+  name: string;
+  icon: string;
+  minutes: number;
+  kcal: number;
 }
 
 /** Suhbatdan avtomatik yozilgan ovqat (backend `coach/meal_log.py`). */

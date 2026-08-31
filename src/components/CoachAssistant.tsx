@@ -8,6 +8,7 @@ import {
 } from "../hooks/useCoachChat";
 import { ApiError } from "../services/api";
 import { mealKeys } from "../hooks/useMeals";
+import { activityKeys } from "../hooks/useActivities";
 import { GOAL_SUMMARY_QUERY_KEY } from "../hooks/useGoal";
 import type { CoachHistoryItem } from "../types";
 import { asCoachMood } from "../utils/coachMood";
@@ -91,11 +92,11 @@ const CoachAssistant = () => {
     sendMutation.mutate(text, {
       onSuccess: (reply) => {
         const createdAt = new Date().toISOString();
-        // Ovqat yozilgan bo'lsa — izoh javob matni bilan birga ochiladi
-        // (botdagi bilan bir xil qator, raqamlarni backend yozgan).
-        const content = reply.meal_note
-          ? `${reply.reply}\n\n${reply.meal_note}`
-          : reply.reply;
+        // Ovqat/vazn/mashq yozilgan bo'lsa — izoh javob matni bilan birga
+        // ochiladi (botdagi bilan bir xil qator, raqamlarni backend yozgan).
+        const content = [reply.reply, reply.meal_note, reply.action_note]
+          .filter(Boolean)
+          .join("\n\n");
         setMessages((prev) => {
           const next: CoachHistoryItem[] = [
             ...prev,
@@ -114,6 +115,27 @@ const CoachAssistant = () => {
           queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
           const names = reply.logged_meals.map((meal) => meal.name).join(", ");
           toast.success(`✅ Kunlik hisobga yozildi: ${names}`);
+        }
+
+        // Murabbiy amal bajardi (vazn, maqsad, mashq) — tegishli bo'lim yangilansin.
+        const kinds = reply.action_kinds ?? [];
+        if (kinds.length) {
+          queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
+        }
+        if (kinds.includes("weight") || kinds.includes("target_weight")) {
+          queryClient.invalidateQueries({ queryKey: ["weight"] });
+        }
+        if (kinds.includes("activity")) {
+          queryClient.invalidateQueries({ queryKey: activityKeys.all });
+          queryClient.invalidateQueries({ queryKey: mealKeys.all });
+        }
+        if (reply.logged_activities?.length) {
+          const names = reply.logged_activities
+            .map((item) => item.name)
+            .join(", ");
+          toast.success(`✅ Mashq yozildi: ${names}`);
+        } else if (kinds.includes("weight")) {
+          toast.success("⚖️ Vazn saqlandi");
         }
         if (!reply.ok) {
           toast.info("Murabbiy hozir to'liq javob bera olmadi — qayta urinib ko'ring.");
