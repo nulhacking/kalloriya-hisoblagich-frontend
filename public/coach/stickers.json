@@ -7,8 +7,9 @@
       "caption": "SALOM!",
       "note": "tanishuv, suhbat boshlanishi",
       "png": "motivator-hello.png",
-      "svg": "motivator-hello.svg",
-      "bytes": 48707
+      "gif": "motivator-hello.gif",
+      "png_bytes": 110439,
+      "gif_bytes": 286846
     },
     {
       "mood": "win",
@@ -16,8 +17,9 @@
       "caption": "ZO'R!",
       "note": "maqsad bajarildi, maqtov",
       "png": "motivator-win.png",
-      "svg": "motivator-win.svg",
-      "bytes": 51232
+      "gif": "motivator-win.gif",
+      "png_bytes": 138634,
+      "gif_bytes": 352182
     },
     {
       "mood": "push",
@@ -25,8 +27,9 @@
       "caption": "QANI!",
       "note": "turtki, harakatga chaqiriq",
       "png": "motivator-push.png",
-      "svg": "motivator-push.svg",
-      "bytes": 54678
+      "gif": "motivator-push.gif",
+      "png_bytes": 136238,
+      "gif_bytes": 355431
     },
     {
       "mood": "sad",
@@ -34,8 +37,9 @@
       "caption": "BO'LADI!",
       "note": "qo'llab-quvvatlash, yomon kun",
       "png": "motivator-sad.png",
-      "svg": "motivator-sad.svg",
-      "bytes": 41302
+      "gif": "motivator-sad.gif",
+      "png_bytes": 100500,
+      "gif_bytes": 256507
     },
     {
       "mood": "think",
@@ -43,8 +47,9 @@
       "caption": "HMMM…",
       "note": "savol, tahlil",
       "png": "motivator-think.png",
-      "svg": "motivator-think.svg",
-      "bytes": 41538
+      "gif": "motivator-think.gif",
+      "png_bytes": 102041,
+      "gif_bytes": 260462
     },
     {
       "mood": "idle",
@@ -52,8 +57,9 @@
       "caption": null,
       "note": "avatar (fon uchun ham ishlatiladi)",
       "png": "motivator-idle.png",
-      "svg": "motivator-idle.svg",
-      "bytes": 36449
+      "gif": "motivator-idle.gif",
+      "png_bytes": 94442,
+      "gif_bytes": 249619
     }
   ]
 }

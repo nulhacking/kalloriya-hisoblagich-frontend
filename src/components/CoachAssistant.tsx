@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useCoachHistory,
   useCoachPersonas,
@@ -6,6 +7,8 @@ import {
   useSendCoachMessage,
 } from "../hooks/useCoachChat";
 import { ApiError } from "../services/api";
+import { mealKeys } from "../hooks/useMeals";
+import { GOAL_SUMMARY_QUERY_KEY } from "../hooks/useGoal";
 import type { CoachHistoryItem } from "../types";
 import { asCoachMood } from "../utils/coachMood";
 import MotivatorArt, { type CoachMood } from "./coach/MotivatorArt";
@@ -23,6 +26,7 @@ import { useToast } from "./Toast";
  */
 const CoachAssistant = () => {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const personasQuery = useCoachPersonas();
   const historyQuery = useCoachHistory();
   const selectMutation = useSelectCoachPersona();
@@ -86,10 +90,15 @@ const CoachAssistant = () => {
     sendMutation.mutate(text, {
       onSuccess: (reply) => {
         const createdAt = new Date().toISOString();
+        // Ovqat yozilgan bo'lsa — izoh javob matni bilan birga ochiladi
+        // (botdagi bilan bir xil qator, raqamlarni backend yozgan).
+        const content = reply.meal_note
+          ? `${reply.reply}\n\n${reply.meal_note}`
+          : reply.reply;
         setMessages((prev) => {
           const next: CoachHistoryItem[] = [
             ...prev,
-            { role: "coach", content: reply.reply, created_at: createdAt },
+            { role: "coach", content, created_at: createdAt },
           ];
           // Faqat shu javob animatsiya bilan ochilsin.
           setAnimatedKey(`${createdAt}-${next.length - 1}`);
@@ -97,6 +106,14 @@ const CoachAssistant = () => {
         });
         setMood(asCoachMood(reply.mood));
         setSuggestion(reply.ok ? (reply.suggestion ?? null) : null);
+
+        // Kunlik hisob o'zgardi — Bosh sahifa va kunlik ro'yxat yangilansin.
+        if (reply.logged_meals?.length) {
+          queryClient.invalidateQueries({ queryKey: mealKeys.all });
+          queryClient.invalidateQueries({ queryKey: GOAL_SUMMARY_QUERY_KEY });
+          const names = reply.logged_meals.map((meal) => meal.name).join(", ");
+          toast.success(`✅ Kunlik hisobga yozildi: ${names}`);
+        }
         if (!reply.ok) {
           toast.info("Murabbiy hozir to'liq javob bera olmadi — qayta urinib ko'ring.");
         }

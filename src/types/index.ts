@@ -454,10 +454,24 @@ export interface CoachChatResponse {
   suggestion?: string | null;
   /** Javob ohangi: hello | win | push | sad — avatar pozasi shunga qarab tanlanadi. */
   mood?: string | null;
+  /** Suhbatda aytilgan ovqat kunlik hisobga yozilgan bo'lsa — tayyor izoh. */
+  meal_note?: string | null;
+  logged_meals?: LoggedCoachMeal[];
   messages_left_today: number;
   is_free_trial: boolean;
   /** false — Gemini javob bermadi, fallback matn keldi (limit sarflanmadi). */
   ok: boolean;
+}
+
+/** Suhbatdan avtomatik yozilgan ovqat (backend `coach/meal_log.py`). */
+export interface LoggedCoachMeal {
+  id: string;
+  name: string;
+  grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 export interface CoachHistoryItem {
