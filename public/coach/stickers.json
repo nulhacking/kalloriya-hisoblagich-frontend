@@ -6,60 +6,84 @@
       "emoji": "👋",
       "caption": "SALOM!",
       "note": "tanishuv, suhbat boshlanishi",
+      "source": "photo",
       "png": "motivator-hello.png",
+      "webp": "motivator-hello.webp",
       "gif": "motivator-hello.gif",
-      "png_bytes": 110439,
-      "gif_bytes": 286846
+      "avatar": "motivator-hello-avatar.webp",
+      "full": "motivator-hello-full.webp",
+      "png_bytes": 268448,
+      "gif_bytes": 577118
     },
     {
       "mood": "win",
       "emoji": "💪",
       "caption": "ZO'R!",
       "note": "maqsad bajarildi, maqtov",
+      "source": "photo",
       "png": "motivator-win.png",
+      "webp": "motivator-win.webp",
       "gif": "motivator-win.gif",
-      "png_bytes": 138634,
-      "gif_bytes": 352182
+      "avatar": "motivator-win-avatar.webp",
+      "full": "motivator-win-full.webp",
+      "png_bytes": 260474,
+      "gif_bytes": 572125
     },
     {
       "mood": "push",
       "emoji": "🔥",
       "caption": "QANI!",
       "note": "turtki, harakatga chaqiriq",
+      "source": "photo",
       "png": "motivator-push.png",
+      "webp": "motivator-push.webp",
       "gif": "motivator-push.gif",
-      "png_bytes": 136238,
-      "gif_bytes": 355431
+      "avatar": "motivator-push-avatar.webp",
+      "full": "motivator-push-full.webp",
+      "png_bytes": 259435,
+      "gif_bytes": 587758
     },
     {
       "mood": "sad",
       "emoji": "🤗",
       "caption": "BO'LADI!",
       "note": "qo'llab-quvvatlash, yomon kun",
+      "source": "photo",
       "png": "motivator-sad.png",
+      "webp": "motivator-sad.webp",
       "gif": "motivator-sad.gif",
-      "png_bytes": 100500,
-      "gif_bytes": 256507
+      "avatar": "motivator-sad-avatar.webp",
+      "full": "motivator-sad-full.webp",
+      "png_bytes": 237499,
+      "gif_bytes": 560113
     },
     {
       "mood": "think",
       "emoji": "🤔",
       "caption": "HMMM…",
       "note": "savol, tahlil",
+      "source": "photo",
       "png": "motivator-think.png",
+      "webp": "motivator-think.webp",
       "gif": "motivator-think.gif",
-      "png_bytes": 102041,
-      "gif_bytes": 260462
+      "avatar": "motivator-think-avatar.webp",
+      "full": "motivator-think-full.webp",
+      "png_bytes": 224985,
+      "gif_bytes": 553935
     },
     {
       "mood": "idle",
       "emoji": "😎",
       "caption": null,
       "note": "avatar (fon uchun ham ishlatiladi)",
+      "source": "photo",
       "png": "motivator-idle.png",
+      "webp": "motivator-idle.webp",
       "gif": "motivator-idle.gif",
-      "png_bytes": 94442,
-      "gif_bytes": 249619
+      "avatar": "motivator-idle-avatar.webp",
+      "full": "motivator-idle-full.webp",
+      "png_bytes": 289339,
+      "gif_bytes": 581669
     }
   ]
 }

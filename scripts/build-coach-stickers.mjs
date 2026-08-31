@@ -1,19 +1,29 @@
 /**
- * Motivator Murabbiy stikerlari va GIF lari — ilovadagi bir xil chizmadan.
+ * Motivator Murabbiy stikerlari va GIF lari.
  *
- * `src/components/coach/MotivatorArt.tsx` server-side render qilinadi (esbuild
- * bilan bundle → react-dom/server), keyin sharp orqali rasterlanadi:
+ * Ikki manba bor, biri ikkinchisining zaxirasi:
  *
- *   • `motivator-<mood>.png`  — 512×512, shaffof fon, oq kontur → Telegram stikeri;
- *   • `motivator-<mood>.gif`  — 320×320 jonli reaksiya (bot `send_animation` bilan
- *     yuboradi va murabbiy matnini GIF tagiga sarlavha qilib qo'yadi);
- *   • `motivator-avatar.png`  — fonli avatar (OG rasm, ikonka uchun).
+ *   1. FOTO (asosiy) — `assets/coach-source/motivator-<mood>.jpg`, ya'ni Gemini
+ *      chiqargan stilize 3D kadrlar (`yarn coach:art`). Yashil fon kesiladi,
+ *      oq kontur va yozuv qo'yiladi;
+ *   2. VEKTOR (zaxira) — foto bo'lmasa `src/components/coach/MotivatorArt.tsx`
+ *      server-side render qilinadi (ilovadagi kichik avatar baribir shu chizma).
+ *
+ * Chiqadigan fayllar:
+ *   • `motivator-<mood>.png`  — 512×512 shaffof, Telegram stikeri;
+ *   • `motivator-<mood>.webp` — o'sha stikerning yengil varianti (yuklash uchun);
+ *   • `motivator-<mood>.gif`  — 320×320 jonli reaksiya, bot javob matnini shu
+ *     GIF tagiga sarlavha qilib yozadi;
+ *   • `motivator-<mood>-avatar.webp` — 192×192 bosh+yelka, ilovadagi avatar
+ *     uchun (yengil: ~15 KB, chunki chatda har xabarda ko'rinadi);
+ *   • `motivator-<mood>-full.webp`   — 512×512 to'liq gavda, yozuvsiz: ilovadagi
+ *     katta joylar (hero, paywall, bo'sh ekran);
+ *   • `motivator-avatar.png`  — fonli portret (OG rasm, ilovadagi katta joylar).
  *
  *   yarn stickers
  *
- * Natija ikki joyga yoziladi: frontend `public/coach/` (Telegramga yuklash va URL
- * orqali berish uchun) hamda backend `assets/coach/` (bot faylni to'g'ridan-to'g'ri
- * yuborishi uchun) — backend repo yonma-yon turgan bo'lsa.
+ * Natija ikki joyga yoziladi: frontend `public/coach/` va backend `assets/coach/`
+ * (bot faylni to'g'ridan-to'g'ri yuboradi) — backend repo yonma-yon tursa.
  */
 
 import { build } from "esbuild";
@@ -23,13 +33,27 @@ import { dirname, join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import sharp from "sharp";
 
+import {
+  backgroundSvg,
+  captionSvg,
+  cutout,
+  fitSquare,
+  gifFrames,
+  headCrop,
+  whiteOutline,
+} from "./lib/coach-photo.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const ART = join(ROOT, "src/components/coach/MotivatorArt.tsx");
 const OUT_DIR = join(ROOT, "public/coach");
+const SOURCE_DIR = join(ROOT, "assets/coach-source");
 // Bot fayldan yuborishi uchun backendga ham nusxa (yonma-yon turgan repo).
 const BACKEND_DIR = join(ROOT, "../kalloriya-hisoblagich-backend/assets/coach");
 
+const STICKER_SIZE = 512;
+/** Ilovadagi dumaloq avatar (retina uchun 2x). */
+const AVATAR_SIZE = 192;
 /** GIF: nechta kadr va kadr davomiyligi (ms). 14 × 90ms ≈ 1.3 sekundlik tsikl. */
 const GIF_FRAMES = 14;
 const GIF_DELAY = 90;
@@ -45,44 +69,54 @@ const STICKERS = [
   { mood: "idle", caption: null, emoji: "😎", note: "avatar (fon uchun ham ishlatiladi)" },
 ];
 
-async function loadRenderer() {
-  // Bundle loyiha ichida turadi — react/react-dom tashqarida qoladi va Node
-  // ularni loyihaning node_modules idan oladi (CJS ni ESM ga bundle qilib
-  // bo'lmaydi: "Dynamic require of stream is not supported").
-  const dir = join(ROOT, "node_modules/.cache/coach-art");
-  await mkdir(dir, { recursive: true });
-  const entry = join(dir, "entry.jsx");
-  const outfile = join(dir, "art.mjs");
+/* --------------------------------------------------------- vektor zaxirasi */
 
-  await writeFile(
-    entry,
-    [
-      `import { createElement } from "react";`,
-      `import ReactDOMServer from "react-dom/server";`,
-      `import MotivatorArt from ${JSON.stringify(ART)};`,
-      `export const render = (props) =>`,
-      `  ReactDOMServer.renderToStaticMarkup(createElement(MotivatorArt, props));`,
-    ].join("\n"),
-    "utf8",
-  );
+let rendererPromise = null;
 
-  await build({
-    entryPoints: [entry],
-    outfile,
-    bundle: true,
-    format: "esm",
-    platform: "node",
-    jsx: "automatic",
-    loader: { ".tsx": "tsx" },
-    absWorkingDir: ROOT,
-    // Entry vaqtinchalik papkada — react ni loyihaning node_modules idan qidiramiz.
-    nodePaths: [join(ROOT, "node_modules")],
-    external: ["react", "react-dom", "react-dom/server"],
-    logLevel: "warning",
-  });
+/** `MotivatorArt.tsx` ni Node da render qilish (faqat foto yo'q bo'lsa chaqiriladi). */
+function loadRenderer() {
+  if (rendererPromise) return rendererPromise;
 
-  const mod = await import(`${pathToFileURL(outfile).href}?t=${Date.now()}`);
-  return { render: mod.render, cleanup: () => rm(dir, { recursive: true, force: true }) };
+  rendererPromise = (async () => {
+    // Bundle loyiha ichida turadi — react/react-dom tashqarida qoladi va Node
+    // ularni loyihaning node_modules idan oladi (CJS ni ESM ga bundle qilib
+    // bo'lmaydi: "Dynamic require of stream is not supported").
+    const dir = join(ROOT, "node_modules/.cache/coach-art");
+    await mkdir(dir, { recursive: true });
+    const entry = join(dir, "entry.jsx");
+    const outfile = join(dir, "art.mjs");
+
+    await writeFile(
+      entry,
+      [
+        `import { createElement } from "react";`,
+        `import ReactDOMServer from "react-dom/server";`,
+        `import MotivatorArt from ${JSON.stringify(ART)};`,
+        `export const render = (props) =>`,
+        `  ReactDOMServer.renderToStaticMarkup(createElement(MotivatorArt, props));`,
+      ].join("\n"),
+      "utf8",
+    );
+
+    await build({
+      entryPoints: [entry],
+      outfile,
+      bundle: true,
+      format: "esm",
+      platform: "node",
+      jsx: "automatic",
+      loader: { ".tsx": "tsx" },
+      absWorkingDir: ROOT,
+      nodePaths: [join(ROOT, "node_modules")],
+      external: ["react", "react-dom", "react-dom/server"],
+      logLevel: "warning",
+    });
+
+    const mod = await import(`${pathToFileURL(outfile).href}?t=${Date.now()}`);
+    return { render: mod.render, cleanup: () => rm(dir, { recursive: true, force: true }) };
+  })();
+
+  return rendererPromise;
 }
 
 /** React SVG markup → mustaqil, o'lchami belgilangan SVG fayl. */
@@ -93,6 +127,8 @@ function toStandaloneSvg(markup) {
   )}\n`;
 }
 
+/* -------------------------------------------------------------- yordamchi */
+
 /** Ikkala papkaga ham yozamiz: frontend public va (bo'lsa) backend assets. */
 async function writeOut(name, data, alsoBackend = true) {
   await writeFile(join(OUT_DIR, name), data);
@@ -102,96 +138,182 @@ async function writeOut(name, data, alsoBackend = true) {
   }
 }
 
-async function main() {
-  const { render, cleanup } = await loadRenderer();
-  await mkdir(OUT_DIR, { recursive: true });
+const kb = (buffer) => `${(buffer.length / 1024).toFixed(0)} KB`;
 
-  const manifest = [];
+/* ------------------------------------------------------------ foto varianti */
 
-  for (const { mood, caption, emoji, note } of STICKERS) {
-    // --- stiker: shaffof fon + oq kontur
-    const svg = toStandaloneSvg(
+async function buildFromPhoto(photoPath, caption) {
+  const person = await cutout(photoPath);
+
+  // --- stiker: 512×512 shaffof, oq kontur, pastda yozuv
+  const fitted = await fitSquare(person.buffer, STICKER_SIZE, {
+    margin: 0.045,
+    bottom: caption ? Math.round(STICKER_SIZE * 0.13) : 0,
+  });
+  const outline = await whiteOutline(fitted, STICKER_SIZE, 10);
+  const layers = [{ input: fitted }];
+  if (caption) layers.push({ input: captionSvg(STICKER_SIZE, caption) });
+
+  const png = await sharp(outline).composite(layers).png({ compressionLevel: 9 }).toBuffer();
+  const webp = await sharp(outline).composite(layers).webp({ quality: 92 }).toBuffer();
+
+  // --- GIF: gradient fon + "nafas olayotgan" qahramon
+  const frames = await gifFrames(person.buffer, GIF_SIZE, caption, GIF_FRAMES);
+  const gif = await sharp(frames, { join: { animated: true } })
+    .gif({ delay: GIF_DELAY, loop: 0 })
+    .toBuffer();
+
+  // --- ilovadagi dumaloq avatar: bosh + yelka, yozuvsiz va kontursiz
+  const avatar = await headCrop(person.buffer, AVATAR_SIZE);
+  // --- ilovadagi katta joylar (hero, paywall): to'liq gavda, yozuvsiz
+  const full = await sharp(await fitSquare(person.buffer, STICKER_SIZE, { margin: 0.02 }))
+    .webp({ quality: 88, alphaQuality: 90 })
+    .toBuffer();
+
+  return { png, webp, gif, avatar, full };
+}
+
+/* ---------------------------------------------------------- vektor varianti */
+
+async function buildFromVector(mood, caption) {
+  const { render } = await loadRenderer();
+
+  const svg = toStandaloneSvg(
+    render({
+      mood,
+      caption: caption ?? undefined,
+      sticker: true,
+      background: false,
+      animated: false,
+      idPrefix: `st-${mood}`,
+    }),
+  );
+  const png = await sharp(Buffer.from(svg), { density: 144 })
+    .resize(STICKER_SIZE, STICKER_SIZE, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+  const webp = await sharp(png).webp({ quality: 92 }).toBuffer();
+
+  const frames = [];
+  for (let i = 0; i < GIF_FRAMES; i += 1) {
+    const frameSvg = toStandaloneSvg(
       render({
         mood,
         caption: caption ?? undefined,
-        sticker: true,
-        background: false,
+        sticker: false,
+        background: true,
         animated: false,
-        idPrefix: `st-${mood}`,
+        phase: i / GIF_FRAMES,
+        idPrefix: `gif-${mood}`,
       }),
     );
-    await writeOut(`motivator-${mood}.svg`, Buffer.from(svg, "utf8"), false);
+    frames.push(
+      await sharp(Buffer.from(frameSvg), { density: 110 }).resize(GIF_SIZE, GIF_SIZE).png().toBuffer(),
+    );
+  }
+  const gif = await sharp(frames, { join: { animated: true } })
+    .gif({ delay: GIF_DELAY, loop: 0 })
+    .toBuffer();
 
-    const png = await sharp(Buffer.from(svg), { density: 144 })
-      .resize(512, 512, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-      .png({ compressionLevel: 9 })
-      .toBuffer();
-    await writeOut(`motivator-${mood}.png`, png);
+  return { png, webp, gif, svg };
+}
 
-    // --- GIF: fonli va jonli (nafas, bosh tebranishi, uchqun pulsi).
-    // Telegram GIF ni MP4 ga aylantiradi — shuning uchun fon to'liq bo'yalgan.
-    const frames = [];
-    for (let i = 0; i < GIF_FRAMES; i += 1) {
-      const frameSvg = toStandaloneSvg(
-        render({
-          mood,
-          caption: caption ?? undefined,
-          sticker: false,
-          background: true,
-          animated: false,
-          phase: i / GIF_FRAMES,
-          idPrefix: `gif-${mood}`,
-        }),
-      );
-      frames.push(
-        await sharp(Buffer.from(frameSvg), { density: 110 }).resize(GIF_SIZE, GIF_SIZE).png().toBuffer(),
-      );
+/* -------------------------------------------------------------------- main */
+
+async function main() {
+  await mkdir(OUT_DIR, { recursive: true });
+  const manifest = [];
+  let usedPhotos = 0;
+
+  for (const { mood, caption, emoji, note } of STICKERS) {
+    const photoPath = join(SOURCE_DIR, `motivator-${mood}.jpg`);
+    const hasPhoto = existsSync(photoPath);
+
+    const result = hasPhoto
+      ? await buildFromPhoto(photoPath, caption)
+      : await buildFromVector(mood, caption);
+
+    if (hasPhoto) usedPhotos += 1;
+    if (result.svg) await writeOut(`motivator-${mood}.svg`, Buffer.from(result.svg, "utf8"), false);
+
+    await writeOut(`motivator-${mood}.png`, result.png);
+    await writeOut(`motivator-${mood}.webp`, result.webp, false);
+    await writeOut(`motivator-${mood}.gif`, result.gif);
+    if (result.avatar) {
+      await writeOut(`motivator-${mood}-avatar.webp`, result.avatar, false);
+      await writeOut(`motivator-${mood}-full.webp`, result.full, false);
     }
-    const gif = await sharp(frames, { join: { animated: true } })
-      .gif({ delay: GIF_DELAY, loop: 0 })
-      .toBuffer();
-    await writeOut(`motivator-${mood}.gif`, gif);
+
+    if (result.png.length > 500 * 1024) {
+      console.warn(`   ⚠️  ${mood}.png 500 KB dan katta — stikerga .webp ni yuklang`);
+    }
 
     manifest.push({
       mood,
       emoji,
       caption,
       note,
+      source: hasPhoto ? "photo" : "vector",
       png: `motivator-${mood}.png`,
+      webp: `motivator-${mood}.webp`,
       gif: `motivator-${mood}.gif`,
-      png_bytes: png.length,
-      gif_bytes: gif.length,
+      avatar: result.avatar ? `motivator-${mood}-avatar.webp` : null,
+      full: result.full ? `motivator-${mood}-full.webp` : null,
+      png_bytes: result.png.length,
+      gif_bytes: result.gif.length,
     });
+
     console.log(
-      `✅ ${mood.padEnd(6)} ${emoji}  PNG ${(png.length / 1024).toFixed(0)} KB · ` +
-        `GIF ${(gif.length / 1024).toFixed(0)} KB — ${note}`,
+      `✅ ${mood.padEnd(6)} ${emoji}  ${hasPhoto ? "foto  " : "vektor"} · ` +
+        `PNG ${kb(result.png)} · GIF ${kb(result.gif)}` +
+        `${result.avatar ? ` · avatar ${kb(result.avatar)}` : ""} — ${note}`,
     );
   }
 
-  // Ilovadagi avatar uchun fonli variant (OG rasm, ikonka)
-  const avatar = toStandaloneSvg(
-    render({ mood: "win", sticker: false, background: true, animated: false, idPrefix: "av" }),
-  );
-  await writeOut("motivator-avatar.svg", Buffer.from(avatar, "utf8"), false);
-  await writeOut(
-    "motivator-avatar.png",
-    await sharp(Buffer.from(avatar), { density: 144 })
-      .resize(512, 512)
+  // --- fonli portret: ilovadagi katta joylar va OG rasm uchun
+  const avatarSource = join(SOURCE_DIR, "motivator-win.jpg");
+  if (existsSync(avatarSource)) {
+    const person = await cutout(avatarSource);
+    const fitted = await fitSquare(person.buffer, STICKER_SIZE, { margin: 0.03 });
+    const avatar = await sharp(backgroundSvg(STICKER_SIZE))
+      .composite([{ input: fitted }])
       .png({ compressionLevel: 9 })
-      .toBuffer(),
-    false,
-  );
-  console.log("✅ motivator-avatar.png — fonli avatar");
+      .toBuffer();
+    await writeOut("motivator-avatar.png", avatar, false);
+    console.log(`✅ motivator-avatar.png — fonli portret (${kb(avatar)})`);
+  } else {
+    const { render } = await loadRenderer();
+    const avatarSvg = toStandaloneSvg(
+      render({ mood: "win", sticker: false, background: true, animated: false, idPrefix: "av" }),
+    );
+    await writeOut("motivator-avatar.svg", Buffer.from(avatarSvg, "utf8"), false);
+    await writeOut(
+      "motivator-avatar.png",
+      await sharp(Buffer.from(avatarSvg), { density: 144 })
+        .resize(STICKER_SIZE, STICKER_SIZE)
+        .png({ compressionLevel: 9 })
+        .toBuffer(),
+      false,
+    );
+    console.log("✅ motivator-avatar.png — fonli avatar (vektor)");
+  }
 
   await writeOut(
     "stickers.json",
     Buffer.from(JSON.stringify({ pack: "Motivator Murabbiy", stickers: manifest }, null, 2), "utf8"),
   );
 
-  await cleanup();
-  console.log(`\n🎉 Tayyor: ${OUT_DIR}`);
+  if (rendererPromise) (await rendererPromise).cleanup();
+
+  console.log(`\n🎉 Tayyor: ${OUT_DIR}  (${usedPhotos}/${STICKERS.length} kadr — foto)`);
   if (existsSync(BACKEND_DIR)) console.log(`   nusxa: ${BACKEND_DIR} (bot shu yerdan yuboradi)`);
-  console.log("Stikerlar uchun keyingi qadam: @Stickers botida /newpack → PNG larni yuboring.");
+  if (usedPhotos < STICKERS.length) {
+    console.log("   Foto kadrlar yo'q joylar vektor chizmadan olindi — `yarn coach:art`.");
+  }
+  console.log("Stikerlar uchun: @Stickers botida /newpack → PNG (yoki WEBP) larni yuboring.");
 }
 
 main().catch((error) => {

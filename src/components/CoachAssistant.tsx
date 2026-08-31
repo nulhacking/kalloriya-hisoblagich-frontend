@@ -11,7 +11,8 @@ import { mealKeys } from "../hooks/useMeals";
 import { GOAL_SUMMARY_QUERY_KEY } from "../hooks/useGoal";
 import type { CoachHistoryItem } from "../types";
 import { asCoachMood } from "../utils/coachMood";
-import MotivatorArt, { type CoachMood } from "./coach/MotivatorArt";
+import CoachPhoto from "./coach/CoachPhoto";
+import { type CoachMood } from "./coach/MotivatorArt";
 import CoachChat from "./CoachChat";
 import CoachPersonaPicker from "./CoachPersonaPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -155,12 +156,11 @@ const CoachAssistant = () => {
       {/* Bo'lim sarlavhasi */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 px-4 py-4">
         {/* Motivator — bo'lim sarlavhasidagi jonli qahramon */}
-        <MotivatorArt
+        <CoachPhoto
           mood="win"
+          variant="full"
           animated
-          background={false}
-          idPrefix="hero"
-          className="absolute -right-5 -bottom-8 w-36 h-36 opacity-95 pointer-events-none select-none drop-shadow-lg"
+          className="absolute -right-4 -bottom-6 w-36 h-36 pointer-events-none drop-shadow-xl"
         />
         <div className="absolute -right-8 -top-10 text-7xl opacity-15 select-none">
           🎭

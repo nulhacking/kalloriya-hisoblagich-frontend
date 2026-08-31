@@ -80,7 +80,6 @@ const CoachPersonaPicker = ({
                     size="md"
                     animated={persona.is_active}
                     className={persona.is_active ? "shadow-sm" : "grayscale opacity-70"}
-                    idPrefix={`pick-${persona.id}`}
                   />
                   <span
                     className={`text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center ${

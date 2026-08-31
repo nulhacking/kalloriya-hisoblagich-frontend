@@ -17,7 +17,8 @@ import {
 import { getPersonaTheme, getQuickQuestions } from "../utils/personaTheme";
 import { isStickerMood, moodFromText } from "../utils/coachMood";
 import CoachAvatar, { hasCoachArt } from "./coach/CoachAvatar";
-import MotivatorArt, { type CoachMood } from "./coach/MotivatorArt";
+import CoachPhoto from "./coach/CoachPhoto";
+import { type CoachMood } from "./coach/MotivatorArt";
 
 /* ------------------------------------------------------------------ matn */
 
@@ -127,14 +128,13 @@ const Bubble = ({ message, persona, animate, mood, onGrow }: BubbleProps) => {
 
   return (
     <div className="animate-bubble-in">
-      {/* Murabbiyning stikeri — javob ustida "sakrab" chiqadi */}
+      {/* Murabbiyning stikeri — javob ustida "sakrab" chiqadi (botdagi bilan bir xil) */}
       {showSticker && (
-        <MotivatorArt
+        <CoachPhoto
           mood={mood}
-          animated
-          sticker
-          className="w-24 h-24 ml-9 -mb-1 coach-sticker-in"
-          idPrefix={`stk-${mood}`}
+          variant="sticker"
+          personaId={persona.id}
+          className="w-28 h-28 ml-9 -mb-2 coach-sticker-in"
         />
       )}
       <div className="flex items-end gap-2">
@@ -266,14 +266,12 @@ const CoachChat = ({
       >
         {messages.length === 0 && !isSending && (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <CoachAvatar
-              personaId={persona.id}
-              emoji={persona.emoji}
+            <CoachPhoto
               mood="hello"
-              size="xl"
+              variant="full"
+              personaId={persona.id}
               animated
-              ring
-              className="mb-3 shadow-lg"
+              className="w-36 h-36 mb-2 drop-shadow-lg"
             />
             <p className="font-extrabold text-food-brown-800">
               {persona.name} keldi

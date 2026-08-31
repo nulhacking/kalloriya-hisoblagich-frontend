@@ -1,106 +1,107 @@
-# Motivator Murabbiy — avatar va stikerlar
+# Motivator Murabbiy — avatar, stiker va GIF
 
-Afishadagi 1-raqamli qahramon endi ilovada ham, Telegram botda ham bir xil
-ko'rinadi. Chizma **bitta manbadan** keladi — `src/components/coach/MotivatorArt.tsx`
-(sof SVG, tashqi rasmsiz), stiker PNG lari o'sha komponentdan generatsiya qilinadi.
+Afishadagi 1-raqamli qahramon ilovada ham, Telegram botda ham bir xil ko'rinadi.
+Rasmlar **Gemini** bilan yaratilgan stilize 3D kadrlar (afisha uslubi), ularning
+zaxirasi esa qo'lda chizilgan vektor portret.
 
 ```
-MotivatorArt.tsx  ─┬─► CoachAvatar.tsx ──► ilova (chat, kartalar, paywall)
-                   └─► scripts/build-coach-stickers.mjs ─┬─► *.png  → Telegram stikeri
-                                                         └─► *.gif  → bot javobi (matn GIF tagida)
+assets/coach-source/*.jpg          ← Gemini kadrlari (xrom-yashil fonda)
+        │  yarn stickers
+        ▼
+public/coach/  ─┬─ motivator-<mood>.png / .webp   → Telegram stikeri (yozuvli, oq konturli)
+                ├─ motivator-<mood>.gif           → bot javobi (matn GIF tagida)
+                ├─ motivator-<mood>-avatar.webp   → ilovadagi dumaloq avatar (~10 KB)
+                └─ motivator-<mood>-full.webp     → ilovadagi katta joylar (hero, paywall)
+                        │
+                        └─► backend assets/coach/ (bot GIF/PNG ni shu yerdan yuboradi)
+
+MotivatorArt.tsx  ← zaxira: rasm yetib kelmasa yoki foto yo'q kayfiyatda
 ```
 
-Chizma hajmli ko'rinadi: barcha teri/mato shakllari bitta yo'nalishdagi gradient
-bilan bo'yaladi (yorug'lik chapdan-yuqoridan), ustidan yumshoq soya qatlami
-(bo'yin osti, qo'l tutashgan joy, mato burmalari), eng ustida yaltiroq nuqtalar
-va o'ng qirrada issiq rim-light. Har a'zo ikki qatlamda — kontur va rang.
+## 1. Kadrlarni yaratish (Gemini)
 
-## Kayfiyatlar (mood)
+```bash
+yarn coach:art                 # yo'q kadrlarni yaratadi
+yarn coach:art --force         # hammasini qaytadan
+yarn coach:art win sad         # faqat shu kayfiyatlarni
+```
 
-| mood | Poza | Yuz | Effekt | Qayerda |
-|---|---|---|---|---|
-| `idle` | qo'llar ko'krakda | xotirjam tabassum | — | avatar, kartalar |
-| `hello` | qo'l silkitadi | keng tabassum | sariq yoy | suhbat boshlanishi |
-| `win` | ikki tomonlama biceps | ko'zlar yumilgan | uchqunlar | maqtov, g'alaba |
-| `push` | musht tepada | qat'iy qosh | olov | turtki (default) |
-| `sad` | qo'l ko'krakda | yumshoq, tushgan qosh | yurak | qo'llab-quvvatlash |
-| `think` | kaft iyakda | tepaga qaraydi | fikr pufakchalari | javob yozilayotgan payt |
+`GEMINI_API_KEY` env dan yoki backend `.env` dan o'qiladi. Model: `gemini-3-pro-image`
+(`COACH_IMAGE_MODEL` bilan almashtirsa bo'ladi).
 
-Kayfiyat backenddan keladi (`CoachChatResponse.mood`, `coach/mood.py`), eski
-tarix uchun `src/utils/coachMood.ts` matndan taxmin qiladi.
+Ishlash tartibi muhim:
 
-## Ilovada qayerda ko'rinadi
+1. **Etalon kadr** (`motivator-base.jpg`) — qahramonning asosiy ko'rinishi;
+2. har bir kayfiyat **o'sha etalon rasm bilan birga** so'raladi ("same person,
+   same face, same clothes — change ONLY the pose"). Aks holda har kadrda boshqa
+   odam chiqadi;
+3. hamma kadr **tekis xrom-yashil fonda** (#00B140) — keyin fon kesiladi.
 
-| Joy | Fayl | Kayfiyat |
-|---|---|---|
-| Bo'lim sarlavhasi (hero) | `CoachAssistant.tsx` | `win`, doim jonli |
-| Murabbiy tanlash kartasi | `CoachPersonaPicker.tsx` | tanlansa `win`, aks holda `idle` |
-| Suhbat sarlavhasi | `CoachChat.tsx` | oxirgi javob ohangi (yozayotganda `think`) |
-| "Yozyapti…" pufakchasi | `CoachChat.tsx` | `think` |
-| Har bir javob avatari | `CoachChat.tsx` | o'sha javob ohangi |
-| Katta reaksiya (stiker) | `CoachChat.tsx` | faqat `win` / `sad` — yangi javob ustida |
-| Bo'sh suhbat ekrani | `CoachChat.tsx` | `hello` |
-| Pro Plus taklifi | `ProPlusPaywall.tsx` | `push` |
+Kadr yoqmasa: o'sha faylni o'chirib `yarn coach:art <mood>` — faqat o'sha qayta
+yaratiladi (pul bejiz sarflanmaydi). Qahramon tashqi ko'rinishini o'zgartirish —
+skriptdagi `CHARACTER` va `STYLE` matnlari; poza va yuz ifodasi — `MOODS`.
 
-Animatsiyalar `src/index.css` da (`coach-art-*`): nafas olish, bosh tebranishi,
-bandana uchlari, qo'l silkitish, musht, uchqunlar. `prefers-reduced-motion`
-yoqilgan qurilmada hammasi o'chadi.
-
-## Stikerlarni va GIF larni yangilash
+## 2. Stiker, GIF va avatarlarni yig'ish
 
 ```bash
 yarn stickers
 ```
 
-Natija ikki joyga yoziladi: `public/coach/` (Telegramga yuklash va URL orqali
-berish uchun) hamda backend `assets/coach/` (bot faylni to'g'ridan-to'g'ri
-yuborishi uchun — repo yonma-yon tursa avtomatik nusxalanadi).
+Nima qiladi: yashil fonni kesadi (chekkadagi yashil surtim bostiriladi) → 512×512
+stiker (oq kontur + pastda yozuv) → gradient fon ustida "nafas olayotgan" GIF →
+ilovaga yengil avatar va to'liq gavda kadrlari → backendga nusxa.
 
-`public/coach/`:
-
-| Fayl | Emoji | Yozuv | Qachon yuboriladi |
+| Fayl | Emoji | Yozuv | Qachon ishlatiladi |
 |---|---|---|---|
-| `motivator-hello.png` | 👋 | SALOM! | murabbiy tanlanganda |
-| `motivator-win.png` | 💪 | ZO'R! | foydalanuvchi maqsadni bajarganda |
-| `motivator-push.png` | 🔥 | QANI! | kechki check-in, turtki |
-| `motivator-sad.png` | 🤗 | BO'LADI! | "charchadim", "motivatsiyam yo'q" |
-| `motivator-think.png` | 🤔 | HMMM… | tahlil, savol |
-| `motivator-idle.png` | 😎 | — | zaxira avatar |
+| `motivator-hello.*` | 👋 | SALOM! | murabbiy tanlanganda |
+| `motivator-win.*` | 💪 | ZO'R! | maqtov, ovqat yozilganda |
+| `motivator-push.*` | 🔥 | QANI! | turtki, kechki check-in |
+| `motivator-sad.*` | 🤗 | BO'LADI! | "charchadim", "motivatsiyam yo'q" |
+| `motivator-think.*` | 🤔 | HMMM… | javob yozilayotgan payt |
+| `motivator-idle.*` | 😎 | — | odatiy avatar |
 
-Har biri 512×512 PNG, shaffof fon, oq kontur — Telegram stiker talabiga mos
-(~100–135 KB, limit 512 KB). Yonida bir xil nomdagi **GIF** (320×320, 14 kadr,
-~1.3 s tsikl — nafas, bosh tebranishi, uchqun pulsi), `.svg` va `stickers.json`
-ham chiqadi.
+O'lchamlar: stiker PNG ~250 KB (Telegram limiti 512 KB), WEBP ~35 KB, GIF ~560 KB,
+avatar ~10 KB, full ~35 KB.
 
-GIF ni bot `send_animation` bilan yuboradi va **matnni GIF tagiga sarlavha**
-qilib yozadi (kadrma-kadr ochiladi). Telegram GIF ni MP4 ga aylantirgani uchun
-GIF kadrlari shaffof emas — fon to'liq bo'yalgan.
+Foto kadr topilmasa — o'sha kayfiyat **vektor chizmadan** (`MotivatorArt.tsx`)
+yig'iladi, ya'ni quvur hech qachon to'xtamaydi.
 
-Kadrlarni ko'paytirish/tezlashtirish: skriptdagi `GIF_FRAMES`, `GIF_DELAY`,
-`GIF_SIZE`. Harakatning o'zi `MotivatorArt` ning `phase` (0→1) propidan keladi —
-CSS animatsiyasi server-side render da ishlamaydi.
+## 3. Ilovada qayerda ko'rinadi
 
-**Telegramga yuklash:** @Stickers → `/newpack` → nom → PNG larni **fayl emas,
-rasm** sifatida yuborib har biriga emoji berasiz → `/publish`.
+| Joy | Fayl | Kesim | Kayfiyat |
+|---|---|---|---|
+| Bo'lim sarlavhasi (hero) | `CoachAssistant.tsx` | full | `win` |
+| Murabbiy tanlash kartasi | `CoachPersonaPicker.tsx` | avatar | tanlansa `win`, aks holda `idle` |
+| Suhbat sarlavhasi | `CoachChat.tsx` | avatar | oxirgi javob ohangi (yozayotganda `think`) |
+| "Yozyapti…" pufakchasi | `CoachChat.tsx` | avatar | `think` |
+| Har bir javob avatari | `CoachChat.tsx` | avatar | o'sha javob ohangi |
+| Katta reaksiya | `CoachChat.tsx` | sticker | faqat `win` / `sad` — yangi javob ustida |
+| Bo'sh suhbat ekrani | `CoachChat.tsx` | full | `hello` |
+| Pro Plus taklifi | `ProPlusPaywall.tsx` | full | `push` |
+
+Barchasi [CoachPhoto.tsx](src/components/coach/CoachPhoto.tsx) orqali: rasm
+yuklanmasa (eski kesh, offline) darhol vektor chizmaga tushadi — avatar hech
+qachon bo'sh qolmaydi. Animatsiyalar `src/index.css` da (`coach-photo-breathe`,
+`coach-mood-pop`, `coach-sticker-in`); `prefers-reduced-motion` da o'chadi.
+
+## 4. Telegram tomoni
 
 **GIF uchun hech narsa sozlash shart emas** — bot `assets/coach/` dagi fayldan
 yuboradi va Telegram qaytargan `file_id` ni eslab qoladi. Backendda fayl
-saqlanmaydigan bo'lsa, `.env` da `COACH_MEDIA_BASE_URL=https://<domen>/coach`
-qo'ying — Telegram GIF ni shu URL dan oladi.
+saqlanmasa, `.env` da `COACH_MEDIA_BASE_URL=https://<domen>/coach` qo'ying.
 
-**file_id ni olish (stikerlar uchun):** `.env` dagi `ADMIN_USER_IDS` ga telegram_id ingizni qo'shing,
-tayyor stikerni botga yuboring — bot `file_id` ni qaytaradi. Ularni backend
-`.env` da `COACH_STICKERS_JSON` ga yozasiz (`AI_COACH.md`).
+**Stiker to'plami** (ixtiyoriy): @Stickers → `/newpack` → PNG (yoki yengilroq
+WEBP) larni **rasm sifatida** yuborib har biriga emoji berasiz → `/publish`.
+Keyin tayyor stikerni botga yuboring (`ADMIN_USER_IDS` da bo'lsangiz) — bot
+`file_id` ni qaytaradi, uni `COACH_STICKERS_JSON` ga yozasiz (`AI_COACH.md`).
 
-Stiker sozlanmasa bot xato bermaydi — shunchaki stikersiz, matn va reaksiya
-bilan ishlayveradi.
+## 5. Yangi murabbiyni qo'shish
 
-## Yangi murabbiyni chizish
+1. `scripts/generate-coach-art.mjs` da yangi `CHARACTER` bilan kadrlar yarating
+   (fayl nomi `<persona>-<mood>.jpg`);
+2. `scripts/build-coach-stickers.mjs` da persona id sini ro'yxatga qo'shing;
+3. `src/components/coach/CoachPhoto.tsx` dagi `WITH_PHOTO` ga id ni qo'shing;
+4. backendda `coach/personas.py` da `is_active=True`.
 
-1. `MotivatorArt.tsx` uslubida yangi komponent (`IntizomliArt.tsx`) yozing;
-2. `CoachAvatar.tsx` dagi `HAS_ART` ga id sini qo'shing va shu komponentga ulang;
-3. `scripts/build-coach-stickers.mjs` da `ART` ro'yxatiga qo'shing;
-4. backendda `personas.py` da `is_active=True` qiling.
-
-Chizmani tekshirish uchun eng tez yo'l — `yarn stickers` va chiqqan PNG ga qarash:
-ilovaga qo'shishdan oldin poza va yuz ifodasi shu yerda ko'rinadi.
+Tekshirishning eng tez yo'li — `yarn stickers` dan keyin chiqqan PNG/GIF ga
+qarash: poza, yuz ifodasi va kesim shu yerda ko'rinadi.

@@ -6,7 +6,7 @@ import {
 } from "../hooks/useFoodAnalysis";
 import { useToast } from "./Toast";
 import { buildPaymeGetUrlFromStatus, openPaymeUrl } from "../utils/payme";
-import MotivatorArt from "./coach/MotivatorArt";
+import CoachPhoto from "./coach/CoachPhoto";
 
 const FEATURES = [
   {
@@ -89,12 +89,11 @@ const ProPlusPaywall = ({
       {/* Sarlavha — Pro Plus imzosi */}
       <div className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 px-4 py-3">
         {/* Murabbiyning o'zi taklif qilyapti — tarifni u ochadi */}
-        <MotivatorArt
+        <CoachPhoto
           mood="push"
+          variant="full"
           animated
-          background={false}
-          idPrefix="paywall"
-          className="absolute -right-4 -bottom-6 w-24 h-24 opacity-90 pointer-events-none select-none"
+          className="absolute -right-3 -bottom-5 w-24 h-24 pointer-events-none drop-shadow-lg"
         />
         <div className="relative flex items-center gap-2">
           <span className="text-2xl">💎</span>

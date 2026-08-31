@@ -1,4 +1,5 @@
-import MotivatorArt, { type CoachMood } from "./MotivatorArt";
+import CoachPhoto, { hasCoachPhoto } from "./CoachPhoto";
+import { type CoachMood } from "./MotivatorArt";
 import { getPersonaTheme } from "../../utils/personaTheme";
 
 export type { CoachMood };
@@ -32,21 +33,16 @@ export interface CoachAvatarProps {
   /** Oq halqa — rangli fon ustida ajralib tursin. */
   ring?: boolean;
   className?: string;
-  idPrefix?: string;
 }
 
-/** Chizmasi tayyor murabbiylar. Qolganlari — emoji bilan (afishadagi tartib saqlanadi). */
-const HAS_ART = new Set(["motivator"]);
-
-export const hasCoachArt = (personaId?: string | null): boolean =>
-  !!personaId && HAS_ART.has(personaId);
+export const hasCoachArt = hasCoachPhoto;
 
 /**
  * Murabbiy avatari — ilovadagi barcha joyda bir xil qahramon.
  *
- * Motivator uchun vektor portret (stikerlar bilan bitta manbadan), qolgan
- * murabbiylar uchun hozircha emoji. Yangi murabbiy chizilganda `HAS_ART` ga
- * qo'shiladi — boshqa hech narsani o'zgartirish shart emas.
+ * Motivator uchun fotorealistik kadr (stiker va bot GIF i bilan bitta manbadan),
+ * qolgan murabbiylar uchun hozircha emoji. Yangi murabbiy chizilganda
+ * `CoachPhoto` dagi ro'yxatga qo'shiladi — bu yerda hech narsa o'zgarmaydi.
  */
 const CoachAvatar = ({
   personaId,
@@ -56,14 +52,13 @@ const CoachAvatar = ({
   animated = false,
   ring = false,
   className = "",
-  idPrefix,
 }: CoachAvatarProps) => {
   const theme = getPersonaTheme(personaId);
   const base = `${SIZES[size]} rounded-full bg-gradient-to-br ${theme.gradient} overflow-hidden shrink-0 ${
     ring ? "ring-2 ring-white shadow-sm" : ""
   } ${className}`;
 
-  if (!hasCoachArt(personaId)) {
+  if (!hasCoachPhoto(personaId)) {
     return (
       <div className={`${base} flex items-center justify-center ${EMOJI_SIZES[size]}`}>
         <span>{emoji}</span>
@@ -73,13 +68,13 @@ const CoachAvatar = ({
 
   return (
     <div className={base}>
-      {/* Chizma to'liq gavda — doira ichida bosh va yelkani ko'rsatish uchun kattalashtiriladi */}
-      <MotivatorArt
+      {/* Bosh+yelka kesimi — doirani to'liq to'ldiradi */}
+      <CoachPhoto
         mood={mood}
+        variant="avatar"
+        personaId={personaId}
         animated={animated}
-        background={false}
-        idPrefix={idPrefix ?? `av-${size}-${mood}`}
-        style={{ width: "134%", height: "134%", marginLeft: "-17%", marginTop: "-20%" }}
+        className="w-full h-full object-cover"
       />
     </div>
   );
