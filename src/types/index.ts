@@ -39,6 +39,12 @@ export interface AnalysisResults {
   image_url?: string | null;
   /** Tahlildan keyingi amaliy maslahat — maqsad qo'yilmagan bo'lsa ham keladi. */
   advice?: MealAdvice | null;
+  /**
+   * Rasmda ovqat topilmaganda nima ko'ringani: 'person' | 'gym' | 'screen' |
+   * 'label' | 'other'. Bunday rasmda kunlik urinish sarflanmaydi va botda
+   * murabbiy javob beradi.
+   */
+  subject?: string | null;
 }
 
 export interface HealthStatus {
