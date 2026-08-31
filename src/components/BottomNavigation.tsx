@@ -5,6 +5,15 @@ interface BottomNavigationProps {
   dailyGoal: number;
 }
 
+/** Yagona chiziqli ikonka to'plami — emoji o'rniga, bir xil qalinlikda. */
+const ICONS: Record<string, string> = {
+  "/": "M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5",
+  "/coach": "M20.5 11.6a8 8 0 0 1-11.6 7.2L4 20.3l1.5-4.6A8 8 0 1 1 20.5 11.6ZM9 11h.01M12 11h.01M15 11h.01",
+  "/daily": "M4 19V9M10 19V5M16 19v-7M4 19h16",
+  "/stats": "M3 17.5 9 11l4 4 8-8.5M21 6.5h-4.5M21 6.5V11",
+  "/settings": "M4 7h9M17 7h3M4 17h3M11 17h9M15 5.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6M9 15.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6",
+};
+
 const BottomNavigation = ({
   dailyCalories,
   dailyGoal,
@@ -12,90 +21,69 @@ const BottomNavigation = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const tabs: { path: string; label: string; icon: string }[] = [
-    { path: "/", label: "Bosh", icon: "🏠" },
-    { path: "/coach", label: "Murabbiy", icon: "🎭" },
-    { path: "/daily", label: "Kunlik", icon: "📊" },
-    { path: "/stats", label: "Statistika", icon: "📈" },
-    { path: "/settings", label: "Sozlamalar", icon: "⚙️" },
+  const tabs: { path: string; label: string }[] = [
+    { path: "/", label: "Bosh" },
+    { path: "/coach", label: "Murabbiy" },
+    { path: "/daily", label: "Kunlik" },
+    { path: "/stats", label: "Statistika" },
+    { path: "/settings", label: "Sozlamalar" },
   ];
 
   const activeTab = location.pathname;
-
-  const getCalorieColor = (): string => {
-    const percent = (dailyCalories / dailyGoal) * 100;
-    if (percent >= 100) return "text-food-red-600 border-food-red-400";
-    if (percent >= 80) return "text-food-orange-600 border-food-orange-400";
-    return "text-food-green-600 border-food-green-400";
-  };
+  const overGoal = dailyGoal > 0 && dailyCalories / dailyGoal >= 1;
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      {/* subtle top fade shadow */}
-      <div className="h-3 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
+      <div className="max-w-lg mx-auto px-2">
+        <div className="flex justify-around items-stretch">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.path;
 
-      <div className="bg-white/95 backdrop-blur-xl border-t border-food-green-100 shadow-[0_-8px_32px_-8px_rgba(0,0,0,0.12)]">
-        <div className="max-w-lg mx-auto px-2">
-          <div className="flex justify-around items-center">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.path;
-
-              return (
-                <button
-                  key={tab.path}
-                  onClick={() => navigate(tab.path)}
-                  className="flex-1 flex flex-col items-center pt-2.5 pb-1.5 relative"
-                  aria-label={tab.label}
-                >
-                  {/* Pill background on active */}
-                  <div
-                    className={`absolute top-1.5 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-full transition-all duration-300 ${
-                      isActive
-                        ? "w-14 h-8 bg-gradient-to-r from-food-green-100 to-food-green-50 opacity-100"
-                        : "w-14 h-8 opacity-0"
+            return (
+              <button
+                key={tab.path}
+                onClick={() => navigate(tab.path)}
+                className="flex-1 flex flex-col items-center gap-1 pt-2.5 pb-2"
+                aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <span className="relative">
+                  <svg
+                    className={`w-[22px] h-[22px] transition-colors ${
+                      isActive ? "text-stone-900" : "text-stone-400"
                     }`}
-                  />
-
-                  {/* Icon with badge */}
-                  <div className="relative z-10">
-                    <span
-                      className={`text-xl block transition-all duration-300 ${
-                        isActive ? "scale-110 -translate-y-0.5" : "opacity-70"
-                      }`}
-                    >
-                      {tab.icon}
-                    </span>
-
-                    {tab.path === "/daily" && dailyCalories > 0 && (
-                      <span
-                        className={`absolute -top-1 -right-4 min-w-[22px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white border-2 flex items-center justify-center ${getCalorieColor()}`}
-                      >
-                        {Math.round(dailyCalories)}
-                      </span>
-                    )}
-                  </div>
-
-                  <span
-                    className={`text-[10px] mt-0.5 font-bold transition-all duration-300 relative z-10 ${
-                      isActive ? "text-food-green-700" : "text-food-brown-400"
-                    }`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={isActive ? 2 : 1.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    {tab.label}
-                  </span>
+                    <path d={ICONS[tab.path]} />
+                  </svg>
 
-                  {/* Active dot indicator */}
-                  <div
-                    className={`h-1 w-1 rounded-full mt-0.5 transition-all duration-300 ${
-                      isActive ? "bg-food-green-600 scale-100" : "scale-0"
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </div>
+                  {/* Kunlik kaloriya — faqat maqsaddan oshganda ogohlantiruvchi nuqta */}
+                  {tab.path === "/daily" && overGoal && (
+                    <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-stone-900" />
+                  )}
+                </span>
+
+                <span
+                  className={`text-[10px] transition-colors ${
+                    isActive
+                      ? "text-stone-900 font-semibold"
+                      : "text-stone-400 font-medium"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </nav>

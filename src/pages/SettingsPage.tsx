@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../stores";
 import { useUpdateUserSettings } from "../hooks/useUserSettings";
 import Settings from "../components/Settings";
+import SubscriptionCard from "../components/SubscriptionCard";
 import Feedback from "../components/Feedback";
 import { checkAdminStatus } from "../services/api";
 import { useToken } from "../stores";
@@ -55,17 +56,20 @@ const SettingsPage = () => {
     navigate("/auth");
   };
 
-  const tabs: { id: "settings" | "feedback"; icon: string; label: string }[] = [
-    { id: "settings", icon: "⚙️", label: "Sozlamalar" },
-    { id: "feedback", icon: "💬", label: "Fikr" },
+  const tabs: { id: "settings" | "feedback"; label: string }[] = [
+    { id: "settings", label: "Sozlamalar" },
+    { id: "feedback", label: "Fikr" },
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* Tarif — Pro / Pro Plus ga doimiy kirish nuqtasi */}
+      <SubscriptionCard />
+
       {/* Segment Control */}
-      <div className="relative bg-food-brown-100/60 backdrop-blur-sm rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
+      <div className="relative bg-stone-100 rounded-2xl p-1 grid grid-cols-2 overflow-hidden">
         <div
-          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-md transition-transform duration-300 ease-out"
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-sm transition-transform duration-300 ease-out"
           style={{
             transform: activeSection === "settings" ? "translateX(0)" : "translateX(100%)",
             marginLeft: "2px",
@@ -77,11 +81,10 @@ const SettingsPage = () => {
             <button
               key={tab.id}
               onClick={() => setActiveSection(tab.id)}
-              className={`relative z-10 py-2.5 font-bold text-sm transition-colors flex items-center justify-center gap-2 ${
-                active ? "text-food-green-700" : "text-food-brown-500"
+              className={`relative z-10 py-2.5 font-semibold text-sm transition-colors flex items-center justify-center ${
+                active ? "text-stone-900" : "text-stone-500"
               }`}
             >
-              <span>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -92,10 +95,9 @@ const SettingsPage = () => {
       {isAdmin && (
         <button
           onClick={() => navigate("/admin")}
-          className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-bold shadow-md flex items-center justify-center gap-2 hover:from-purple-600 hover:to-purple-700 active:scale-[0.98] transition-all"
+          className="w-full py-3 rounded-2xl border border-stone-200 bg-white text-stone-700 font-semibold text-sm active:scale-[0.99] transition-transform"
         >
-          <span>👨‍💼</span>
-          <span>Admin Panel</span>
+          Admin panel
         </button>
       )}
 

@@ -18,12 +18,13 @@ interface BottomSheetProps {
   heroHeader?: boolean;
 }
 
+/** Aksent — faqat bitta tekis rang; gradient ishlatilmaydi. */
 const ACCENT_MAP: Record<NonNullable<BottomSheetProps["accent"]>, string> = {
-  green: "from-food-green-400 to-food-green-600",
-  orange: "from-food-orange-400 to-food-orange-600",
-  blue: "from-food-blue-400 to-food-blue-600",
-  red: "from-food-red-400 to-food-red-600",
-  neutral: "from-food-brown-400 to-food-brown-600",
+  green: "bg-emerald-600",
+  orange: "bg-orange-500",
+  blue: "bg-blue-600",
+  red: "bg-red-500",
+  neutral: "bg-stone-900",
 };
 
 const BottomSheet = ({
@@ -98,31 +99,27 @@ const BottomSheet = ({
         }`}
       />
       <div
-        className={`relative w-full sm:max-w-lg bg-white rounded-t-[28px] shadow-2xl overflow-hidden flex flex-col ${maxHeight} ${
+        className={`relative w-full sm:max-w-lg bg-white rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${maxHeight} ${
           leaving ? "animate-sheet-down" : "animate-sheet-up"
         }`}
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px))" }}
       >
         {/* Drag handle */}
         <div className="pt-2.5 pb-1.5 flex items-center justify-center">
-          <div className={`w-11 h-1.5 rounded-full bg-gradient-to-r ${accentClass} opacity-70`}></div>
+          <div className="w-10 h-1 rounded-full bg-stone-300"></div>
         </div>
 
         {/* Header */}
         {title && (
           <div
-            className={`px-5 pt-1 pb-3 flex items-center gap-3 ${
-              heroHeader
-                ? `bg-gradient-to-br ${accentClass} text-white`
-                : "bg-white"
+            className={`px-5 pt-1 pb-3 flex items-center gap-3 border-b border-stone-100 ${
+              heroHeader ? `${accentClass} text-white` : "bg-white"
             }`}
           >
             {icon && (
               <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl ${
-                  heroHeader
-                    ? "bg-white/20 backdrop-blur-sm"
-                    : `bg-gradient-to-br ${accentClass} text-white shadow-md`
+                className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
+                  heroHeader ? "bg-white/20" : "bg-stone-100"
                 }`}
               >
                 {icon}
@@ -131,8 +128,8 @@ const BottomSheet = ({
             <div className="flex-1 min-w-0">
               {typeof title === "string" ? (
                 <h3
-                  className={`text-base font-extrabold truncate ${
-                    heroHeader ? "text-white" : "text-food-brown-800"
+                  className={`text-base font-semibold truncate ${
+                    heroHeader ? "text-white" : "text-stone-900"
                   }`}
                 >
                   {title}
@@ -145,13 +142,13 @@ const BottomSheet = ({
               type="button"
               onClick={onClose}
               aria-label="Yopish"
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
                 heroHeader
                   ? "bg-white/20 text-white hover:bg-white/30"
-                  : "bg-food-brown-50 text-food-brown-600 hover:bg-food-brown-100"
+                  : "bg-stone-100 text-stone-500 hover:bg-stone-200"
               }`}
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -169,7 +166,7 @@ const BottomSheet = ({
 
         {/* Sticky footer */}
         {footer && (
-          <div className="px-5 pt-3 pb-3 border-t border-food-brown-100 bg-white">
+          <div className="px-5 pt-3 pb-3 border-t border-stone-100 bg-white">
             {footer}
           </div>
         )}

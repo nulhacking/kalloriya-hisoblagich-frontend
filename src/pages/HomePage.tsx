@@ -139,7 +139,7 @@ const HomePage = () => {
       {/* Coach Dashboard Hero */}
       {hasGoal && summary && target && (
         <div className="space-y-3 mb-4">
-          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-5 border-2 border-food-green-100">
+          <div className="bg-white rounded-2xl border border-stone-200 p-5">
             <div className="flex items-center gap-4">
               <CalorieRing
                 eaten={summary.eaten_calories}
@@ -148,32 +148,36 @@ const HomePage = () => {
               />
               <div className="flex-1 min-w-0 space-y-2">
                 <div>
-                  <div className="text-xs text-food-brown-500 font-bold uppercase tracking-wider">
+                  <div className="text-[11px] text-stone-400 font-semibold uppercase tracking-wider">
                     Maqsad
                   </div>
-                  <div className="text-base font-extrabold text-food-brown-800 mt-0.5">
+                  <div className="text-base font-semibold text-stone-900 mt-0.5">
                     {summary.goal_type === "lose"
-                      ? "🏃 Ozish"
+                      ? "Ozish"
                       : summary.goal_type === "gain"
-                        ? "💪 Semirish"
-                        : "⚖️ Saqlash"}
+                        ? "Semirish"
+                        : "Saqlash"}
                   </div>
                   {summary.target_weight_kg && (
-                    <div className="text-xs text-food-brown-600 mt-0.5">
-                      {user?.weight_kg ?? "?"} → <b>{summary.target_weight_kg}</b> kg
+                    <div className="text-xs text-stone-500 mt-0.5">
+                      {user?.weight_kg ?? "?"} →{" "}
+                      <span className="font-semibold text-stone-700">
+                        {summary.target_weight_kg}
+                      </span>{" "}
+                      kg
                     </div>
                   )}
                 </div>
                 <div className="flex gap-2 text-[11px]">
-                  <div className="bg-food-orange-50 rounded-lg px-2 py-1 flex-1">
-                    <div className="text-food-brown-500">🔥 Sarflandi</div>
-                    <div className="font-bold text-food-orange-700">
+                  <div className="rounded-lg bg-stone-50 px-2 py-1.5 flex-1">
+                    <div className="text-stone-400">Sarflandi</div>
+                    <div className="font-semibold text-stone-800">
                       {Math.round(summary.burned_calories)}
                     </div>
                   </div>
-                  <div className="bg-food-green-50 rounded-lg px-2 py-1 flex-1">
-                    <div className="text-food-brown-500">⚡ Net</div>
-                    <div className="font-bold text-food-green-700">
+                  <div className="rounded-lg bg-stone-50 px-2 py-1.5 flex-1">
+                    <div className="text-stone-400">Net</div>
+                    <div className="font-semibold text-stone-800">
                       {Math.round(summary.eaten_calories - summary.burned_calories)}
                     </div>
                   </div>
@@ -182,7 +186,7 @@ const HomePage = () => {
             </div>
 
             {/* Macro mini-rings */}
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-food-brown-100">
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-stone-100">
               <MacroRing
                 label="Oqsil"
                 emoji="🥩"
@@ -213,22 +217,17 @@ const HomePage = () => {
       )}
 
       {!hasGoal && user?.bmr && (
-        <div className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200 mb-4">
-          <div className="flex items-start gap-3">
-            <span className="text-3xl">🎯</span>
-            <div className="flex-1">
-              <div className="font-extrabold text-food-brown-800">Maqsad qo'ying</div>
-              <div className="text-xs text-food-brown-600 mt-0.5">
-                Sozlamalar bo'limida ozish, saqlash yoki semirish maqsadini tanlang —
-                kunlik kaloriya targetingiz avtomatik hisoblanadi.
-              </div>
-            </div>
+        <div className="rounded-2xl border border-stone-200 bg-white p-4 mb-4">
+          <div className="font-semibold text-stone-900 text-sm">Maqsad qo'ying</div>
+          <div className="text-xs text-stone-500 mt-1 leading-relaxed">
+            Sozlamalar bo'limida ozish, saqlash yoki semirish maqsadini tanlang —
+            kunlik kaloriya targetingiz avtomatik hisoblanadi.
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 md:p-6 border-2 border-food-green-100">
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 md:p-6">
         {/* Image Upload Section */}
         <ImageUpload
           onImageSelect={handleImageSelect}
@@ -240,10 +239,10 @@ const HomePage = () => {
           <div className="mt-4">
             <label
               htmlFor="food-user-note"
-              className="block text-xs font-bold text-food-brown-700 mb-1.5"
+              className="block text-xs font-semibold text-stone-700 mb-1.5"
             >
               Ixtiyoriy: ovqat haqida qo'shimcha ma'lumot
-              <span className="font-normal text-food-brown-500">
+              <span className="font-normal text-stone-400">
                 {" "}
                 (aniqlikni oshirish uchun)
               </span>
@@ -256,9 +255,9 @@ const HomePage = () => {
               maxLength={500}
               rows={3}
               placeholder="Masalan: lag'mon, go'sht ko'p; yoki stol ustidagi non va pishloq..."
-              className="w-full rounded-2xl border-2 border-food-green-100 bg-food-brown-50/40 px-3 py-2.5 text-sm text-food-brown-900 placeholder:text-food-brown-400 focus:border-food-green-400 focus:outline-none focus:ring-2 focus:ring-food-green-200 disabled:opacity-60 resize-none"
+              className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-400 focus:outline-none disabled:opacity-60 resize-none"
             />
-            <p className="text-[11px] text-food-brown-500 mt-1">
+            <p className="text-[11px] text-stone-400 mt-1">
               {userNote.length}/500
             </p>
           </div>
@@ -270,28 +269,24 @@ const HomePage = () => {
             <button
               onClick={handleAnalyze}
               disabled={!image || loading || !canAnalyze}
-              className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 via-food-green-600 to-food-green-500 hover:from-food-green-600 hover:via-food-green-700 hover:to-food-green-600 disabled:from-gray-300 disabled:via-gray-400 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 md:py-4 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 active:scale-[0.99]"
             >
               {analyzeMutation.isPending ? (
                 <>
                   <LoadingSpinner size="sm" />
-                  <span className="text-sm md:text-base">Tahlil...</span>
+                  <span>Tahlil qilinmoqda…</span>
                 </>
               ) : (
-                <>
-                  <span className="text-lg">🔍</span>
-                  <span className="text-sm md:text-base">Tahlil qilish</span>
-                </>
+                <span>Tahlil qilish</span>
               )}
             </button>
             {(image || results) && (
               <button
                 onClick={handleReset}
                 disabled={loading}
-                className="px-4 md:px-6 py-3.5 md:py-4 bg-gradient-to-r from-food-red-100 to-food-red-200 hover:from-food-red-200 hover:to-food-red-300 disabled:from-gray-100 disabled:to-gray-200 disabled:cursor-not-allowed text-food-red-700 font-bold rounded-2xl transition-all duration-300 shadow-md active:scale-95 flex items-center gap-1"
+                className="px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm transition-colors active:scale-[0.99]"
               >
-                <span className="text-lg">🔄</span>
-                <span className="hidden md:inline text-sm">Tozalash</span>
+                Tozalash
               </button>
             )}
           </div>
@@ -299,22 +294,27 @@ const HomePage = () => {
 
         {/* Error Display */}
         {error && (
-          <div className="mt-4 p-4 bg-gradient-to-r from-food-red-50 to-food-red-100 border-2 border-food-red-300 rounded-2xl animate-shake">
-            <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
-              <span className="text-xl">⚠️</span>
-              {error}
-            </p>
+          <div className="mt-4 p-3.5 rounded-xl border border-red-200 bg-red-50 animate-shake">
+            <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
 
         {!canAnalyze && (
-          <div className="mt-4 p-4 bg-gradient-to-r from-food-orange-50 to-food-red-50 border-2 border-food-orange-300 rounded-2xl">
-            <p className="text-food-red-700 font-bold text-sm flex items-center gap-2">
-              <span className="text-xl">🔒</span>
+          <div className="mt-4 p-3.5 rounded-xl border border-stone-200 bg-stone-50">
+            <p className="text-sm text-stone-700">
               {subscription?.is_active
-                ? "Kunlik limit tugadi. Ertaga yana davom ettirishingiz mumkin."
-                : "Kunlik 3 ta bepul urinish tugadi. O'ngdagi ⚡ tugmasini bosing — ko'p tahlil."}
+                ? "Kunlik limit tugadi. Ertaga avtomatik yangilanadi."
+                : `Kunlik ${subscription?.free_attempts_per_day ?? 3} ta bepul tahlil tugadi.`}
             </p>
+            {!subscription?.is_active && (
+              <button
+                type="button"
+                onClick={() => navigate("/settings")}
+                className="mt-2 text-sm font-semibold text-emerald-700 underline underline-offset-2"
+              >
+                Tariflarni ko'rish
+              </button>
+            )}
           </div>
         )}
 
@@ -332,21 +332,14 @@ const HomePage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="text-center mt-4 md:mt-6 text-food-brown-600 text-xs md:text-sm">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-3 md:p-4 shadow-md border border-food-green-100">
-          <p className="font-medium flex items-center justify-center gap-1">
-            <span>📸</span> Ovqat rasmini yuklab kaloriyani bilib oling
-          </p>
-          <p className="text-food-brown-500 mt-1 text-xs">
-            ⚠️ Natijalar taxminiy
-          </p>
-          <button
-            onClick={() => setShowPrivacyPolicy(true)}
-            className="mt-2 text-food-green-600 hover:text-food-green-700 font-medium underline underline-offset-2 flex items-center justify-center gap-1 mx-auto transition-colors"
-          >
-            <span>🔒</span> Maxfiylik siyosati
-          </button>
-        </div>
+      <footer className="text-center mt-5 text-xs text-stone-400">
+        <p>Natijalar taxminiy</p>
+        <button
+          onClick={() => setShowPrivacyPolicy(true)}
+          className="mt-1.5 text-stone-500 underline underline-offset-2 hover:text-stone-700 transition-colors"
+        >
+          Maxfiylik siyosati
+        </button>
       </footer>
 
       {/* Privacy Policy Modal */}

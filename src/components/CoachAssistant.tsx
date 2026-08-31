@@ -12,12 +12,12 @@ import { activityKeys } from "../hooks/useActivities";
 import { GOAL_SUMMARY_QUERY_KEY } from "../hooks/useGoal";
 import type { CoachHistoryItem } from "../types";
 import { asCoachMood } from "../utils/coachMood";
-import CoachPhoto from "./coach/CoachPhoto";
 import { type CoachMood } from "./coach/MotivatorArt";
 import CoachChat from "./CoachChat";
 import CoachPersonaPicker from "./CoachPersonaPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import ProPlusPaywall from "./ProPlusPaywall";
+import { PLAN_META } from "../utils/plan";
 import { useToast } from "./Toast";
 
 /**
@@ -165,8 +165,8 @@ const CoachAssistant = () => {
 
   if (personasQuery.error || !data) {
     return (
-      <div className="bg-food-red-50 border-2 border-food-red-200 rounded-2xl p-4 text-food-red-700 font-bold text-sm">
-        ⚠️ Murabbiylarni yuklashda xatolik. Internet aloqani tekshiring.
+      <div className="rounded-2xl border border-stone-200 bg-white p-4 text-sm text-stone-600">
+        Murabbiylarni yuklashda xatolik. Internet aloqani tekshiring.
       </div>
     );
   }
@@ -175,30 +175,31 @@ const CoachAssistant = () => {
 
   return (
     <div className="space-y-4">
-      {/* Bo'lim sarlavhasi */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 px-4 py-4">
-        {/* Motivator — bo'lim sarlavhasidagi jonli qahramon */}
-        <CoachPhoto
-          mood="win"
-          variant="full"
-          animated
-          className="absolute -right-4 -bottom-6 w-36 h-36 pointer-events-none drop-shadow-xl"
-        />
-        <div className="absolute -right-8 -top-10 text-7xl opacity-15 select-none">
-          🎭
-        </div>
-        <div className="relative">
-          <div className="text-white/85 text-[11px] font-bold tracking-wide">
-            7 MURABBIY · 7 USLUB
+      {/* Bo'lim sarlavhasi — sokin, bitta aksent rangi */}
+      <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+              AI murabbiy
+            </p>
+            <h2 className="text-lg font-semibold text-stone-900 mt-0.5">
+              Murabbiyingiz bilan gaplashing
+            </h2>
           </div>
-          <h2 className="text-white text-xl font-extrabold leading-tight mt-0.5 max-w-[70%]">
-            AI murabbiyingiz bilan gaplashing
-          </h2>
-          <p className="text-white/85 text-xs mt-1 max-w-[62%]">
-            U sizning vazningiz, maqsadingiz va bugungi kaloriyangizni ko'rib
-            turadi — javoblari umumiy emas, aynan sizga.
-          </p>
+          <span
+            className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+              hasAccess
+                ? `${PLAN_META.pro_plus.bg} ${PLAN_META.pro_plus.text} ${PLAN_META.pro_plus.border}`
+                : "bg-stone-100 text-stone-500 border-stone-200"
+            }`}
+          >
+            {hasAccess ? "Pro Plus" : "Bepul sinov"}
+          </span>
         </div>
+        <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+          U vazningiz, maqsadingiz va bugungi kaloriyangizni ko'rib turadi —
+          javoblari umumiy emas, aynan sizga.
+        </p>
       </div>
 
       {showPicker ? (
@@ -218,7 +219,7 @@ const CoachAssistant = () => {
             <button
               type="button"
               onClick={() => setPickerOpen(false)}
-              className="w-full text-sm font-bold text-food-brown-600 py-2"
+              className="w-full text-sm font-semibold text-stone-500 py-2"
             >
               ← Suhbatga qaytish
             </button>

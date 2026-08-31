@@ -24,14 +24,6 @@ const PageLoader = () => (
   </div>
 );
 
-const BackgroundBlobs = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <div className="absolute top-10 left-5 w-32 h-32 md:w-64 md:h-64 bg-food-green-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob"></div>
-    <div className="absolute top-20 right-5 w-32 h-32 md:w-64 md:h-64 bg-food-yellow-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-    <div className="absolute bottom-10 left-1/3 w-32 h-32 md:w-64 md:h-64 bg-food-orange-300 rounded-full mix-blend-multiply filter blur-2xl md:blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-  </div>
-);
-
 function App() {
   const authLoading = useIsLoading();
   const user = useUser();
@@ -47,11 +39,10 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-bounce-soft">🍽️</div>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-food-brown-600 font-medium">Yuklanmoqda...</p>
+          <p className="mt-4 text-stone-500 text-sm">Yuklanmoqda…</p>
         </div>
       </div>
     );
@@ -60,9 +51,8 @@ function App() {
   if (!user) {
     return (
       <ToastProvider>
-        <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
-          <BackgroundBlobs />
-          <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10">
+        <div className="min-h-[100dvh] bg-stone-50">
+          <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl">
             <Suspense fallback={<PageLoader />}>
               <AuthPage />
             </Suspense>
@@ -77,10 +67,8 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 food-pattern relative overflow-hidden">
-        <BackgroundBlobs />
-
-        <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl relative z-10 pb-24">
+      <div className="min-h-[100dvh] bg-stone-50">
+        <div className="container mx-auto px-3 py-4 md:px-4 max-w-lg md:max-w-2xl pb-24">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />

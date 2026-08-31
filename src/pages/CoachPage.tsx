@@ -54,12 +54,11 @@ const CoachPage = () => {
   const renderPlan = () => {
     if (!ready) {
       return (
-        <div className="bg-white/95 rounded-2xl p-6 border-2 border-food-green-100 text-center">
-          <div className="text-5xl mb-3">🎯</div>
-          <h2 className="text-lg font-extrabold text-food-brown-800">
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
+          <h2 className="text-base font-semibold text-stone-900">
             Avval maqsad qo'ying
           </h2>
-          <p className="text-sm text-food-brown-600 mt-2">
+          <p className="text-sm text-stone-500 mt-2 leading-relaxed">
             Reja tuzish uchun Sozlamalar bo'limida tana ma'lumotlaringizni va
             maqsadingizni kiriting.
           </p>
@@ -77,8 +76,8 @@ const CoachPage = () => {
 
     if (error || !data) {
       return (
-        <div className="bg-food-red-50 border-2 border-food-red-200 rounded-2xl p-4 text-food-red-700 font-bold text-sm">
-          ⚠️ Reja ma'lumotlarini yuklashda xatolik. Internet aloqani tekshiring.
+        <div className="rounded-2xl border border-stone-200 bg-white p-4 text-sm text-stone-600">
+          Reja ma'lumotlarini yuklashda xatolik. Internet aloqani tekshiring.
         </div>
       );
     }
@@ -86,26 +85,24 @@ const CoachPage = () => {
     return (
       <div className="space-y-4">
         {/* Nudge banner */}
-        <div className="bg-gradient-to-r from-food-green-100 via-food-yellow-100 to-food-orange-100 rounded-2xl p-4 border-2 border-white shadow-sm">
-          <p className="text-food-brown-800 font-medium leading-relaxed">
-            {data.nudge}
-          </p>
+        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+          <p className="text-sm text-stone-700 leading-relaxed">{data.nudge}</p>
           <div className="grid grid-cols-3 gap-2 mt-3 text-center">
-            <div className="bg-white/70 rounded-lg p-2">
-              <div className="text-[10px] text-food-brown-500">Target</div>
-              <div className="font-bold text-food-brown-800 text-sm">
+            <div className="rounded-lg bg-stone-50 p-2">
+              <div className="text-[10px] text-stone-400">Target</div>
+              <div className="font-semibold text-stone-900 text-sm mt-0.5">
                 {data.target_kcal}
               </div>
             </div>
-            <div className="bg-white/70 rounded-lg p-2">
-              <div className="text-[10px] text-food-brown-500">Yedingiz</div>
-              <div className="font-bold text-food-green-700 text-sm">
+            <div className="rounded-lg bg-stone-50 p-2">
+              <div className="text-[10px] text-stone-400">Yedingiz</div>
+              <div className="font-semibold text-stone-900 text-sm mt-0.5">
                 {Math.round(data.eaten_kcal)}
               </div>
             </div>
-            <div className="bg-white/70 rounded-lg p-2">
-              <div className="text-[10px] text-food-brown-500">Qoldi</div>
-              <div className="font-bold text-food-orange-700 text-sm">
+            <div className="rounded-lg bg-stone-50 p-2">
+              <div className="text-[10px] text-stone-400">Qoldi</div>
+              <div className="font-semibold text-stone-900 text-sm mt-0.5">
                 {data.remaining_kcal}
               </div>
             </div>
@@ -117,28 +114,30 @@ const CoachPage = () => {
         <MealPlanCard plan={data.meal_plan} loggedNames={loggedNames} />
 
         {/* Weekly report */}
-        <div className="bg-white/95 rounded-2xl border-2 border-food-blue-100 overflow-hidden">
+        <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
           <button
             onClick={() => setWeeklyOpen((p) => !p)}
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-food-blue-50 transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-stone-50 transition-colors"
           >
-            <span className="font-bold text-food-brown-800 flex items-center gap-2">
-              <span>📊</span> Haftalik hisobot
+            <span className="font-semibold text-stone-900 text-sm">
+              Haftalik hisobot
             </span>
-            <span className="text-food-brown-500">{weeklyOpen ? "▲" : "▼"}</span>
+            <span className="text-stone-400 text-xs">
+              {weeklyOpen ? "▲" : "▼"}
+            </span>
           </button>
           {weeklyOpen && (
-            <div className="p-4 border-t border-food-blue-100">
+            <div className="p-4 border-t border-stone-100">
               {weekly.isLoading ? (
                 <div className="text-center py-4">
                   <LoadingSpinner size="md" />
                 </div>
               ) : weekly.data ? (
-                <pre className="whitespace-pre-wrap text-sm text-food-brown-700 font-medium leading-relaxed">
+                <pre className="whitespace-pre-wrap text-sm text-stone-700 leading-relaxed font-sans">
                   {weekly.data.text}
                 </pre>
               ) : (
-                <p className="text-sm text-food-brown-600">
+                <p className="text-sm text-stone-500">
                   Hisobot mavjud emas.
                 </p>
               )}
@@ -152,7 +151,7 @@ const CoachPage = () => {
   return (
     <div className="space-y-4">
       {/* Bo'limlar: AI murabbiy | Bugungi reja */}
-      <div className="bg-white/80 backdrop-blur rounded-2xl p-1 flex gap-1 border-2 border-white shadow-sm">
+      <div className="bg-stone-100 rounded-2xl p-1 flex gap-1">
         {TABS.map((item) => {
           const isActive = tab === item.key;
           return (
@@ -160,13 +159,12 @@ const CoachPage = () => {
               key={item.key}
               type="button"
               onClick={() => setTab(item.key)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-extrabold transition-all duration-300 ${
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                 isActive
-                  ? "bg-gradient-to-r from-food-green-500 to-food-green-600 text-white shadow-sm"
-                  : "text-food-brown-500"
+                  ? "bg-white text-stone-900 shadow-sm"
+                  : "text-stone-500"
               }`}
             >
-              <span className="mr-1">{item.icon}</span>
               {item.label}
             </button>
           );

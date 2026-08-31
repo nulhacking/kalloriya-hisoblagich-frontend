@@ -321,38 +321,30 @@ const ImageUpload = ({
     <div className="space-y-3">
       {/* Camera View or Image Preview */}
       {imagePreview ? (
-        <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-food-green-50">
+        <div className="relative w-full rounded-2xl overflow-hidden border border-stone-200 bg-stone-50">
           <img
             src={imagePreview}
             alt="Preview"
             className="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-contain mx-auto bg-white"
           />
           {/* Success indicator */}
-          <div className="absolute top-3 right-3 bg-food-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
-            <span>✓</span> Tayyor
+          <div className="absolute top-3 right-3 bg-stone-900/80 text-white px-2.5 py-1 rounded-full text-[11px] font-semibold">
+            Tayyor
           </div>
         </div>
       ) : (
-        <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden shadow-xl border-4 border-food-green-200 bg-gray-900">
+        <div className="relative h-[50vh] md:h-[55vh] w-full rounded-2xl overflow-hidden border border-stone-200 bg-stone-900">
           {/* Error Message - shown when camera fails */}
           {cameraError && (
-            <div className="absolute inset-0 z-30 bg-gradient-to-br from-food-red-50 via-food-orange-50 to-food-yellow-50 flex flex-col items-center justify-center p-6">
-              <div className="text-center max-w-md">
-                {/* Error icon */}
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-food-red-200 to-food-red-300 flex items-center justify-center mx-auto mb-4">
-                  <div className="text-4xl md:text-5xl">⚠️</div>
-                </div>
-
-                {/* Error message */}
-                <p className="text-food-red-700 font-bold text-base md:text-lg mb-3">
+            <div className="absolute inset-0 z-30 bg-white flex flex-col items-center justify-center p-6">
+              <div className="text-center max-w-xs">
+                <p className="text-sm text-stone-600 leading-relaxed">
                   {cameraError}
                 </p>
-
-                {/* Retry button for permission errors */}
                 {cameraPermissionDenied && (
                   <button
                     onClick={startCamera}
-                    className="mt-4 bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 text-white font-bold py-2 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-95"
+                    className="mt-4 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm py-2.5 px-5 rounded-xl transition-colors active:scale-[0.99]"
                   >
                     Qayta urinib ko'rish
                   </button>
@@ -367,14 +359,11 @@ const ImageUpload = ({
             (permissionState === "prompt" ||
               permissionState === "denied" ||
               permissionState === "unknown") && (
-              <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center p-6">
-                <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 flex items-center justify-center mb-4 shadow-md">
-                  <div className="text-4xl md:text-5xl">📷</div>
-                </div>
-                <p className="text-food-green-800 font-bold text-base md:text-lg mb-1 text-center">
+              <div className="absolute inset-0 z-20 bg-white flex flex-col items-center justify-center p-6">
+                <p className="text-base font-semibold text-stone-900 text-center">
                   Kamera yoqilmagan
                 </p>
-                <p className="text-food-brown-600 text-xs md:text-sm mb-5 text-center max-w-xs">
+                <p className="text-stone-500 text-xs mt-1.5 mb-5 text-center max-w-xs leading-relaxed">
                   {permissionState === "denied"
                     ? "Ruxsat rad etilgan. Brauzer sozlamalaridan ruxsat bering yoki rasm yuklang."
                     : "Ovqatni darhol suratga olish uchun kamerani yoqing."}
@@ -382,10 +371,9 @@ const ImageUpload = ({
                 <button
                   onClick={startCamera}
                   disabled={disabled}
-                  className="bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 flex items-center gap-2"
+                  className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-200 disabled:text-stone-400 text-white font-semibold text-sm py-2.5 px-5 rounded-xl transition-colors active:scale-[0.99]"
                 >
-                  <span className="text-xl">📸</span>
-                  <span className="text-sm md:text-base">Kamerani yoqish</span>
+                  Kamerani yoqish
                 </button>
               </div>
             )}
@@ -395,25 +383,11 @@ const ImageUpload = ({
             !cameraError &&
             (permissionState === "granted" ||
               permissionState === "checking") && (
-              <div className="absolute inset-0 z-20 bg-gradient-to-br from-food-green-100 via-food-yellow-50 to-food-orange-100 flex flex-col items-center justify-center">
-                <div className="relative">
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-food-green-200 to-food-green-300 animate-pulse flex items-center justify-center">
-                    <div className="text-4xl md:text-5xl animate-bounce-soft">
-                      📷
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 rounded-full border-4 border-food-green-400 animate-ping opacity-30"></div>
-                </div>
-                <div className="mt-6 text-center">
-                  <p className="text-food-green-700 font-bold text-base md:text-lg">
-                    Kamera yuklanmoqda...
-                  </p>
-                </div>
-                <div className="mt-6 space-y-2 w-48">
-                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse"></div>
-                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-3/4 mx-auto"></div>
-                  <div className="h-2 bg-food-green-200 rounded-full animate-pulse w-1/2 mx-auto"></div>
-                </div>
+              <div className="absolute inset-0 z-20 bg-white flex flex-col items-center justify-center">
+                <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-500 animate-spin" />
+                <p className="mt-4 text-sm text-stone-500">
+                  Kamera yuklanmoqda…
+                </p>
               </div>
             )}
 
@@ -429,32 +403,34 @@ const ImageUpload = ({
 
           {/* Camera overlay gradient */}
           {cameraActive && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
           )}
 
           {/* Camera frame corners */}
           {cameraActive && (
             <div className="absolute inset-8 md:inset-12 pointer-events-none">
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-food-green-400 rounded-tl-lg"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-food-green-400 rounded-tr-lg"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-food-green-400 rounded-bl-lg"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-food-green-400 rounded-br-lg"></div>
+              <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-white/70 rounded-tl-md"></div>
+              <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-white/70 rounded-tr-md"></div>
+              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-white/70 rounded-bl-md"></div>
+              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-white/70 rounded-br-md"></div>
             </div>
           )}
 
           {/* Camera status indicator */}
           {cameraActive && (
-            <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              <div className="w-2 h-2 bg-food-red-500 rounded-full animate-pulse"></div>
-              <span className="text-white text-xs font-medium">LIVE</span>
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/45 backdrop-blur-sm px-2.5 py-1 rounded-full">
+              <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-white text-[10px] font-semibold tracking-wide">
+                LIVE
+              </span>
             </div>
           )}
 
           {/* Instruction text */}
           {cameraActive && (
             <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-              <p className="text-white text-sm font-medium bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full">
-                🍽️ Ovqatni kadrga oling
+              <p className="text-white text-xs bg-black/40 backdrop-blur-sm px-3.5 py-1.5 rounded-full">
+                Ovqatni kadrga oling
               </p>
             </div>
           )}
@@ -475,10 +451,9 @@ const ImageUpload = ({
           <button
             onClick={capturePhoto}
             disabled={disabled || !cameraActive || !!imagePreview}
-            className="flex-1 group relative overflow-hidden bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+            className="flex-1 bg-stone-900 hover:bg-stone-800 disabled:bg-stone-200 disabled:text-stone-400 text-white font-semibold text-sm py-3 px-4 rounded-xl transition-colors active:scale-[0.99] disabled:active:scale-100"
           >
-            <span className="text-xl">📸</span>
-            <span className="text-sm md:text-base">Rasm olish</span>
+            Rasm olish
           </button>
         )}
 
@@ -488,12 +463,9 @@ const ImageUpload = ({
           disabled={disabled}
           className={`${
             cameraError && !cameraActive ? "w-full" : "flex-1"
-          } group relative overflow-hidden bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2`}
+          } border border-stone-200 bg-white hover:bg-stone-50 disabled:opacity-50 text-stone-700 font-semibold text-sm py-3 px-4 rounded-xl transition-colors active:scale-[0.99] disabled:active:scale-100`}
         >
-          <span className="text-xl">📁</span>
-          <span className="text-sm md:text-base">
-            {cameraError && !cameraActive ? "Rasm yuklash" : "Fayldan"}
-          </span>
+          {cameraError && !cameraActive ? "Rasm yuklash" : "Fayldan"}
         </button>
       </div>
 
