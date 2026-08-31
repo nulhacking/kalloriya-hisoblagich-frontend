@@ -10,7 +10,7 @@
  *   2. har bir kayfiyat SHU ETALON rasm bilan birga so'raladi ("same character,
  *      same face, only the pose changes") — aks holda har kadrda boshqa odam chiqadi;
  *   3. hamma kadr tekis xrom-yashil fonda — `build-coach-stickers.mjs` fonni
- *      kesib, stiker (shaffof PNG) va GIF (o'z gradient fonimiz) yasaydi.
+ *      kesib, stiker (shaffof PNG) va bot kartochkasi (o'z gradient fonimiz) yasaydi.
  *
  * Kalit: `GEMINI_API_KEY` env yoki backend `.env` faylidan o'qiladi.
  * Kadrlar `public/coach/source/` da saqlanadi va qayta ishga tushirilganda
@@ -197,7 +197,7 @@ async function main() {
   }
 
   console.log(`\n🎉 Kadrlar: ${SOURCE_DIR}`);
-  console.log("Keyingi qadam: yarn stickers — stiker PNG, GIF va backend nusxasi.");
+  console.log("Keyingi qadam: yarn stickers — stiker PNG, bot kartochkasi va backend nusxasi.");
 }
 
 main().catch((error) => {

@@ -40,7 +40,7 @@ export const hasCoachArt = hasCoachPhoto;
 /**
  * Murabbiy avatari — ilovadagi barcha joyda bir xil qahramon.
  *
- * Motivator uchun fotorealistik kadr (stiker va bot GIF i bilan bitta manbadan),
+ * Motivator uchun fotorealistik kadr (stiker va bot rasmi bilan bitta manbadan),
  * qolgan murabbiylar uchun hozircha emoji. Yangi murabbiy chizilganda
  * `CoachPhoto` dagi ro'yxatga qo'shiladi — bu yerda hech narsa o'zgarmaydi.
  */

@@ -7,7 +7,6 @@ import type { CSSProperties } from "react";
  *   • ilovada — React komponenti (jonli, CSS animatsiyalari bilan);
  *   • stikerda — `scripts/build-coach-stickers.mjs` shu komponentni server-side
  *     render qilib 512×512 PNG chiqaradi (Telegram stiker talabi);
- *   • GIF da — o'sha skript `phase` ni 0→1 aylantirib kadrlar yasaydi.
  *
  * Shuning uchun bu yerda hech qanday tashqi rasm, font yoki hook yo'q — faqat
  * sof SVG. Kayfiyat (`mood`) qo'l pozasini, yuz ifodasini va effektlarni
@@ -751,8 +750,8 @@ export interface MotivatorArtProps {
   /** Stiker ustidagi qisqa matn — "ZO'R!", "QANI!". */
   caption?: string;
   /**
-   * GIF kadri: 0→1 faza. CSS animatsiyasi yo'q joyda (server-side render)
-   * harakatni shu beradi — nafas, bosh tebranishi, uchqun pulsi.
+   * Statik kadr uchun 0→1 faza. CSS animatsiyasi yo'q joyda (server-side
+   * render) harakatni shu beradi — nafas, bosh tebranishi, uchqun pulsi.
    */
   phase?: number;
   className?: string;
@@ -777,7 +776,7 @@ const MotivatorArt = ({
   const id = (name: string) => `${idPrefix}-${name}`;
   const soft = `url(#${id("soft")})`;
 
-  // GIF kadri: sinus bo'yicha kichik siljishlar (CSS animatsiyasi o'rniga).
+  // Statik kadr: sinus bo'yicha kichik siljishlar (CSS animatsiyasi o'rniga).
   const t = phase === undefined ? null : Math.sin(phase * Math.PI * 2);
   const bodyScale = t === null ? 1 : 1 + t * 0.014;
   const headShift = t === null ? 0 : -t * 4;
@@ -845,8 +844,8 @@ const MotivatorArt = ({
       </defs>
 
       {background && !sticker && (
-        // To'liq fon: GIF Telegramda MP4 ga aylanadi va shaffoflikni yo'qotadi,
-        // shuning uchun burchaklar ham bo'yalgan bo'lishi kerak.
+        // To'liq fon: Telegram fotosi shaffoflikni ko'tarmaydi, shuning uchun
+        // burchaklar ham bo'yalgan bo'lishi kerak.
         <g>
           <rect width={512} height={512} fill={`url(#${id("glow")})`} />
           <circle cx={256} cy={216} r={186} fill="#ffd9a8" opacity={0.16} />

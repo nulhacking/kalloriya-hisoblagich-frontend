@@ -1,10 +1,10 @@
 /**
- * Gemini chiqargan xrom-yashil fondagi kadrni stiker/GIF uchun tayyorlash.
+ * Gemini chiqargan xrom-yashil fondagi kadrni stiker va bot rasmi uchun tayyorlash.
  *
  * Bu yerda uchta ish bor:
  *   • `cutout` — yashil fonni olib tashlash (chetlarga yashil surtilib qolmasin);
  *   • `stickerCard` — 512×512 shaffof PNG: oq kontur + pastda yozuv (Telegram stikeri);
- *   • `gifFrames` — gradient fon ustida "nafas olayotgan" kadrlar (bot GIF i uchun).
+ *   • `cardImage` — gradient fon ustidagi to'liq kadr (botdagi rasmli xabar uchun).
  */
 
 import sharp from "sharp";
@@ -166,7 +166,7 @@ export function captionSvg(size, text) {
   );
 }
 
-/** GIF/karta foni: bosh orqasida issiq nur, chetlarga qorayadi (ilovadagi bilan bir xil). */
+/** Karta foni: bosh orqasida issiq nur, chetlarga qorayadi (ilovadagi bilan bir xil). */
 export function backgroundSvg(size, glow = 1) {
   const r = Math.round(72 * glow);
   return Buffer.from(
@@ -190,40 +190,28 @@ export function backgroundSvg(size, glow = 1) {
 }
 
 /**
- * Jonli kadrlar: qahramon sekin "nafas oladi" (kattalashib-kichrayadi va
- * bir oz tebranadi), fon nuri esa puls uradi. Video model kerak emas.
+ * Bot rasmi: gradient fon + qahramon + (bo'lsa) pastdagi yozuv.
+ *
+ * Telegram foto shaffoflikni ko'tarmaydi — stikerdagi shaffof PNG chatda
+ * qora/oq fonga tushib qoladi, shuning uchun bot uchun alohida "kartochka"
+ * yasaladi.
  */
-export async function gifFrames(cutoutBuffer, size, caption, frames = 14) {
-  const out = [];
-  const baseW = Math.round(size * 0.94);
+export async function cardImage(cutoutBuffer, size, caption) {
+  const person = await sharp(cutoutBuffer)
+    .resize(Math.round(size * 0.94), Math.round(size * 0.9), { fit: "inside" })
+    .toBuffer({ resolveWithObject: true });
 
-  for (let i = 0; i < frames; i += 1) {
-    const t = Math.sin((i / frames) * Math.PI * 2);
-    const scale = 1 + t * 0.022;
-    const shiftY = Math.round(-t * size * 0.008);
+  const layers = [
+    {
+      input: person.data,
+      left: Math.round((size - person.info.width) / 2),
+      top: Math.round(size - person.info.height + size * 0.02),
+    },
+  ];
+  if (caption) layers.push({ input: captionSvg(size, caption) });
 
-    const person = await sharp(cutoutBuffer)
-      .resize(Math.round(baseW * scale), Math.round(size * 0.9 * scale), {
-        fit: "inside",
-      })
-      .toBuffer({ resolveWithObject: true });
-
-    const layers = [
-      {
-        input: person.data,
-        left: Math.round((size - person.info.width) / 2),
-        top: Math.round(size - person.info.height + size * 0.02) + shiftY,
-      },
-    ];
-    if (caption) layers.push({ input: captionSvg(size, caption) });
-
-    out.push(
-      await sharp(backgroundSvg(size, 1 + t * 0.06))
-        .composite(layers)
-        .png()
-        .toBuffer(),
-    );
-  }
-
-  return out;
+  return sharp(backgroundSvg(size))
+    .composite(layers)
+    .png({ compressionLevel: 9 })
+    .toBuffer();
 }

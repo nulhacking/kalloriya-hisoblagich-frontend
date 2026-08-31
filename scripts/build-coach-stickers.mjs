@@ -1,5 +1,5 @@
 /**
- * Motivator Murabbiy stikerlari va GIF lari.
+ * Motivator Murabbiy stikerlari va bot rasmlari.
  *
  * Ikki manba bor, biri ikkinchisining zaxirasi:
  *
@@ -12,8 +12,9 @@
  * Chiqadigan fayllar:
  *   • `motivator-<mood>.png`  — 512×512 shaffof, Telegram stikeri;
  *   • `motivator-<mood>.webp` — o'sha stikerning yengil varianti (yuklash uchun);
- *   • `motivator-<mood>.gif`  — 320×320 jonli reaksiya, bot javob matnini shu
- *     GIF tagiga sarlavha qilib yozadi;
+ *   • `motivator-<mood>-card.png` — 640×640 fonli kartochka: BOT shu rasmni har
+ *     javobda yuboradi va matnni uning tagiga sarlavha qilib yozadi (Telegram
+ *     fotosi shaffoflikni ko'tarmaydi, shuning uchun stikerdan alohida);
  *   • `motivator-<mood>-avatar.webp` — 192×192 bosh+yelka, ilovadagi avatar
  *     uchun (yengil: ~15 KB, chunki chatda har xabarda ko'rinadi);
  *   • `motivator-<mood>-full.webp`   — 512×512 to'liq gavda, yozuvsiz: ilovadagi
@@ -37,8 +38,8 @@ import {
   backgroundSvg,
   captionSvg,
   cutout,
+  cardImage,
   fitSquare,
-  gifFrames,
   headCrop,
   whiteOutline,
 } from "./lib/coach-photo.mjs";
@@ -54,10 +55,8 @@ const BACKEND_DIR = join(ROOT, "../kalloriya-hisoblagich-backend/assets/coach");
 const STICKER_SIZE = 512;
 /** Ilovadagi dumaloq avatar (retina uchun 2x). */
 const AVATAR_SIZE = 192;
-/** GIF: nechta kadr va kadr davomiyligi (ms). 14 × 90ms ≈ 1.3 sekundlik tsikl. */
-const GIF_FRAMES = 14;
-const GIF_DELAY = 90;
-const GIF_SIZE = 320;
+/** Botdagi rasmli xabar uchun kartochka o'lchami. */
+const CARD_SIZE = 640;
 
 /** Har bir reaksiya: kayfiyat + ustidagi matn + Telegramdagi emoji. */
 const STICKERS = [
@@ -157,11 +156,8 @@ async function buildFromPhoto(photoPath, caption) {
   const png = await sharp(outline).composite(layers).png({ compressionLevel: 9 }).toBuffer();
   const webp = await sharp(outline).composite(layers).webp({ quality: 92 }).toBuffer();
 
-  // --- GIF: gradient fon + "nafas olayotgan" qahramon
-  const frames = await gifFrames(person.buffer, GIF_SIZE, caption, GIF_FRAMES);
-  const gif = await sharp(frames, { join: { animated: true } })
-    .gif({ delay: GIF_DELAY, loop: 0 })
-    .toBuffer();
+  // --- bot kartochkasi: gradient fon + qahramon + yozuv
+  const card = await cardImage(person.buffer, CARD_SIZE, caption);
 
   // --- ilovadagi dumaloq avatar: bosh + yelka, yozuvsiz va kontursiz
   const avatar = await headCrop(person.buffer, AVATAR_SIZE);
@@ -170,7 +166,7 @@ async function buildFromPhoto(photoPath, caption) {
     .webp({ quality: 88, alphaQuality: 90 })
     .toBuffer();
 
-  return { png, webp, gif, avatar, full };
+  return { png, webp, card, avatar, full };
 }
 
 /* ---------------------------------------------------------- vektor varianti */
@@ -197,28 +193,23 @@ async function buildFromVector(mood, caption) {
     .toBuffer();
   const webp = await sharp(png).webp({ quality: 92 }).toBuffer();
 
-  const frames = [];
-  for (let i = 0; i < GIF_FRAMES; i += 1) {
-    const frameSvg = toStandaloneSvg(
-      render({
-        mood,
-        caption: caption ?? undefined,
-        sticker: false,
-        background: true,
-        animated: false,
-        phase: i / GIF_FRAMES,
-        idPrefix: `gif-${mood}`,
-      }),
-    );
-    frames.push(
-      await sharp(Buffer.from(frameSvg), { density: 110 }).resize(GIF_SIZE, GIF_SIZE).png().toBuffer(),
-    );
-  }
-  const gif = await sharp(frames, { join: { animated: true } })
-    .gif({ delay: GIF_DELAY, loop: 0 })
+  // Bot kartochkasi: o'sha chizma, faqat fon bilan va yozuv ustida.
+  const cardSvg = toStandaloneSvg(
+    render({
+      mood,
+      caption: caption ?? undefined,
+      sticker: false,
+      background: true,
+      animated: false,
+      idPrefix: `card-${mood}`,
+    }),
+  );
+  const card = await sharp(Buffer.from(cardSvg), { density: 144 })
+    .resize(CARD_SIZE, CARD_SIZE)
+    .png({ compressionLevel: 9 })
     .toBuffer();
 
-  return { png, webp, gif, svg };
+  return { png, webp, card, svg };
 }
 
 /* -------------------------------------------------------------------- main */
@@ -239,9 +230,10 @@ async function main() {
     if (hasPhoto) usedPhotos += 1;
     if (result.svg) await writeOut(`motivator-${mood}.svg`, Buffer.from(result.svg, "utf8"), false);
 
-    await writeOut(`motivator-${mood}.png`, result.png);
+    // Stiker fayllari faqat frontendda — botga kerak bo'lgani kartochka.
+    await writeOut(`motivator-${mood}.png`, result.png, false);
     await writeOut(`motivator-${mood}.webp`, result.webp, false);
-    await writeOut(`motivator-${mood}.gif`, result.gif);
+    await writeOut(`motivator-${mood}-card.png`, result.card);
     if (result.avatar) {
       await writeOut(`motivator-${mood}-avatar.webp`, result.avatar, false);
       await writeOut(`motivator-${mood}-full.webp`, result.full, false);
@@ -259,16 +251,16 @@ async function main() {
       source: hasPhoto ? "photo" : "vector",
       png: `motivator-${mood}.png`,
       webp: `motivator-${mood}.webp`,
-      gif: `motivator-${mood}.gif`,
+      card: `motivator-${mood}-card.png`,
       avatar: result.avatar ? `motivator-${mood}-avatar.webp` : null,
       full: result.full ? `motivator-${mood}-full.webp` : null,
       png_bytes: result.png.length,
-      gif_bytes: result.gif.length,
+      card_bytes: result.card.length,
     });
 
     console.log(
       `✅ ${mood.padEnd(6)} ${emoji}  ${hasPhoto ? "foto  " : "vektor"} · ` +
-        `PNG ${kb(result.png)} · GIF ${kb(result.gif)}` +
+        `PNG ${kb(result.png)} · karta ${kb(result.card)}` +
         `${result.avatar ? ` · avatar ${kb(result.avatar)}` : ""} — ${note}`,
     );
   }

@@ -9,11 +9,11 @@
       "source": "photo",
       "png": "motivator-hello.png",
       "webp": "motivator-hello.webp",
-      "gif": "motivator-hello.gif",
+      "card": "motivator-hello-card.png",
       "avatar": "motivator-hello-avatar.webp",
       "full": "motivator-hello-full.webp",
-      "png_bytes": 268448,
-      "gif_bytes": 577118
+      "png_bytes": 273428,
+      "card_bytes": 553398
     },
     {
       "mood": "win",
@@ -23,11 +23,11 @@
       "source": "photo",
       "png": "motivator-win.png",
       "webp": "motivator-win.webp",
-      "gif": "motivator-win.gif",
+      "card": "motivator-win-card.png",
       "avatar": "motivator-win-avatar.webp",
       "full": "motivator-win-full.webp",
-      "png_bytes": 260474,
-      "gif_bytes": 572125
+      "png_bytes": 248261,
+      "card_bytes": 520686
     },
     {
       "mood": "push",
@@ -37,11 +37,11 @@
       "source": "photo",
       "png": "motivator-push.png",
       "webp": "motivator-push.webp",
-      "gif": "motivator-push.gif",
+      "card": "motivator-push-card.png",
       "avatar": "motivator-push-avatar.webp",
       "full": "motivator-push-full.webp",
-      "png_bytes": 259435,
-      "gif_bytes": 587758
+      "png_bytes": 265289,
+      "card_bytes": 548959
     },
     {
       "mood": "sad",
@@ -51,11 +51,11 @@
       "source": "photo",
       "png": "motivator-sad.png",
       "webp": "motivator-sad.webp",
-      "gif": "motivator-sad.gif",
+      "card": "motivator-sad-card.png",
       "avatar": "motivator-sad-avatar.webp",
       "full": "motivator-sad-full.webp",
-      "png_bytes": 237499,
-      "gif_bytes": 560113
+      "png_bytes": 236009,
+      "card_bytes": 482000
     },
     {
       "mood": "think",
@@ -65,11 +65,11 @@
       "source": "photo",
       "png": "motivator-think.png",
       "webp": "motivator-think.webp",
-      "gif": "motivator-think.gif",
+      "card": "motivator-think-card.png",
       "avatar": "motivator-think-avatar.webp",
       "full": "motivator-think-full.webp",
-      "png_bytes": 224985,
-      "gif_bytes": 553935
+      "png_bytes": 226439,
+      "card_bytes": 470040
     },
     {
       "mood": "idle",
@@ -79,11 +79,11 @@
       "source": "photo",
       "png": "motivator-idle.png",
       "webp": "motivator-idle.webp",
-      "gif": "motivator-idle.gif",
+      "card": "motivator-idle-card.png",
       "avatar": "motivator-idle-avatar.webp",
       "full": "motivator-idle-full.webp",
-      "png_bytes": 289339,
-      "gif_bytes": 581669
+      "png_bytes": 278889,
+      "card_bytes": 490586
     }
   ]
 }
