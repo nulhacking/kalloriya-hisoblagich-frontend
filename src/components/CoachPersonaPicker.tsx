@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CoachPersona } from "../types";
 import { getPersonaTheme } from "../utils/personaTheme";
+import CoachAvatar from "./coach/CoachAvatar";
 
 interface CoachPersonaPickerProps {
   personas: CoachPersona[];
@@ -71,13 +72,16 @@ const CoachPersonaPicker = ({
               <div className={`p-3 ${persona.is_active ? "" : "opacity-60"}`}>
                 {/* Raqam + emoji */}
                 <div className="flex items-start justify-between mb-1.5">
-                  <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br ${theme.gradient} shadow-sm ${
-                      persona.is_active ? "" : "grayscale"
-                    }`}
-                  >
-                    {persona.emoji}
-                  </div>
+                  {/* Chizmasi bor murabbiy o'zi ko'rinadi, qolganlari — emoji */}
+                  <CoachAvatar
+                    personaId={persona.id}
+                    emoji={persona.emoji}
+                    mood={isSelected ? "win" : "idle"}
+                    size="md"
+                    animated={persona.is_active}
+                    className={persona.is_active ? "shadow-sm" : "grayscale opacity-70"}
+                    idPrefix={`pick-${persona.id}`}
+                  />
                   <span
                     className={`text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center ${
                       isSelected

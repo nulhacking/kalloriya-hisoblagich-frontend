@@ -55,6 +55,9 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+          // Stikerlar Telegram uchun (public/coach) — ilova ularni ishlatmaydi,
+          // chizma React komponentidan keladi. Precache ni shishirmasin.
+          globIgnores: ["**/coach/**"],
           runtimeCaching: [
             ...(apiHostPattern
               ? [

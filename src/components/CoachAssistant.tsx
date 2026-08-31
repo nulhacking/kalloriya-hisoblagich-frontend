@@ -7,6 +7,8 @@ import {
 } from "../hooks/useCoachChat";
 import { ApiError } from "../services/api";
 import type { CoachHistoryItem } from "../types";
+import { asCoachMood } from "../utils/coachMood";
+import MotivatorArt, { type CoachMood } from "./coach/MotivatorArt";
 import CoachChat from "./CoachChat";
 import CoachPersonaPicker from "./CoachPersonaPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -29,6 +31,8 @@ const CoachAssistant = () => {
   const [messages, setMessages] = useState<CoachHistoryItem[]>([]);
   const [animatedKey, setAnimatedKey] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  // Oxirgi javob ohangi — avatar pozasi va stiker shundan (backend yuboradi).
+  const [mood, setMood] = useState<CoachMood>("idle");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [paywalled, setPaywalled] = useState(false);
 
@@ -46,6 +50,7 @@ const CoachAssistant = () => {
       setMessages(historyQuery.data.messages);
       setAnimatedKey(null);
       setSuggestion(null);
+      setMood("idle");
     }
   }, [historyQuery.data]);
 
@@ -90,6 +95,7 @@ const CoachAssistant = () => {
           setAnimatedKey(`${createdAt}-${next.length - 1}`);
           return next;
         });
+        setMood(asCoachMood(reply.mood));
         setSuggestion(reply.ok ? (reply.suggestion ?? null) : null);
         if (!reply.ok) {
           toast.info("Murabbiy hozir to'liq javob bera olmadi — qayta urinib ko'ring.");
@@ -131,17 +137,25 @@ const CoachAssistant = () => {
     <div className="space-y-4">
       {/* Bo'lim sarlavhasi */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-orange-500 px-4 py-4">
-        <div className="absolute -right-6 -top-6 text-7xl opacity-20 select-none">
+        {/* Motivator — bo'lim sarlavhasidagi jonli qahramon */}
+        <MotivatorArt
+          mood="win"
+          animated
+          background={false}
+          idPrefix="hero"
+          className="absolute -right-5 -bottom-8 w-36 h-36 opacity-95 pointer-events-none select-none drop-shadow-lg"
+        />
+        <div className="absolute -right-8 -top-10 text-7xl opacity-15 select-none">
           🎭
         </div>
         <div className="relative">
           <div className="text-white/85 text-[11px] font-bold tracking-wide">
             7 MURABBIY · 7 USLUB
           </div>
-          <h2 className="text-white text-xl font-extrabold leading-tight mt-0.5">
+          <h2 className="text-white text-xl font-extrabold leading-tight mt-0.5 max-w-[70%]">
             AI murabbiyingiz bilan gaplashing
           </h2>
-          <p className="text-white/85 text-xs mt-1 max-w-[85%]">
+          <p className="text-white/85 text-xs mt-1 max-w-[62%]">
             U sizning vazningiz, maqsadingiz va bugungi kaloriyangizni ko'rib
             turadi — javoblari umumiy emas, aynan sizga.
           </p>
@@ -187,6 +201,7 @@ const CoachAssistant = () => {
           messagesLeft={messagesLeft}
           isFreeTrial={!hasAccess}
           suggestion={suggestion}
+          mood={mood}
           onSend={handleSend}
           onChangePersona={() => setPickerOpen(true)}
           paywall={

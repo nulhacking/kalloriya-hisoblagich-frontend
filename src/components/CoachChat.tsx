@@ -15,6 +15,9 @@ import {
   type CoachMark,
 } from "../utils/coachText";
 import { getPersonaTheme, getQuickQuestions } from "../utils/personaTheme";
+import { isStickerMood, moodFromText } from "../utils/coachMood";
+import CoachAvatar, { hasCoachArt } from "./coach/CoachAvatar";
+import MotivatorArt, { type CoachMood } from "./coach/MotivatorArt";
 
 /* ------------------------------------------------------------------ matn */
 
@@ -69,10 +72,15 @@ const useTypewriter = (text: string, enabled: boolean) => {
 
 /* -------------------------------------------------------------- bo'laklar */
 
-const TypingBubble = ({ gradient }: { gradient: string }) => (
+const TypingBubble = ({ persona }: { persona: CoachPersona }) => (
   <div className="flex items-end gap-2 animate-fade-in">
-    <div
-      className={`w-7 h-7 rounded-full bg-gradient-to-br ${gradient} shrink-0`}
+    {/* Javob yozilguncha murabbiy "o'ylanib" turadi */}
+    <CoachAvatar
+      personaId={persona.id}
+      emoji={persona.emoji}
+      mood="think"
+      size="xs"
+      animated
     />
     <div className="bg-white border-2 border-food-brown-100 rounded-2xl rounded-bl-md px-4 py-3">
       <div className="flex gap-1 items-center">
@@ -88,13 +96,17 @@ interface BubbleProps {
   message: CoachHistoryItem;
   persona: CoachPersona;
   animate: boolean;
+  /** Javob ohangi — avatar pozasi va katta reaksiya shunga bog'liq. */
+  mood: CoachMood;
   onGrow: () => void;
 }
 
-const Bubble = ({ message, persona, animate, onGrow }: BubbleProps) => {
+const Bubble = ({ message, persona, animate, mood, onGrow }: BubbleProps) => {
   const theme = getPersonaTheme(persona.id);
   const isCoach = message.role === "coach";
   const { visible, done } = useTypewriter(message.content, animate && isCoach);
+  // Stiker faqat yangi javobda va hissiy cho'qqida — botdagi qoida bilan bir xil.
+  const showSticker = animate && isCoach && isStickerMood(mood) && hasCoachArt(persona.id);
 
   // Matn ochilib borar ekan ro'yxat pastga surilib tursin.
   useEffect(() => {
@@ -114,19 +126,33 @@ const Bubble = ({ message, persona, animate, onGrow }: BubbleProps) => {
   }
 
   return (
-    <div className="flex items-end gap-2 animate-bubble-in">
-      <div
-        className={`w-7 h-7 rounded-full bg-gradient-to-br ${theme.gradient} shrink-0 flex items-center justify-center text-sm`}
-      >
-        {persona.emoji}
-      </div>
-      <div
-        className={`max-w-[85%] ${theme.bubble} border-2 rounded-2xl rounded-bl-md px-3.5 py-2.5`}
-      >
-        <p className="text-sm leading-relaxed text-food-brown-800 whitespace-pre-wrap break-words">
-          {renderRichText(visible)}
-          {!done && <span className="coach-caret" />}
-        </p>
+    <div className="animate-bubble-in">
+      {/* Murabbiyning stikeri — javob ustida "sakrab" chiqadi */}
+      {showSticker && (
+        <MotivatorArt
+          mood={mood}
+          animated
+          sticker
+          className="w-24 h-24 ml-9 -mb-1 coach-sticker-in"
+          idPrefix={`stk-${mood}`}
+        />
+      )}
+      <div className="flex items-end gap-2">
+        <CoachAvatar
+          personaId={persona.id}
+          emoji={persona.emoji}
+          mood={mood}
+          size="xs"
+          animated={animate}
+        />
+        <div
+          className={`max-w-[85%] ${theme.bubble} border-2 rounded-2xl rounded-bl-md px-3.5 py-2.5`}
+        >
+          <p className="text-sm leading-relaxed text-food-brown-800 whitespace-pre-wrap break-words">
+            {renderRichText(visible)}
+            {!done && <span className="coach-caret" />}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -145,6 +171,8 @@ interface CoachChatProps {
   isFreeTrial: boolean;
   /** Murabbiy taklif qilgan keyingi savol — bosilganda chatga yoziladi. */
   suggestion?: string | null;
+  /** Oxirgi javob ohangi (backenddan) — sarlavhadagi avatar shunga moslashadi. */
+  mood?: CoachMood;
   onSend: (message: string) => void;
   onChangePersona: () => void;
   paywall?: ReactNode;
@@ -159,6 +187,7 @@ const CoachChat = ({
   messagesLeft,
   isFreeTrial,
   suggestion,
+  mood = "idle",
   onSend,
   onChangePersona,
   paywall,
@@ -192,9 +221,17 @@ const CoachChat = ({
       <div
         className={`bg-gradient-to-r ${theme.gradient} px-3 py-2.5 flex items-center gap-2.5`}
       >
-        <div className="w-10 h-10 rounded-full bg-white/25 backdrop-blur flex items-center justify-center text-xl">
-          {persona.emoji}
-        </div>
+        {/* Kayfiyat o'zgarganda avatar qayta "sakrab" chiqadi (key → pop animatsiyasi) */}
+        <CoachAvatar
+          key={isSending ? "think" : mood}
+          personaId={persona.id}
+          emoji={persona.emoji}
+          mood={isSending ? "think" : mood}
+          size="sm"
+          animated
+          ring
+          className="coach-mood-pop"
+        />
         <div className="flex-1 min-w-0">
           <div className="text-white font-extrabold text-sm truncate">
             {persona.name}
@@ -229,11 +266,15 @@ const CoachChat = ({
       >
         {messages.length === 0 && !isSending && (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <div
-              className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center text-3xl mb-3 shadow-lg`}
-            >
-              {persona.emoji}
-            </div>
+            <CoachAvatar
+              personaId={persona.id}
+              emoji={persona.emoji}
+              mood="hello"
+              size="xl"
+              animated
+              ring
+              className="mb-3 shadow-lg"
+            />
             <p className="font-extrabold text-food-brown-800">
               {persona.name} keldi
             </p>
@@ -247,17 +288,23 @@ const CoachChat = ({
           </div>
         )}
 
-        {messages.map((message, index) => (
-          <Bubble
-            key={`${message.created_at}-${index}`}
-            message={message}
-            persona={persona}
-            animate={`${message.created_at}-${index}` === animatedKey}
-            onGrow={scrollToBottom}
-          />
-        ))}
+        {messages.map((message, index) => {
+          const key = `${message.created_at}-${index}`;
+          const isLatest = key === animatedKey;
+          return (
+            <Bubble
+              key={key}
+              message={message}
+              persona={persona}
+              animate={isLatest}
+              // Yangi javobda serverdagi ohang, eski tarixda matndan taxmin.
+              mood={isLatest ? mood : moodFromText("", message.content)}
+              onGrow={scrollToBottom}
+            />
+          );
+        })}
 
-        {isSending && <TypingBubble gradient={theme.gradient} />}
+        {isSending && <TypingBubble persona={persona} />}
       </div>
 
       {/* Suhbatdan kelib chiqqan bitta taklif. Bo'sh ekranda — boshlang'ich savollar. */}

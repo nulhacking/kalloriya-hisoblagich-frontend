@@ -452,6 +452,8 @@ export interface CoachChatResponse {
   persona_name: string;
   /** Suhbatdan kelib chiqqan keyingi savol taklifi (model javobi ichida keladi). */
   suggestion?: string | null;
+  /** Javob ohangi: hello | win | push | sad — avatar pozasi shunga qarab tanlanadi. */
+  mood?: string | null;
   messages_left_today: number;
   is_free_trial: boolean;
   /** false — Gemini javob bermadi, fallback matn keldi (limit sarflanmadi). */

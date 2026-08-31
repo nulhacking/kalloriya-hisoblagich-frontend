@@ -1,0 +1,59 @@
+{
+  "pack": "Motivator Murabbiy",
+  "stickers": [
+    {
+      "mood": "hello",
+      "emoji": "👋",
+      "caption": "SALOM!",
+      "note": "tanishuv, suhbat boshlanishi",
+      "png": "motivator-hello.png",
+      "svg": "motivator-hello.svg",
+      "bytes": 48707
+    },
+    {
+      "mood": "win",
+      "emoji": "💪",
+      "caption": "ZO'R!",
+      "note": "maqsad bajarildi, maqtov",
+      "png": "motivator-win.png",
+      "svg": "motivator-win.svg",
+      "bytes": 51232
+    },
+    {
+      "mood": "push",
+      "emoji": "🔥",
+      "caption": "QANI!",
+      "note": "turtki, harakatga chaqiriq",
+      "png": "motivator-push.png",
+      "svg": "motivator-push.svg",
+      "bytes": 54678
+    },
+    {
+      "mood": "sad",
+      "emoji": "🤗",
+      "caption": "BO'LADI!",
+      "note": "qo'llab-quvvatlash, yomon kun",
+      "png": "motivator-sad.png",
+      "svg": "motivator-sad.svg",
+      "bytes": 41302
+    },
+    {
+      "mood": "think",
+      "emoji": "🤔",
+      "caption": "HMMM…",
+      "note": "savol, tahlil",
+      "png": "motivator-think.png",
+      "svg": "motivator-think.svg",
+      "bytes": 41538
+    },
+    {
+      "mood": "idle",
+      "emoji": "😎",
+      "caption": null,
+      "note": "avatar (fon uchun ham ishlatiladi)",
+      "png": "motivator-idle.png",
+      "svg": "motivator-idle.svg",
+      "bytes": 36449
+    }
+  ]
+}
