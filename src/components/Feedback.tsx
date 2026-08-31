@@ -11,10 +11,10 @@ const CATEGORIES = [
 ];
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "Kutilmoqda", color: "bg-yellow-100 text-yellow-700" },
-  in_review: { label: "Ko'rilmoqda", color: "bg-blue-100 text-blue-700" },
-  responded: { label: "Javob berildi", color: "bg-green-100 text-green-700" },
-  closed: { label: "Yopildi", color: "bg-gray-100 text-gray-700" },
+  pending: { label: "Kutilmoqda", color: "bg-amber-100 text-amber-700" },
+  in_review: { label: "Ko'rilmoqda", color: "bg-stone-100 text-stone-700" },
+  responded: { label: "Javob berildi", color: "bg-emerald-100 text-emerald-700" },
+  closed: { label: "Yopildi", color: "bg-stone-100 text-stone-700" },
 };
 
 const Feedback = () => {
@@ -74,20 +74,19 @@ const Feedback = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="text-center mb-4">
-        <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">
-          <span>💬</span>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-stone-900">
           Fikr-mulohaza
         </h2>
-        <p className="text-food-brown-600 text-sm mt-1">
+        <p className="text-stone-500 text-sm mt-0.5">
           Bizga o'z fikringizni bildiring
         </p>
       </div>
 
       {/* Segment Control */}
-      <div className="relative bg-food-brown-100/60 rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
+      <div className="relative bg-stone-100/60 rounded-2xl p-1 shadow-inner grid grid-cols-2 overflow-hidden">
         <div
-          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-md transition-transform duration-300 ease-out"
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-white shadow-sm transition-transform duration-300 ease-out"
           style={{
             transform: activeTab === "new" ? "translateX(0)" : "translateX(100%)",
             marginLeft: "2px",
@@ -95,7 +94,7 @@ const Feedback = () => {
         />
         <button
           onClick={() => handleTabChange("new")}
-          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "new" ? "text-food-green-700" : "text-food-brown-500"
+          className={`relative z-10 py-2.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "new" ? "text-emerald-700" : "text-stone-500"
             }`}
         >
           <span>✍️</span>
@@ -103,7 +102,7 @@ const Feedback = () => {
         </button>
         <button
           onClick={() => handleTabChange("history")}
-          className={`relative z-10 py-2.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "history" ? "text-food-green-700" : "text-food-brown-500"
+          className={`relative z-10 py-2.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === "history" ? "text-emerald-700" : "text-stone-500"
             }`}
         >
           <span>📋</span>
@@ -116,12 +115,12 @@ const Feedback = () => {
         <div className="space-y-4">
           {/* Success message */}
           {submitted && (
-            <div className="bg-food-green-100 border-2 border-food-green-300 rounded-xl p-4 text-center">
+            <div className="bg-emerald-100 border border-stone-200 rounded-xl p-4 text-center">
               <span className="text-2xl mb-2 block">✅</span>
-              <p className="text-food-green-700 font-bold">
+              <p className="text-emerald-700 font-semibold">
                 Fikringiz qabul qilindi!
               </p>
-              <p className="text-food-green-600 text-sm">
+              <p className="text-emerald-700 text-sm">
                 Tez orada ko'rib chiqamiz
               </p>
             </div>
@@ -129,14 +128,14 @@ const Feedback = () => {
 
           {/* Error message */}
           {error && (
-            <div className="bg-food-red-100 border-2 border-food-red-300 rounded-xl p-4 text-center">
-              <p className="text-food-red-700 font-medium">{error}</p>
+            <div className="bg-red-100 border border-red-200 rounded-xl p-4 text-center">
+              <p className="text-red-600 font-medium">{error}</p>
             </div>
           )}
 
           {/* Category */}
-          <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-            <label className="text-sm font-bold text-food-brown-800 mb-3 block">
+          <div className="bg-white rounded-2xl p-4 border border-stone-200">
+            <label className="text-sm font-semibold text-stone-900 mb-3 block">
               📁 Kategoriya
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -145,8 +144,8 @@ const Feedback = () => {
                   key={cat.value}
                   onClick={() => setCategory(cat.value)}
                   className={`py-2 px-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${category === cat.value
-                      ? "bg-food-green-500 text-white shadow-md"
-                      : "bg-white text-food-brown-700 border-2 border-food-green-200 hover:border-food-green-400"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "bg-white text-stone-700 border border-stone-200 hover:border-stone-200"
                     }`}
                 >
                   <span>{cat.icon}</span>
@@ -157,8 +156,8 @@ const Feedback = () => {
           </div>
 
           {/* Subject */}
-          <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
-            <label className="text-sm font-bold text-food-brown-800 mb-2 block">
+          <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+            <label className="text-sm font-semibold text-stone-900 mb-2 block">
               📝 Mavzu
             </label>
             <input
@@ -167,13 +166,13 @@ const Feedback = () => {
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Qisqacha mavzu yozing..."
               maxLength={100}
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-orange-200 focus:border-food-orange-500 focus:ring-2 focus:ring-food-orange-200 outline-none transition-all text-food-brown-800 font-medium"
+              className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-medium"
             />
           </div>
 
           {/* Message */}
-          <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-            <label className="text-sm font-bold text-food-brown-800 mb-2 block">
+          <div className="bg-white rounded-2xl p-4 border border-stone-200">
+            <label className="text-sm font-semibold text-stone-900 mb-2 block">
               💭 Xabar
             </label>
             <textarea
@@ -182,16 +181,16 @@ const Feedback = () => {
               placeholder="Fikringizni batafsil yozing..."
               rows={4}
               maxLength={1000}
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 focus:ring-2 focus:ring-food-green-200 outline-none transition-all text-food-brown-800 font-medium resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-medium resize-none"
             />
-            <p className="text-xs text-food-brown-500 mt-1 text-right">
+            <p className="text-xs text-stone-500 mt-1 text-right">
               {message.length}/1000
             </p>
           </div>
 
           {/* Rating */}
-          <div className="bg-gradient-to-br from-food-yellow-50 to-food-orange-50 rounded-2xl p-4 border-2 border-food-yellow-200">
-            <label className="text-sm font-bold text-food-brown-800 mb-3 block">
+          <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+            <label className="text-sm font-semibold text-stone-900 mb-3 block">
               ⭐ Baho (ixtiyoriy)
             </label>
             <div className="flex justify-center gap-2">
@@ -207,7 +206,7 @@ const Feedback = () => {
               ))}
             </div>
             {rating && (
-              <p className="text-center text-sm text-food-brown-600 mt-2">
+              <p className="text-center text-sm text-stone-600 mt-2">
                 {rating === 5 && "Ajoyib! 🎉"}
                 {rating === 4 && "Yaxshi! 👍"}
                 {rating === 3 && "O'rtacha 😐"}
@@ -221,14 +220,14 @@ const Feedback = () => {
           <button
             onClick={handleSubmit}
             disabled={submitFeedbackMutation.isPending || !subject.trim() || !message.trim()}
-            className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${submitFeedbackMutation.isPending
-                ? "bg-gray-400"
-                : "bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-400 disabled:to-gray-500"
+            className={`w-full py-4 rounded-2xl font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-sm active:scale-95 disabled:cursor-not-allowed ${submitFeedbackMutation.isPending
+                ? "bg-stone-400"
+                : "bg-emerald-600 "
               }`}
           >
             {submitFeedbackMutation.isPending ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
                 <span>Yuborilmoqda...</span>
               </>
             ) : (
@@ -240,8 +239,8 @@ const Feedback = () => {
           </button>
 
           {/* Info */}
-          <div className="bg-gradient-to-r from-food-green-100 to-food-yellow-100 border-2 border-food-green-300 rounded-2xl p-4">
-            <p className="text-food-brown-700 font-medium text-sm flex items-start gap-2">
+          <div className="bg-white border border-stone-200 rounded-2xl p-4">
+            <p className="text-stone-700 font-medium text-sm flex items-start gap-2">
               <span className="text-lg">💡</span>
               <span>
                 Siz shuningdek Telegram botga xabar yozish orqali ham feedback yuborishingiz mumkin!
@@ -256,18 +255,18 @@ const Feedback = () => {
         <div className="space-y-4">
           {loadingHistory ? (
             <div className="text-center py-8">
-              <div className="w-8 h-8 border-4 border-food-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-food-brown-600 mt-2">Yuklanmoqda...</p>
+              <div className="w-8 h-8 border border-stone-200 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="text-stone-600 mt-2">Yuklanmoqda...</p>
             </div>
           ) : feedbacks.length === 0 ? (
-            <div className="text-center py-8 bg-food-green-50 rounded-2xl">
+            <div className="text-center py-8 bg-white rounded-2xl">
               <span className="text-4xl mb-2 block">📭</span>
-              <p className="text-food-brown-600 font-medium">
+              <p className="text-stone-600 font-medium">
                 Hali feedback yubormadingiz
               </p>
               <button
                 onClick={() => setActiveTab("new")}
-                className="mt-4 px-6 py-2 bg-food-green-500 text-white rounded-xl font-bold hover:bg-food-green-600 transition-all"
+                className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-all"
               >
                 Birinchi feedbackni yuboring
               </button>
@@ -277,15 +276,15 @@ const Feedback = () => {
               {feedbacks.map((feedback) => (
                 <div
                   key={feedback.id}
-                  className="bg-white rounded-2xl p-4 border-2 border-food-green-100 shadow-sm"
+                  className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <h4 className="font-bold text-food-brown-800">
+                      <h4 className="font-semibold text-stone-900">
                         {feedback.subject}
                       </h4>
-                      <p className="text-xs text-food-brown-500">
+                      <p className="text-xs text-stone-500">
                         {new Date(feedback.created_at).toLocaleDateString("uz-UZ", {
                           day: "numeric",
                           month: "short",
@@ -296,7 +295,7 @@ const Feedback = () => {
                       </p>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-bold ${STATUS_LABELS[feedback.status]?.color || "bg-gray-100"
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_LABELS[feedback.status]?.color || "bg-stone-100"
                         }`}
                     >
                       {STATUS_LABELS[feedback.status]?.label || feedback.status}
@@ -304,7 +303,7 @@ const Feedback = () => {
                   </div>
 
                   {/* Message */}
-                  <p className="text-sm text-food-brown-700 mb-2">
+                  <p className="text-sm text-stone-700 mb-2">
                     {feedback.message}
                   </p>
 
@@ -325,11 +324,11 @@ const Feedback = () => {
 
                   {/* Admin response */}
                   {feedback.admin_response && (
-                    <div className="mt-3 pt-3 border-t-2 border-food-green-100">
-                      <p className="text-xs text-food-green-600 font-bold mb-1">
+                    <div className="mt-3 pt-3 border-t border-stone-200">
+                      <p className="text-xs text-emerald-700 font-semibold mb-1">
                         💬 Javob:
                       </p>
-                      <p className="text-sm text-food-brown-700 bg-food-green-50 p-3 rounded-xl">
+                      <p className="text-sm text-stone-700 bg-white p-3 rounded-xl">
                         {feedback.admin_response}
                       </p>
                     </div>

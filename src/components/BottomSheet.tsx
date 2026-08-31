@@ -21,8 +21,8 @@ interface BottomSheetProps {
 /** Aksent — faqat bitta tekis rang; gradient ishlatilmaydi. */
 const ACCENT_MAP: Record<NonNullable<BottomSheetProps["accent"]>, string> = {
   green: "bg-emerald-600",
-  orange: "bg-orange-500",
-  blue: "bg-blue-600",
+  orange: "bg-amber-500",
+  blue: "bg-stone-600",
   red: "bg-red-500",
   neutral: "bg-stone-900",
 };
@@ -94,12 +94,12 @@ const BottomSheet = ({
         type="button"
         aria-label="Yopish"
         onClick={onClose}
-        className={`absolute inset-0 bg-black/50 backdrop-blur-sm ${
+        className={`absolute inset-0 bg-black/50 backdrop-blur ${
           leaving ? "animate-backdrop-out" : "animate-backdrop-in"
         }`}
       />
       <div
-        className={`relative w-full sm:max-w-lg bg-white rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${maxHeight} ${
+        className={`relative w-full sm:max-w-lg bg-white rounded-t-3xl shadow-sm overflow-hidden flex flex-col ${maxHeight} ${
           leaving ? "animate-sheet-down" : "animate-sheet-up"
         }`}
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px))" }}
@@ -112,7 +112,7 @@ const BottomSheet = ({
         {/* Header */}
         {title && (
           <div
-            className={`px-5 pt-1 pb-3 flex items-center gap-3 border-b border-stone-100 ${
+            className={`px-5 pt-1 pb-3 flex items-center gap-3 border-b border-stone-200 ${
               heroHeader ? `${accentClass} text-white` : "bg-white"
             }`}
           >
@@ -166,7 +166,7 @@ const BottomSheet = ({
 
         {/* Sticky footer */}
         {footer && (
-          <div className="px-5 pt-3 pb-3 border-t border-stone-100 bg-white">
+          <div className="px-5 pt-3 pb-3 border-t border-stone-200 bg-white">
             {footer}
           </div>
         )}

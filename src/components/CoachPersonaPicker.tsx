@@ -26,10 +26,10 @@ const CoachPersonaPicker = ({
   return (
     <div className="space-y-3">
       <div className="text-center px-2">
-        <h3 className="text-lg font-extrabold text-food-brown-800">
+        <h3 className="text-lg font-semibold text-stone-900">
           Sizga qaysi uslub mos? 🤔
         </h3>
-        <p className="text-sm text-food-brown-600 mt-1">
+        <p className="text-sm text-stone-600 mt-1">
           Har biri boshqacha gapiradi va boshqacha turtki beradi. Birini tanlang —
           u sizning raqamlaringizni ko'rib turadi.
         </p>
@@ -54,17 +54,17 @@ const CoachPersonaPicker = ({
                   setPeekedId((prev) => (prev === persona.id ? null : persona.id));
                 }
               }}
-              className={`relative text-left rounded-2xl overflow-hidden border-2 transition-all duration-300 active:scale-[0.97] ${
+              className={`relative text-left rounded-2xl overflow-hidden border transition-all duration-300 active:scale-[0.97] ${
                 isSelected
-                  ? `${theme.border} ${theme.soft} shadow-lg`
+                  ? `${theme.border} ${theme.soft} shadow-sm`
                   : persona.is_active
-                    ? "border-white bg-white/95 shadow-sm hover:shadow-md"
-                    : "border-food-brown-100 bg-white/60"
+                    ? "border-stone-200 bg-white"
+                    : "border-stone-200 bg-white"
               }`}
             >
               {/* Rangli imzo — yuqoridagi tasma */}
               <div
-                className={`h-1.5 w-full bg-gradient-to-r ${theme.gradient} ${
+                className={`h-1 w-full ${theme.accent} ${
                   persona.is_active ? "" : "opacity-30"
                 }`}
               />
@@ -82,17 +82,17 @@ const CoachPersonaPicker = ({
                     className={persona.is_active ? "shadow-sm" : "grayscale opacity-70"}
                   />
                   <span
-                    className={`text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center ${
+                    className={`text-xs font-semibold w-6 h-6 rounded-full flex items-center justify-center ${
                       isSelected
                         ? `${theme.text} bg-white`
-                        : "text-food-brown-400 bg-food-brown-50"
+                        : "text-stone-400 bg-stone-50"
                     }`}
                   >
                     {index + 1}
                   </span>
                 </div>
 
-                <div className="font-extrabold text-food-brown-800 text-sm leading-tight">
+                <div className="font-semibold text-stone-900 text-sm leading-tight">
                   {persona.name.replace(" Murabbiy", "")}
                 </div>
 
@@ -100,7 +100,7 @@ const CoachPersonaPicker = ({
                   {persona.bullets.slice(0, 3).map((bullet) => (
                     <li
                       key={bullet}
-                      className="text-[11px] text-food-brown-600 leading-snug flex gap-1"
+                      className="text-[11px] text-stone-600 leading-snug flex gap-1"
                     >
                       <span className={theme.text}>•</span>
                       <span>{bullet}</span>
@@ -109,23 +109,23 @@ const CoachPersonaPicker = ({
                 </ul>
 
                 {/* Holat qatori */}
-                <div className="mt-2 pt-2 border-t border-food-brown-100/70">
+                <div className="mt-2 pt-2 border-t border-stone-200/70">
                   {isPending ? (
-                    <span className="text-[11px] font-bold text-food-brown-500">
+                    <span className="text-[11px] font-semibold text-stone-500">
                       Ulanmoqda…
                     </span>
                   ) : isSelected ? (
                     <span
-                      className={`text-[11px] font-extrabold ${theme.text} flex items-center gap-1`}
+                      className={`text-[11px] font-semibold ${theme.text} flex items-center gap-1`}
                     >
                       ✓ Tanlangan
                     </span>
                   ) : persona.is_active ? (
-                    <span className="text-[11px] font-bold text-food-green-600">
+                    <span className="text-[11px] font-semibold text-emerald-700">
                       Suhbatni boshlash →
                     </span>
                   ) : (
-                    <span className="text-[11px] font-bold text-food-brown-400 flex items-center gap-1">
+                    <span className="text-[11px] font-semibold text-stone-400 flex items-center gap-1">
                       🔒 Tez kunda
                     </span>
                   )}
@@ -133,9 +133,9 @@ const CoachPersonaPicker = ({
 
                 {/* Yopiq murabbiy bosilganda — qisqa tanishtiruv */}
                 {isPeeked && !persona.is_active && (
-                  <div className="mt-2 text-[11px] text-food-brown-600 bg-white rounded-lg p-2 border border-food-brown-100 animate-fade-in">
+                  <div className="mt-2 text-[11px] text-stone-600 bg-white rounded-lg p-2 border border-stone-200 animate-fade-in">
                     {persona.tagline}
-                    <div className="mt-1 font-bold text-food-orange-600">
+                    <div className="mt-1 font-semibold text-amber-700">
                       Hozircha 🔥 Motivator bilan boshlang
                     </div>
                   </div>
@@ -144,7 +144,7 @@ const CoachPersonaPicker = ({
 
               {/* Yopiq kartadagi burchak lentasi */}
               {!persona.is_active && (
-                <div className="absolute top-2 right-0 bg-food-brown-800/80 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-l-full tracking-wide">
+                <div className="absolute top-2 right-0 bg-stone-900/80 text-white text-[9px] font-semibold px-2 py-0.5 rounded-l-full tracking-wide">
                   TEZ KUNDA
                 </div>
               )}

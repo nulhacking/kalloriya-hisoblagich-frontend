@@ -7,7 +7,7 @@ interface SkeletonProps {
 // Base skeleton component with shimmer animation
 export const Skeleton = ({ className = "" }: SkeletonProps) => (
   <div
-    className={`animate-pulse bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] rounded-lg ${className}`}
+    className={`bg-[linear-gradient(90deg,#f5f5f4_0%,#e7e5e4_50%,#f5f5f4_100%)] bg-[length:200%_100%] rounded-lg ${className}`}
     style={{
       animation: "shimmer 1.5s infinite",
     }}
@@ -43,7 +43,7 @@ export const SkeletonWrapper = ({
 
 // Skeleton for meal card in DailyLog
 export const MealCardSkeleton = () => (
-  <div className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-3 border border-food-green-200">
+  <div className="bg-white rounded-xl p-3 border border-stone-200">
     <div className="flex items-start gap-3">
       {/* Image skeleton */}
       <Skeleton className="w-14 h-14 rounded-lg" />
@@ -66,7 +66,7 @@ export const MealCardSkeleton = () => (
 
 // Skeleton for daily stats in DailyLog
 export const DailyStatsSkeleton = () => (
-  <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
+  <div className="bg-white rounded-2xl p-4 border border-stone-200">
     <div className="flex items-center gap-2 mb-3">
       <SkeletonCircle className="w-6 h-6" />
       <SkeletonText className="w-32 h-5" />
@@ -86,7 +86,7 @@ export const DailyStatsSkeleton = () => (
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="bg-white rounded-xl p-2 text-center border border-gray-100"
+          className="bg-white rounded-xl p-2 text-center border border-stone-200"
         >
           <SkeletonCircle className="w-6 h-6 mx-auto" />
           <SkeletonText className="w-12 h-5 mx-auto mt-2" />
@@ -100,7 +100,7 @@ export const DailyStatsSkeleton = () => (
 
 // Skeleton for history day card
 export const HistoryDayCardSkeleton = () => (
-  <div className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-4 border border-food-green-200">
+  <div className="bg-white rounded-xl p-4 border border-stone-200">
     <div className="flex items-center justify-between">
       <div>
         <SkeletonText className="w-40 h-5" />
@@ -129,7 +129,7 @@ export const HistoryListSkeleton = () => (
 
 // Skeleton for range stats
 export const RangeStatsSkeleton = () => (
-  <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-xl p-4 border-2 border-food-orange-200">
+  <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
     <div className="flex items-center gap-2 mb-3">
       <SkeletonCircle className="w-6 h-6" />
       <SkeletonText className="w-48 h-5" />
@@ -160,7 +160,7 @@ export const RangeStatsSkeleton = () => (
 
 // Skeleton for food stats card
 export const FoodStatsCardSkeleton = () => (
-  <div className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-3 border border-food-green-200">
+  <div className="bg-white rounded-xl p-3 border border-stone-200">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <SkeletonCircle className="w-10 h-10" />
@@ -218,7 +218,7 @@ export const DailyLogPageSkeleton = () => (
     <DailyStatsSkeleton />
 
     {/* Meals list */}
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+    <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
       <div className="flex items-center gap-2 mb-3">
         <SkeletonCircle className="w-6 h-6" />
         <SkeletonText className="w-40 h-5" />
@@ -248,7 +248,7 @@ export const HistoryPageSkeleton = () => (
     </div>
 
     {/* Content */}
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+    <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
       {/* Toggle buttons skeleton */}
       <div className="flex gap-2 mb-4">
         <Skeleton className="flex-1 h-10 rounded-xl" />
@@ -280,7 +280,7 @@ export const StatsPageSkeleton = () => (
     </div>
 
     {/* Date selectors */}
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+    <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <SkeletonText className="w-28 h-4 mb-2" />
@@ -301,7 +301,7 @@ export const StatsPageSkeleton = () => (
     <RangeStatsSkeleton />
 
     {/* Food stats skeleton */}
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+    <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
       <div className="flex items-center gap-2 mb-3">
         <SkeletonCircle className="w-6 h-6" />
         <SkeletonText className="w-52 h-5" />
@@ -310,7 +310,7 @@ export const StatsPageSkeleton = () => (
     </div>
 
     {/* Daily chart skeleton */}
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+    <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
       <div className="flex items-center gap-2 mb-3">
         <SkeletonCircle className="w-6 h-6" />
         <SkeletonText className="w-44 h-5" />

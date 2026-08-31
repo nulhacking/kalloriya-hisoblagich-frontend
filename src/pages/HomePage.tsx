@@ -186,7 +186,7 @@ const HomePage = () => {
             </div>
 
             {/* Macro mini-rings */}
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-stone-100">
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-stone-200">
               <MacroRing
                 label="Oqsil"
                 emoji="🥩"

@@ -18,8 +18,8 @@ const GOAL_OPTIONS: GoalOption[] = [
     label: "Ozish",
     sub: "Vazn kamaytirish",
     activeClass:
-      "bg-gradient-to-br from-food-green-100 to-food-green-50 border-food-green-500 shadow-md",
-    textClass: "text-food-green-700",
+      "bg-white border-stone-200 shadow-sm",
+    textClass: "text-emerald-700",
   },
   {
     key: "maintain",
@@ -27,8 +27,8 @@ const GOAL_OPTIONS: GoalOption[] = [
     label: "Saqlash",
     sub: "Hozirgi vaznni ushlash",
     activeClass:
-      "bg-gradient-to-br from-food-yellow-100 to-food-yellow-50 border-food-yellow-500 shadow-md",
-    textClass: "text-food-yellow-700",
+      "bg-amber-50 border-amber-200 shadow-sm",
+    textClass: "text-amber-700",
   },
   {
     key: "gain",
@@ -36,8 +36,8 @@ const GOAL_OPTIONS: GoalOption[] = [
     label: "Semirish",
     sub: "Vazn / mushak yig'ish",
     activeClass:
-      "bg-gradient-to-br from-food-orange-100 to-food-orange-50 border-food-orange-500 shadow-md",
-    textClass: "text-food-orange-700",
+      "bg-amber-50 border-amber-200 shadow-sm",
+    textClass: "text-amber-700",
   },
 ];
 
@@ -147,12 +147,12 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
   );
 
   return (
-    <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200 space-y-4">
+    <div className="bg-white rounded-2xl p-4 border border-stone-200 space-y-4">
       <div>
-        <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
-          <span>🎯</span> Maqsad
+        <h3 className="text-base font-semibold text-stone-900 flex items-center gap-2">
+          Maqsad
         </h3>
-        <p className="text-xs text-food-brown-600 mt-1">
+        <p className="text-xs text-stone-600 mt-1">
           Kunlik kaloriya targetingiz avtomatik hisoblanadi
         </p>
       </div>
@@ -166,15 +166,15 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
               key={opt.key}
               type="button"
               onClick={() => setGoal(opt.key)}
-              className={`rounded-2xl p-3 text-center border-2 transition-all active:scale-95 ${
-                active ? opt.activeClass : "bg-white border-food-brown-100 hover:border-food-brown-300"
+              className={`rounded-2xl p-3 text-center border transition-all active:scale-95 ${
+                active ? opt.activeClass : "bg-white border-stone-200 hover:border-stone-200"
               }`}
             >
               <div className="text-2xl">{opt.icon}</div>
-              <div className={`font-bold text-sm mt-1 ${active ? opt.textClass : "text-food-brown-700"}`}>
+              <div className={`font-semibold text-sm mt-1 ${active ? opt.textClass : "text-stone-700"}`}>
                 {opt.label}
               </div>
-              <div className="text-[10px] text-food-brown-500 mt-0.5 leading-tight">{opt.sub}</div>
+              <div className="text-[10px] text-stone-500 mt-0.5 leading-tight">{opt.sub}</div>
             </button>
           );
         })}
@@ -184,8 +184,8 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
       {value.goal_type !== "maintain" && (
         <>
           <div>
-            <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🎯</span> Maqsadli vazn (kg)
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Maqsadli vazn (kg)
             </label>
             <input
               type="number"
@@ -195,12 +195,12 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
               min={20}
               max={500}
               step={0.1}
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 focus:ring-2 focus:ring-food-green-200 outline-none transition-all text-food-brown-800 font-bold text-lg bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg bg-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-bold text-food-brown-700 mb-1.5 block">
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 block">
               Tezlik
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -211,16 +211,16 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
                     key={p.value}
                     type="button"
                     onClick={() => setPace(p.value)}
-                    className={`rounded-xl py-2.5 text-center border-2 transition-all active:scale-95 ${
+                    className={`rounded-xl py-2.5 text-center border transition-all active:scale-95 ${
                       active
-                        ? "bg-food-green-100 border-food-green-500 shadow-sm"
-                        : "bg-white border-food-brown-100 hover:border-food-brown-300"
+                        ? "bg-emerald-100 border-stone-200 shadow-sm"
+                        : "bg-white border-stone-200 hover:border-stone-200"
                     }`}
                   >
-                    <div className={`font-bold text-sm ${active ? "text-food-green-700" : "text-food-brown-700"}`}>
+                    <div className={`font-semibold text-sm ${active ? "text-emerald-700" : "text-stone-700"}`}>
                       {p.label}
                     </div>
-                    <div className="text-[10px] text-food-brown-500">{p.sub}</div>
+                    <div className="text-[10px] text-stone-500">{p.sub}</div>
                   </button>
                 );
               })}
@@ -231,17 +231,17 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
 
       {/* Live preview */}
       {preview && (
-        <div className="bg-white rounded-2xl p-4 border border-food-green-200">
-          <div className="text-xs text-food-brown-500 font-medium">Kunlik targetingiz</div>
+        <div className="bg-white rounded-2xl p-4 border border-stone-200">
+          <div className="text-xs text-stone-500 font-medium">Kunlik targetingiz</div>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-extrabold text-food-green-700">{preview.kcal}</span>
-            <span className="text-sm font-bold text-food-brown-500">kkal</span>
+            <span className="text-3xl font-semibold text-emerald-700">{preview.kcal}</span>
+            <span className="text-sm font-semibold text-stone-500">kkal</span>
             {preview.delta !== 0 && (
               <span
-                className={`text-xs font-bold ml-auto px-2 py-1 rounded-full ${
+                className={`text-xs font-semibold ml-auto px-2 py-1 rounded-full ${
                   preview.delta < 0
-                    ? "bg-food-green-100 text-food-green-700"
-                    : "bg-food-orange-100 text-food-orange-700"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-amber-100 text-amber-700"
                 }`}
               >
                 {preview.delta > 0 ? "+" : ""}
@@ -250,15 +250,15 @@ const GoalPicker = ({ value, onChange, currentWeightKg }: GoalPickerProps) => {
             )}
           </div>
           {eta && (
-            <div className="text-xs text-food-brown-600 mt-2">
-              📅 Yetish sanasi: <span className="font-bold">{eta}</span>
+            <div className="text-xs text-stone-600 mt-2">
+              📅 Yetish sanasi: <span className="font-semibold">{eta}</span>
             </div>
           )}
         </div>
       )}
 
       {!user?.tdee && (
-        <div className="bg-food-yellow-50 border border-food-yellow-300 rounded-xl p-3 text-sm text-food-brown-700">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-stone-700">
           ⚠️ Quyidagi <b>Sizning ma'lumotlaringiz</b> bo'limini to'ldiring — kunlik kaloriya hisoblanishi uchun.
         </div>
       )}

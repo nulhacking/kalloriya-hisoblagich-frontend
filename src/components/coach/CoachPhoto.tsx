@@ -9,9 +9,9 @@ import MotivatorArt, { type CoachMood } from "./MotivatorArt";
  * o'sha zahoti vektor chizmaga tushadi, ya'ni avatar hech qachon bo'sh qolmaydi.
  *
  * Uch xil kesim:
- *   • `avatar` — 192×192 bosh+yelka, dumaloq avatar uchun (~10 KB);
- *   • `full`   — 512×512 to'liq gavda, yozuvsiz (hero, paywall, bo'sh ekran);
- *   • `sticker`— 512×512 oq konturli, yozuvli — Telegram stikerining o'zi.
+ * • `avatar` — 192×192 bosh+yelka, dumaloq avatar uchun (~10 KB);
+ * • `full` — 512×512 to'liq gavda, yozuvsiz (hero, paywall, bo'sh ekran);
+ * • `sticker`— 512×512 oq konturli, yozuvli — Telegram stikerining o'zi.
  */
 
 export type CoachPhotoVariant = "avatar" | "full" | "sticker";

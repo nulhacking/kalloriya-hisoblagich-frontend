@@ -60,18 +60,18 @@ class ChunkErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       if (this.state.isChunkError) {
         return (
-          <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 flex items-center justify-center p-4">
-            <div className="text-center bg-white rounded-2xl p-6 shadow-xl max-w-sm">
+          <div className="min-h-[100dvh] bg-stone-50 flex items-center justify-center p-4">
+            <div className="text-center bg-white rounded-2xl p-6 shadow-sm max-w-sm">
               <div className="text-5xl mb-4 animate-spin">🔄</div>
-              <h2 className="text-lg font-bold text-food-brown-800 mb-2">
+              <h2 className="text-lg font-semibold text-stone-900 mb-2">
                 Yangi versiya yuklanmoqda...
               </h2>
-              <p className="text-food-brown-600 text-sm mb-4">
+              <p className="text-stone-600 text-sm mb-4">
                 Ilova yangilandi. Sahifa avtomatik yangilanadi.
               </p>
               <button
                 onClick={this.handleRefresh}
-                className="w-full py-3 bg-food-green-500 text-white rounded-xl font-bold hover:bg-food-green-600 transition-colors"
+                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
               >
                 Hozir yangilash
               </button>
@@ -82,18 +82,18 @@ class ChunkErrorBoundary extends Component<Props, State> {
 
       // Generic error fallback
       return (
-        <div className="min-h-[100dvh] bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 flex items-center justify-center p-4">
-          <div className="text-center bg-white rounded-2xl p-6 shadow-xl max-w-sm">
+        <div className="min-h-[100dvh] bg-stone-50 flex items-center justify-center p-4">
+          <div className="text-center bg-white rounded-2xl p-6 shadow-sm max-w-sm">
             <div className="text-5xl mb-4">😕</div>
-            <h2 className="text-lg font-bold text-food-brown-800 mb-2">
+            <h2 className="text-lg font-semibold text-stone-900 mb-2">
               Xatolik yuz berdi
             </h2>
-            <p className="text-food-brown-600 text-sm mb-4">
+            <p className="text-stone-600 text-sm mb-4">
               Kutilmagan xatolik. Iltimos, sahifani yangilang.
             </p>
             <button
               onClick={this.handleRefresh}
-              className="w-full py-3 bg-food-green-500 text-white rounded-xl font-bold hover:bg-food-green-600 transition-colors"
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
             >
               Sahifani yangilash
             </button>

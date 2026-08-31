@@ -384,7 +384,7 @@ const ImageUpload = ({
             (permissionState === "granted" ||
               permissionState === "checking") && (
               <div className="absolute inset-0 z-20 bg-white flex flex-col items-center justify-center">
-                <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-500 animate-spin" />
+                <div className="w-8 h-8 rounded-full border border-stone-200 border-t-stone-200 animate-spin" />
                 <p className="mt-4 text-sm text-stone-500">
                   Kamera yuklanmoqda…
                 </p>
@@ -403,22 +403,22 @@ const ImageUpload = ({
 
           {/* Camera overlay gradient */}
           {cameraActive && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 pointer-events-none"></div>
           )}
 
           {/* Camera frame corners */}
           {cameraActive && (
             <div className="absolute inset-8 md:inset-12 pointer-events-none">
-              <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-white/70 rounded-tl-md"></div>
-              <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-white/70 rounded-tr-md"></div>
-              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-white/70 rounded-bl-md"></div>
-              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-white/70 rounded-br-md"></div>
+              <div className="absolute top-0 left-0 w-7 h-7 border-t border-l border-white/70 rounded-tl-md"></div>
+              <div className="absolute top-0 right-0 w-7 h-7 border-t border-r border-white/70 rounded-tr-md"></div>
+              <div className="absolute bottom-0 left-0 w-7 h-7 border-b border-l border-white/70 rounded-bl-md"></div>
+              <div className="absolute bottom-0 right-0 w-7 h-7 border-b border-r border-white/70 rounded-br-md"></div>
             </div>
           )}
 
           {/* Camera status indicator */}
           {cameraActive && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/45 backdrop-blur-sm px-2.5 py-1 rounded-full">
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/45 backdrop-blur px-2.5 py-1 rounded-full">
               <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
               <span className="text-white text-[10px] font-semibold tracking-wide">
                 LIVE
@@ -429,7 +429,7 @@ const ImageUpload = ({
           {/* Instruction text */}
           {cameraActive && (
             <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-              <p className="text-white text-xs bg-black/40 backdrop-blur-sm px-3.5 py-1.5 rounded-full">
+              <p className="text-white text-xs bg-black/40 backdrop-blur px-3.5 py-1.5 rounded-full">
                 Ovqatni kadrga oling
               </p>
             </div>

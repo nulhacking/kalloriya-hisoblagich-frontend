@@ -21,33 +21,33 @@ const VERDICT_STYLE: Record<
 > = {
   fits: {
     icon: "✅",
-    ring: "border-food-green-300",
-    bg: "from-food-green-50 to-food-green-100",
-    text: "text-food-green-800",
+    ring: "border-stone-200",
+    bg: "bg-white",
+    text: "text-emerald-700",
   },
   tight: {
     icon: "✅",
-    ring: "border-food-green-300",
-    bg: "from-food-green-50 to-food-yellow-50",
-    text: "text-food-green-800",
+    ring: "border-stone-200",
+    bg: "bg-white",
+    text: "text-emerald-700",
   },
   over: {
     icon: "⚠️",
-    ring: "border-food-orange-300",
-    bg: "from-food-yellow-50 to-food-orange-100",
-    text: "text-food-brown-800",
+    ring: "border-amber-200",
+    bg: "bg-amber-50",
+    text: "text-stone-900",
   },
   full: {
     icon: "🛑",
-    ring: "border-food-red-300",
-    bg: "from-food-red-50 to-food-orange-50",
-    text: "text-food-red-800",
+    ring: "border-red-200",
+    bg: "bg-red-50",
+    text: "text-red-600",
   },
   unknown: {
     icon: "⏱",
-    ring: "border-food-green-200",
-    bg: "from-white to-food-green-50",
-    text: "text-food-brown-800",
+    ring: "border-stone-200",
+    bg: "bg-white",
+    text: "text-stone-900",
   },
 };
 
@@ -64,38 +64,38 @@ const MealAdviceCard = ({
 
   return (
     <div
-      className={`bg-gradient-to-br ${style.bg} rounded-2xl p-4 border-2 ${style.ring} space-y-3`}
+      className={`${style.bg} rounded-2xl p-4 border ${style.ring} space-y-3`}
     >
       {advice.text && (
         <p
-          className={`font-bold text-sm md:text-base flex items-start gap-2 ${style.text}`}
+          className={`font-semibold text-sm md:text-base flex items-start gap-2 ${style.text}`}
         >
           <span className="text-xl leading-none">{style.icon}</span>
           <span>{advice.text}</span>
         </p>
       )}
 
-      <div className="bg-white/70 rounded-xl p-3 space-y-2">
-        <h4 className="text-xs font-extrabold uppercase tracking-wide text-food-brown-500">
+      <div className="bg-white rounded-xl p-3 space-y-2">
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-stone-500">
           Yegandan keyin
         </h4>
 
         <div className="flex items-start gap-2.5">
           <span className="text-lg leading-none">🚶</span>
-          <p className="text-sm text-food-brown-700">
-            <span className="font-bold">
+          <p className="text-sm text-stone-700">
+            <span className="font-semibold">
               {humanMinutes(advice.walk_after_minutes)}
             </span>
             dan so'ng — 10-15 daqiqa yengil yurish{" "}
-            <span className="text-food-brown-400">(hazm uchun)</span>
+            <span className="text-stone-400">(hazm uchun)</span>
           </p>
         </div>
 
         <div className="flex items-start gap-2.5">
           <span className="text-lg leading-none">🔥</span>
-          <div className="text-sm text-food-brown-700">
+          <div className="text-sm text-stone-700">
             <p>
-              <span className="font-bold">
+              <span className="font-semibold">
                 {humanMinutes(advice.train_after_minutes)}
               </span>
               dan so'ng — mashq qilsangiz bo'ladi
@@ -105,7 +105,7 @@ const MealAdviceCard = ({
                 {advice.burn.map((option) => (
                   <span
                     key={option.name}
-                    className="px-2.5 py-1 bg-white rounded-full text-xs font-bold text-food-brown-700 border border-food-green-200"
+                    className="px-2.5 py-1 bg-white rounded-full text-xs font-semibold text-stone-700 border border-stone-200"
                   >
                     {option.icon} {option.minutes} daq {option.name.toLowerCase()}
                   </span>
@@ -120,9 +120,9 @@ const MealAdviceCard = ({
         <button
           type="button"
           onClick={onOpenCoach}
-          className="w-full text-left bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-xl p-3 active:scale-[0.99] transition"
+          className="w-full text-left bg-violet-600 text-white rounded-xl p-3 active:scale-[0.99] transition"
         >
-          <p className="font-bold text-sm">💎 Pro Plus — shaxsiy AI murabbiy</p>
+          <p className="font-semibold text-sm">💎 Pro Plus — shaxsiy AI murabbiy</p>
           <p className="text-xs text-white/85 mt-0.5">
             Aynan shu ovqatga qarab aytadi: yeyish kerakmi, nimani almashtirish
             kerak, keyin qanday mashq.

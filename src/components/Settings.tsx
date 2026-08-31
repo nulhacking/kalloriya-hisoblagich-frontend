@@ -196,24 +196,22 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="text-center mb-4">
-        <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">
-          <span>⚙️</span>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-stone-900">
           Sozlamalar
         </h2>
-        <p className="text-food-brown-600 text-sm mt-1">
+        <p className="text-stone-500 text-sm mt-0.5">
           Kunlik maqsadlaringizni belgilang
         </p>
       </div>
 
       {/* Auth Section - Show if not registered */}
       {!isRegistered && (
-        <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>🔐</span>
+        <div className="bg-white rounded-2xl p-4 border border-stone-200">
+          <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
             Hisobingizni sinxronlang
           </h3>
-          <p className="text-sm text-food-brown-600 mb-3">
+          <p className="text-sm text-stone-600 mb-3">
             Ro'yxatdan o'ting va ma'lumotlaringiz barcha qurilmalarda sinxronlansin!
           </p>
           <button
@@ -222,7 +220,7 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
                 onNavigateToAuth();
               }
             }}
-            className="w-full bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+            className="w-full bg-emerald-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             <span>✨</span>
             <span>Ro'yxatdan o'tish yoki kirish</span>
@@ -231,74 +229,74 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
       )}
 
       {/* Ism */}
-      <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-        <label className=" text-sm font-bold text-food-brown-800 mb-2 flex items-center gap-2">
-          <span>👤</span> Ismingiz
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <label className="text-sm font-semibold text-stone-900 mb-2 flex items-center gap-2">
+          Ismingiz
         </label>
         <input
           type="text"
           value={localSettings.name}
           onChange={(e) => handleChange("name", e.target.value)}
           placeholder="Ismingizni kiriting"
-          className="w-full px-4 py-3 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 focus:ring-2 focus:ring-food-green-200 outline-none transition-all text-food-brown-800 font-medium"
+          className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-medium"
         />
       </div>
 
       {/* Kunlik maqsadlar — agar maqsad qo'yilgan bo'lsa, kart sifatida ko'rinadi (read-only),
           aks holda manual kiritish formasi */}
       {hasGoal ? (
-        <div className="bg-gradient-to-br from-food-green-100 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>🎯</span> Kunlik target
-            <span className="ml-auto text-[10px] font-bold bg-food-green-200 text-food-green-800 px-2 py-0.5 rounded-full">
+        <div className="bg-white rounded-2xl p-4 border border-stone-200">
+          <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            Kunlik target
+            <span className="ml-auto text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
               Avtomatik
             </span>
           </h3>
           <div className="grid grid-cols-4 gap-2 text-center">
             <div className="bg-white rounded-xl p-2">
-              <div className="text-[10px] text-food-brown-500">Kaloriya</div>
-              <div className="font-extrabold text-food-orange-600">
+              <div className="text-[10px] text-stone-500">Kaloriya</div>
+              <div className="font-semibold text-amber-700">
                 {user?.daily_calorie_goal}
               </div>
-              <div className="text-[10px] text-food-brown-500">kkal</div>
+              <div className="text-[10px] text-stone-500">kkal</div>
             </div>
             <div className="bg-white rounded-xl p-2">
-              <div className="text-[10px] text-food-brown-500">🥩 Oqsil</div>
-              <div className="font-extrabold text-food-green-600">
+              <div className="text-[10px] text-stone-500">🥩 Oqsil</div>
+              <div className="font-semibold text-emerald-700">
                 {user?.daily_protein_goal}
               </div>
-              <div className="text-[10px] text-food-brown-500">g</div>
+              <div className="text-[10px] text-stone-500">g</div>
             </div>
             <div className="bg-white rounded-xl p-2">
-              <div className="text-[10px] text-food-brown-500">🍞 Uglevod</div>
-              <div className="font-extrabold text-food-yellow-600">
+              <div className="text-[10px] text-stone-500">🍞 Uglevod</div>
+              <div className="font-semibold text-amber-700">
                 {user?.daily_carbs_goal}
               </div>
-              <div className="text-[10px] text-food-brown-500">g</div>
+              <div className="text-[10px] text-stone-500">g</div>
             </div>
             <div className="bg-white rounded-xl p-2">
-              <div className="text-[10px] text-food-brown-500">🧈 Yog'</div>
-              <div className="font-extrabold text-food-orange-700">
+              <div className="text-[10px] text-stone-500">🧈 Yog'</div>
+              <div className="font-semibold text-amber-700">
                 {user?.daily_fat_goal}
               </div>
-              <div className="text-[10px] text-food-brown-500">g</div>
+              <div className="text-[10px] text-stone-500">g</div>
             </div>
           </div>
-          <p className="text-[11px] text-food-brown-600 mt-3 text-center">
+          <p className="text-[11px] text-stone-600 mt-3 text-center">
             💡 Maqsadingizga ko'ra hisoblangan. O'zgartirish uchun maqsadingizni qayta tanlang.
           </p>
         </div>
       ) : (
-      <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
-        <h3 className="text-base font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-          <span>🎯</span> Kunlik maqsadlar (qo'lda)
+      <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+        <h3 className="text-base font-semibold text-stone-900 mb-4 flex items-center gap-2">
+          Kunlik maqsadlar (qo'lda)
         </h3>
 
         <div className="space-y-4">
           {/* Kaloriya */}
           <div>
-            <label className=" text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🔥</span> Kaloriya (kkal)
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Kaloriya (kkal)
             </label>
             <input
               type="number"
@@ -306,17 +304,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
               onChange={(e) => handleChange("dailyCalorieGoal", e.target.value)}
               min="500"
               max="10000"
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-orange-200 focus:border-food-orange-500 focus:ring-2 focus:ring-food-orange-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
             />
-            <p className="text-xs text-food-brown-500 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Tavsiya: Erkaklar 2000-2500, Ayollar 1600-2000
             </p>
           </div>
 
           {/* Oqsil */}
           <div>
-            <label className=" text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🥩</span> Oqsil (g)
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Oqsil (g)
             </label>
             <input
               type="number"
@@ -324,17 +322,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
               onChange={(e) => handleChange("dailyOqsilGoal", e.target.value)}
               min="20"
               max="500"
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 focus:ring-2 focus:ring-food-green-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
             />
-            <p className="text-xs text-food-brown-500 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Tavsiya: Vazningiz (kg) × 0.8
             </p>
           </div>
 
           {/* Uglevodlar */}
           <div>
-            <label className=" text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🍞</span> Uglevodlar (g)
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Uglevodlar (g)
             </label>
             <input
               type="number"
@@ -342,17 +340,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
               onChange={(e) => handleChange("dailyCarbsGoal", e.target.value)}
               min="50"
               max="1000"
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-yellow-200 focus:border-food-yellow-500 focus:ring-2 focus:ring-food-yellow-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
             />
-            <p className="text-xs text-food-brown-500 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Tavsiya: Kaloriyangizning 45-65%
             </p>
           </div>
 
           {/* Yog' */}
           <div>
-            <label className=" text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🧈</span> Yog' (g)
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Yog' (g)
             </label>
             <input
               type="number"
@@ -360,9 +358,9 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
               onChange={(e) => handleChange("dailyFatGoal", e.target.value)}
               min="20"
               max="300"
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-orange-200 focus:border-food-orange-500 focus:ring-2 focus:ring-food-orange-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+              className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
             />
-            <p className="text-xs text-food-brown-500 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Tavsiya: Kaloriyangizning 20-35%
             </p>
           </div>
@@ -371,17 +369,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
       )}
 
       {/* Sizning ma'lumotlaringiz */}
-      <div className="bg-gradient-to-br from-food-blue-50 to-food-green-50 rounded-2xl p-4 border-2 border-food-blue-200">
-        <h3 className="text-base font-bold text-food-brown-800 mb-4 flex items-center gap-2">
-          <span>📏</span> Sizning ma'lumotlaringiz
+      <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+        <h3 className="text-base font-semibold text-stone-900 mb-4 flex items-center gap-2">
+          Sizning ma'lumotlaringiz
         </h3>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             {/* Vazn */}
             <div>
-              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-                <span>⚖️</span> Vazn (kg)
+              <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+                Vazn (kg)
               </label>
               <input
                 type="number"
@@ -390,14 +388,14 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
                 placeholder="70"
                 min="20"
                 max="500"
-                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
               />
             </div>
 
             {/* Bo'y */}
             <div>
-              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-                <span>📐</span> Bo'y (cm)
+              <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+                Bo'y (cm)
               </label>
               <input
                 type="number"
@@ -406,7 +404,7 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
                 placeholder="175"
                 min="50"
                 max="300"
-                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
               />
             </div>
           </div>
@@ -414,8 +412,8 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
           <div className="grid grid-cols-2 gap-3">
             {/* Yosh */}
             <div>
-              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-                <span>🎂</span> Yosh
+              <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+                Yosh
               </label>
               <input
                 type="number"
@@ -424,19 +422,19 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
                 placeholder="25"
                 min="1"
                 max="150"
-                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg"
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg"
               />
             </div>
 
             {/* Jins */}
             <div>
-              <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-                <span>👤</span> Jins
+              <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+                Jins
               </label>
               <select
                 value={localSettings.gender || ""}
                 onChange={(e) => handleChange("gender", e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold text-lg bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold text-lg bg-white"
               >
                 <option value="">Tanlang</option>
                 <option value="male">Erkak</option>
@@ -447,13 +445,13 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
 
           {/* Faoliyat darajasi */}
           <div>
-            <label className="text-sm font-bold text-food-brown-700 mb-1.5 flex items-center gap-2">
-              <span>🏃</span> Faoliyat darajasi
+            <label className="text-sm font-semibold text-stone-700 mb-1.5 flex items-center gap-2">
+              Faoliyat darajasi
             </label>
             <select
               value={localSettings.activity_level || ""}
               onChange={(e) => handleChange("activity_level", e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-blue-200 focus:border-food-blue-500 focus:ring-2 focus:ring-food-blue-200 outline-none transition-all text-food-brown-800 font-bold bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200 outline-none transition-all text-stone-900 font-semibold bg-white"
             >
               <option value="">Tanlang</option>
               <option value="sedentary">🪑 Kam harakatli (ofis ishi)</option>
@@ -468,30 +466,30 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
 
       {/* Kunlik kaloriya sarfi — faoliyat darajasi tanlanganda yoki saqlangan */}
       {tdeeData && (
-        <div className="bg-gradient-to-r from-food-green-100 to-food-blue-100 rounded-2xl p-4 border-2 border-food-green-300">
-          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>⚡</span> Kunlik kaloriya sarfi
+        <div className="bg-white rounded-2xl p-4 border border-stone-200">
+          <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            Kunlik kaloriya sarfi
           </h3>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">😴</div>
-              <div className="font-extrabold text-food-orange-600 text-xl">
+              <div className="font-semibold text-amber-700 text-xl">
                 {Math.round(tdeeData.bmr)}
               </div>
-              <div className="text-xs text-food-brown-500">Tinch holatda</div>
+              <div className="text-xs text-stone-500">Tinch holatda</div>
             </div>
             <div className="bg-white rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">⚡</div>
-              <div className="font-extrabold text-food-green-600 text-xl">
+              <div className="font-semibold text-emerald-700 text-xl">
                 {Math.round(tdeeData.tdee)}
               </div>
-              <div className="text-xs text-food-brown-500">Faollik bilan</div>
+              <div className="text-xs text-stone-500">Faollik bilan</div>
             </div>
           </div>
 
           {!hasGoal && (
-            <p className="text-xs text-food-brown-600 mt-3 text-center">
+            <p className="text-xs text-stone-600 mt-3 text-center">
               💡 Vaznni saqlab turish uchun kuniga ~{Math.round(tdeeData.tdee)} kkal
             </p>
           )}
@@ -512,15 +510,15 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
       <button
         onClick={handleSave}
         disabled={saving}
-        className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:cursor-not-allowed ${
+        className={`w-full py-4 rounded-2xl font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-sm active:scale-95 disabled:cursor-not-allowed ${
           saved
-            ? "bg-gradient-to-r from-food-green-500 to-food-green-600"
-            : "bg-gradient-to-r from-food-orange-500 to-food-orange-600 hover:from-food-orange-600 hover:to-food-orange-700 disabled:from-gray-400 disabled:to-gray-500"
+            ? "bg-emerald-600 "
+            : "bg-amber-500 "
         }`}
       >
         {saving ? (
           <>
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
             <span>Saqlanmoqda...</span>
           </>
         ) : saved ? (
@@ -537,8 +535,8 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
       </button>
 
       {/* Ma'lumot */}
-      <div className="bg-gradient-to-r from-food-green-100 to-food-yellow-100 border-2 border-food-green-300 rounded-2xl p-4">
-        <p className="text-food-brown-700 font-medium text-sm flex items-start gap-2">
+      <div className="bg-white border border-stone-200 rounded-2xl p-4">
+        <p className="text-stone-700 font-medium text-sm flex items-start gap-2">
           <span className="text-lg">💡</span>
           <span>
             {isRegistered
@@ -550,17 +548,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
 
       {/* Account info */}
       {user && (
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
-          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>👤</span> Hisob ma'lumotlari
+        <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
+          <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            Hisob ma'lumotlari
           </h3>
 
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between items-center py-2 border-b border-food-green-100">
-              <span className="text-food-brown-600">Hisob turi:</span>
+            <div className="flex justify-between items-center py-2 border-b border-stone-200">
+              <span className="text-stone-600">Hisob turi:</span>
               <span
-                className={`font-bold ${
-                  isRegistered ? "text-food-green-600" : "text-food-yellow-600"
+                className={`font-semibold ${
+                  isRegistered ? "text-emerald-700" : "text-amber-700"
                 }`}
               >
                 {isRegistered ? "✅ Ro'yxatdan o'tgan" : "👻 Anonim"}
@@ -568,17 +566,17 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
             </div>
 
             {user.email && (
-              <div className="flex justify-between items-center py-2 border-b border-food-green-100">
-                <span className="text-food-brown-600">Email:</span>
-                <span className="font-medium text-food-brown-800">
+              <div className="flex justify-between items-center py-2 border-b border-stone-200">
+                <span className="text-stone-600">Email:</span>
+                <span className="font-medium text-stone-900">
                   {user.email}
                 </span>
               </div>
             )}
 
             <div className="flex justify-between items-center py-2">
-              <span className="text-food-brown-600">ID:</span>
-              <span className="font-mono text-xs text-food-brown-500">
+              <span className="text-stone-600">ID:</span>
+              <span className="font-mono text-xs text-stone-500">
                 {user.id.slice(0, 8)}...
               </span>
             </div>
@@ -588,7 +586,7 @@ const Settings = ({ settings, onSaveSettings, onNavigateToAuth }: SettingsProps)
           {isRegistered && (
             <button
               onClick={logout}
-              className="w-full mt-4 py-3 rounded-xl font-bold text-food-red-600 bg-food-red-50 hover:bg-food-red-100 border-2 border-food-red-200 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full mt-4 py-3 rounded-xl font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-300 flex items-center justify-center gap-2"
             >
               <span>🚪</span>
               <span>Chiqish</span>

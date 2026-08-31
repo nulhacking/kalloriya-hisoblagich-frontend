@@ -53,20 +53,20 @@ const MealPlanCard = ({ plan, loggedNames }: MealPlanCardProps) => {
 
   return (
     <div className="space-y-3">
-      <h3 className="font-extrabold text-food-brown-800 flex items-center gap-2">
-        <span>🍽️</span> Bugungi reja
+      <h3 className="font-semibold text-stone-900 flex items-center gap-2">
+        Bugungi reja
       </h3>
       {plan.map((slot) => (
         <div
           key={slot.key}
-          className="bg-white/95 rounded-2xl p-4 border-2 border-food-green-100"
+          className="bg-white rounded-2xl p-4 border border-stone-200"
         >
           <div className="flex items-baseline justify-between mb-2">
-            <div className="font-bold text-food-brown-800 flex items-center gap-2">
+            <div className="font-semibold text-stone-900 flex items-center gap-2">
               <span className="text-xl">{slot.icon}</span>
               <span>{slot.label}</span>
             </div>
-            <div className="text-xs font-bold text-food-green-700 bg-food-green-50 px-2 py-0.5 rounded-full">
+            <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
               ~{slot.target_kcal} kkal
             </div>
           </div>
@@ -80,19 +80,19 @@ const MealPlanCard = ({ plan, loggedNames }: MealPlanCardProps) => {
                   disabled={done || addMeal.isPending}
                   className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border transition-all ${
                     done
-                      ? "bg-food-green-50 border-food-green-300 text-food-green-700"
-                      : "bg-food-brown-50 border-food-brown-100 hover:bg-food-yellow-50 hover:border-food-yellow-300 text-food-brown-700"
+                      ? "bg-emerald-50 border-stone-200 text-emerald-700"
+                      : "bg-stone-50 border-stone-200 hover:bg-amber-50 hover:border-amber-200 text-stone-700"
                   }`}
                 >
                   <span className="text-sm font-medium flex items-center gap-2 text-left">
                     {done ? (
-                      <span className="w-5 h-5 rounded-full bg-food-green-500 text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">✓</span>
+                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-semibold flex-shrink-0">✓</span>
                     ) : (
-                      <span className="text-food-brown-400">+</span>
+                      <span className="text-stone-400">+</span>
                     )}
                     <span className={done ? "line-through opacity-70" : ""}>{s.name}</span>
                   </span>
-                  <span className="text-xs font-bold flex-shrink-0">{s.kcal} kkal</span>
+                  <span className="text-xs font-semibold flex-shrink-0">{s.kcal} kkal</span>
                 </button>
               );
             })}

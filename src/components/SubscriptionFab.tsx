@@ -44,8 +44,8 @@ const SubscriptionFab = () => {
         <span
           className={`flex items-center gap-2 pl-2.5 pr-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm backdrop-blur ${
             exhausted
-              ? "bg-stone-900 border-stone-900 text-white"
-              : `bg-white/95 ${meta.border} text-stone-700`
+              ? "bg-stone-900 border-stone-200 text-white"
+              : `bg-white ${meta.border} text-stone-700`
           }`}
         >
           <span

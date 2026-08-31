@@ -13,10 +13,10 @@ import {
 } from "../services/api";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "Kutilmoqda", color: "bg-yellow-100 text-yellow-700 border-yellow-300" },
-  in_review: { label: "Ko'rilmoqda", color: "bg-blue-100 text-blue-700 border-blue-300" },
-  responded: { label: "Javob berildi", color: "bg-green-100 text-green-700 border-green-300" },
-  closed: { label: "Yopildi", color: "bg-gray-100 text-gray-700 border-gray-300" },
+  pending: { label: "Kutilmoqda", color: "bg-amber-100 text-amber-700 border-amber-200" },
+  in_review: { label: "Ko'rilmoqda", color: "bg-stone-100 text-stone-700 border-stone-200" },
+  responded: { label: "Javob berildi", color: "bg-emerald-100 text-emerald-700 border-stone-200" },
+  closed: { label: "Yopildi", color: "bg-stone-100 text-stone-700 border-stone-200" },
 };
 
 const AdminPage = () => {
@@ -144,8 +144,8 @@ const AdminPage = () => {
     return (
       <div className="text-center py-20">
         <span className="text-6xl mb-4 block">🚫</span>
-        <h2 className="text-xl font-bold text-food-brown-800">Kirish taqiqlangan</h2>
-        <p className="text-food-brown-600 mt-2">Bu sahifa faqat adminlar uchun</p>
+        <h2 className="text-xl font-semibold text-stone-900">Kirish taqiqlangan</h2>
+        <p className="text-stone-600 mt-2">Bu sahifa faqat adminlar uchun</p>
       </div>
     );
   }
@@ -154,8 +154,8 @@ const AdminPage = () => {
   if (isAdmin === null || loading) {
     return (
       <div className="text-center py-20">
-        <div className="w-8 h-8 border-4 border-food-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-food-brown-600 mt-4">Yuklanmoqda...</p>
+        <div className="w-8 h-8 border border-stone-200 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p className="text-stone-600 mt-4">Yuklanmoqda...</p>
       </div>
     );
   }
@@ -163,9 +163,8 @@ const AdminPage = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="text-center mb-4">
-        <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">
-          <span>👨‍💼</span>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-stone-900">
           Admin Panel
         </h2>
       </div>
@@ -173,43 +172,43 @@ const AdminPage = () => {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="bg-yellow-50 rounded-xl p-3 border-2 border-yellow-200 text-center">
-            <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-            <p className="text-xs text-yellow-700">Kutilmoqda</p>
+          <div className="bg-amber-50 rounded-xl p-3 border border-amber-200 text-center">
+            <p className="text-2xl font-semibold text-amber-700">{stats.pending}</p>
+            <p className="text-xs text-amber-700">Kutilmoqda</p>
           </div>
-          <div className="bg-blue-50 rounded-xl p-3 border-2 border-blue-200 text-center">
-            <p className="text-2xl font-bold text-blue-600">{stats.in_review}</p>
-            <p className="text-xs text-blue-700">Ko'rilmoqda</p>
+          <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 text-center">
+            <p className="text-2xl font-semibold text-stone-600">{stats.in_review}</p>
+            <p className="text-xs text-stone-700">Ko'rilmoqda</p>
           </div>
-          <div className="bg-green-50 rounded-xl p-3 border-2 border-green-200 text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.responded}</p>
-            <p className="text-xs text-green-700">Javob berildi</p>
+          <div className="bg-emerald-50 rounded-xl p-3 border border-stone-200 text-center">
+            <p className="text-2xl font-semibold text-emerald-700">{stats.responded}</p>
+            <p className="text-xs text-emerald-700">Javob berildi</p>
           </div>
-          <div className="bg-gray-50 rounded-xl p-3 border-2 border-gray-200 text-center">
-            <p className="text-2xl font-bold text-gray-600">{stats.total}</p>
-            <p className="text-xs text-gray-700">Jami</p>
+          <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 text-center">
+            <p className="text-2xl font-semibold text-stone-600">{stats.total}</p>
+            <p className="text-xs text-stone-700">Jami</p>
           </div>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex bg-white/80 rounded-xl p-1 gap-1">
+      <div className="flex bg-white rounded-xl p-1 gap-1">
         <button
           onClick={() => setActiveTab("feedbacks")}
-          className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all ${
+          className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all ${
             activeTab === "feedbacks"
-              ? "bg-food-green-500 text-white"
-              : "text-food-brown-600 hover:bg-food-green-50"
+              ? "bg-emerald-600 text-white"
+              : "text-stone-600 hover:bg-stone-50"
           }`}
         >
           💬 Feedbacklar
         </button>
         <button
           onClick={() => setActiveTab("users")}
-          className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all ${
+          className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all ${
             activeTab === "users"
-              ? "bg-food-green-500 text-white"
-              : "text-food-brown-600 hover:bg-food-green-50"
+              ? "bg-emerald-600 text-white"
+              : "text-stone-600 hover:bg-stone-50"
           }`}
         >
           👥 Foydalanuvchilar
@@ -224,7 +223,7 @@ const AdminPage = () => {
             <button
               onClick={() => { setStatusFilter(""); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
-                !statusFilter ? "bg-food-green-500 text-white" : "bg-white text-food-brown-600 border"
+                !statusFilter ? "bg-emerald-600 text-white" : "bg-white text-stone-600 border"
               }`}
             >
               Barchasi
@@ -234,7 +233,7 @@ const AdminPage = () => {
                 key={key}
                 onClick={() => { setStatusFilter(key); setPage(1); }}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  statusFilter === key ? "bg-food-green-500 text-white" : "bg-white text-food-brown-600 border"
+                  statusFilter === key ? "bg-emerald-600 text-white" : "bg-white text-stone-600 border"
                 }`}
               >
                 {label}
@@ -244,22 +243,22 @@ const AdminPage = () => {
 
           {/* Feedbacks List */}
           {feedbacks.length === 0 ? (
-            <div className="text-center py-8 bg-white/80 rounded-xl">
+            <div className="text-center py-8 bg-white rounded-xl">
               <span className="text-4xl mb-2 block">📭</span>
-              <p className="text-food-brown-600">Feedbacklar yo'q</p>
+              <p className="text-stone-600">Feedbacklar yo'q</p>
             </div>
           ) : (
             <div className="space-y-3">
               {feedbacks.map((feedback) => (
                 <div
                   key={feedback.id}
-                  className="bg-white rounded-xl p-4 border-2 border-food-green-100 shadow-sm"
+                  className="bg-white rounded-xl p-4 border border-stone-200 shadow-sm"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <p className="font-bold text-food-brown-800">{feedback.subject}</p>
-                      <p className="text-xs text-food-brown-500">
+                      <p className="font-semibold text-stone-900">{feedback.subject}</p>
+                      <p className="text-xs text-stone-500">
                         {feedback.user?.telegram_username 
                           ? `@${feedback.user.telegram_username}` 
                           : feedback.user?.name || "Anonim"
@@ -268,19 +267,19 @@ const AdminPage = () => {
                         {new Date(feedback.created_at).toLocaleDateString("uz-UZ")}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-bold border ${STATUS_LABELS[feedback.status]?.color}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${STATUS_LABELS[feedback.status]?.color}`}>
                       {STATUS_LABELS[feedback.status]?.label}
                     </span>
                   </div>
 
                   {/* Message */}
-                  <p className="text-sm text-food-brown-700 mb-3">{feedback.message}</p>
+                  <p className="text-sm text-stone-700 mb-3">{feedback.message}</p>
 
                   {/* Admin response if exists */}
                   {feedback.admin_response && (
-                    <div className="bg-food-green-50 p-3 rounded-lg mb-3">
-                      <p className="text-xs text-food-green-600 font-bold mb-1">Javob:</p>
-                      <p className="text-sm text-food-brown-700">{feedback.admin_response}</p>
+                    <div className="bg-emerald-50 p-3 rounded-lg mb-3">
+                      <p className="text-xs text-emerald-700 font-semibold mb-1">Javob:</p>
+                      <p className="text-sm text-stone-700">{feedback.admin_response}</p>
                     </div>
                   )}
 
@@ -291,7 +290,7 @@ const AdminPage = () => {
                         setSelectedFeedback(feedback);
                         setReplyText(feedback.admin_response || "");
                       }}
-                      className="flex-1 py-2 bg-food-green-500 text-white rounded-lg text-sm font-bold hover:bg-food-green-600 transition-all"
+                      className="flex-1 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-600 transition-all"
                     >
                       💬 Javob berish
                     </button>
@@ -311,7 +310,7 @@ const AdminPage = () => {
                           });
                           setMessageText("");
                         }}
-                        className="py-2 px-4 bg-blue-500 text-white rounded-lg text-sm font-bold hover:bg-blue-600 transition-all"
+                        className="py-2 px-4 bg-stone-900 text-white rounded-lg text-sm font-semibold hover:bg-stone-800 transition-all"
                       >
                         📤 Xabar
                       </button>
@@ -352,28 +351,28 @@ const AdminPage = () => {
         <div className="space-y-3">
           {loadingUsers ? (
             <div className="text-center py-8">
-              <div className="w-8 h-8 border-4 border-food-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-8 h-8 border border-stone-200 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-8 bg-white/80 rounded-xl">
+            <div className="text-center py-8 bg-white rounded-xl">
               <span className="text-4xl mb-2 block">👥</span>
-              <p className="text-food-brown-600">Telegram foydalanuvchilari yo'q</p>
+              <p className="text-stone-600">Telegram foydalanuvchilari yo'q</p>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-sm text-food-brown-600 font-medium">
+              <p className="text-sm text-stone-600 font-medium">
                 Jami: {users.length} ta foydalanuvchi
               </p>
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="bg-white rounded-xl p-3 border-2 border-food-green-100 flex items-center justify-between"
+                  className="bg-white rounded-xl p-3 border border-stone-200 flex items-center justify-between"
                 >
                   <div>
-                    <p className="font-bold text-food-brown-800">
+                    <p className="font-semibold text-stone-900">
                       {user.telegram_first_name || user.name || "Anonim"}
                     </p>
-                    <p className="text-xs text-food-brown-500">
+                    <p className="text-xs text-stone-500">
                       {user.telegram_username ? `@${user.telegram_username}` : user.telegram_id}
                     </p>
                   </div>
@@ -382,7 +381,7 @@ const AdminPage = () => {
                       setSelectedUser(user);
                       setMessageText("");
                     }}
-                    className="px-4 py-2 bg-food-green-500 text-white rounded-lg text-sm font-bold hover:bg-food-green-600 transition-all"
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-600 transition-all"
                   >
                     📤 Xabar
                   </button>
@@ -397,13 +396,13 @@ const AdminPage = () => {
       {selectedFeedback && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-4 w-full max-w-md max-h-[80vh] overflow-y-auto">
-            <h3 className="font-bold text-lg text-food-brown-800 mb-3">
+            <h3 className="font-semibold text-lg text-stone-900 mb-3">
               💬 Feedbackga javob
             </h3>
             
-            <div className="bg-food-green-50 p-3 rounded-lg mb-3">
-              <p className="text-xs text-food-green-600 font-bold mb-1">Foydalanuvchi xabari:</p>
-              <p className="text-sm text-food-brown-700">{selectedFeedback.message}</p>
+            <div className="bg-emerald-50 p-3 rounded-lg mb-3">
+              <p className="text-xs text-emerald-700 font-semibold mb-1">Foydalanuvchi xabari:</p>
+              <p className="text-sm text-stone-700">{selectedFeedback.message}</p>
             </div>
             
             <textarea
@@ -411,20 +410,20 @@ const AdminPage = () => {
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Javob yozing..."
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 outline-none resize-none mb-3"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 outline-none resize-none mb-3"
             />
             
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedFeedback(null)}
-                className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold"
+                className="flex-1 py-3 bg-stone-200 text-stone-700 rounded-xl font-semibold"
               >
                 Bekor qilish
               </button>
               <button
                 onClick={handleReply}
                 disabled={replying || !replyText.trim()}
-                className="flex-1 py-3 bg-food-green-500 text-white rounded-xl font-bold disabled:opacity-50"
+                className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-semibold disabled:opacity-50"
               >
                 {replying ? "Yuborilmoqda..." : "Yuborish"}
               </button>
@@ -437,12 +436,12 @@ const AdminPage = () => {
       {selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-4 w-full max-w-md">
-            <h3 className="font-bold text-lg text-food-brown-800 mb-3">
+            <h3 className="font-semibold text-lg text-stone-900 mb-3">
               📤 Xabar yuborish
             </h3>
             
-            <div className="bg-blue-50 p-3 rounded-lg mb-3">
-              <p className="text-sm text-blue-700">
+            <div className="bg-stone-50 p-3 rounded-lg mb-3">
+              <p className="text-sm text-stone-700">
                 <b>Kimga:</b> {selectedUser.telegram_first_name || selectedUser.name}
                 {selectedUser.telegram_username && ` (@${selectedUser.telegram_username})`}
               </p>
@@ -453,20 +452,20 @@ const AdminPage = () => {
               onChange={(e) => setMessageText(e.target.value)}
               placeholder="Xabar yozing..."
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-500 outline-none resize-none mb-3"
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 outline-none resize-none mb-3"
             />
             
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedUser(null)}
-                className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold"
+                className="flex-1 py-3 bg-stone-200 text-stone-700 rounded-xl font-semibold"
               >
                 Bekor qilish
               </button>
               <button
                 onClick={handleSendMessage}
                 disabled={sending || !messageText.trim()}
-                className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-bold disabled:opacity-50"
+                className="flex-1 py-3 bg-stone-900 text-white rounded-xl font-semibold disabled:opacity-50"
               >
                 {sending ? "Yuborilmoqda..." : "Yuborish"}
               </button>

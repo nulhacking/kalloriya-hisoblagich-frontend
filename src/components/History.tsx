@@ -89,35 +89,34 @@ const History = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="text-center mb-4">
-        <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">
-          <span>📅</span>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-stone-900">
           Tarix
         </h2>
-        <p className="text-food-brown-600 text-sm mt-1">
+        <p className="text-stone-500 text-sm mt-0.5">
           O'tgan kunlardagi ovqatlanish ma'lumotlari
         </p>
       </div>
 
       {/* View Mode Toggle */}
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+      <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setViewMode("list")}
-            className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
+            className={`flex-1 py-2 px-4 rounded-xl font-semibold transition-all ${
               viewMode === "list"
-                ? "bg-gradient-to-r from-food-green-500 to-food-green-600 text-white"
-                : "bg-food-green-100 text-food-green-700 hover:bg-food-green-200"
+                ? "bg-emerald-600 text-white"
+                : "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
             }`}
           >
             📋 Ro'yxat
           </button>
           <button
             onClick={() => setViewMode("range")}
-            className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
+            className={`flex-1 py-2 px-4 rounded-xl font-semibold transition-all ${
               viewMode === "range"
-                ? "bg-gradient-to-r from-food-green-500 to-food-green-600 text-white"
-                : "bg-food-green-100 text-food-green-700 hover:bg-food-green-200"
+                ? "bg-emerald-600 text-white"
+                : "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
             }`}
           >
             📊 Sana oraliq
@@ -128,13 +127,13 @@ const History = () => {
         {viewMode === "list" && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-bold text-food-brown-700">
+              <label className="text-sm font-semibold text-stone-700">
                 Oxirgi kunlar:
               </label>
               <select
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
-                className="px-3 py-2 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 outline-none text-food-brown-800 font-bold"
+                className="px-3 py-2 rounded-xl border border-stone-200 focus:border-stone-400 outline-none text-stone-900 font-semibold"
               >
                 <option value={7}>7 kun</option>
                 <option value={14}>14 kun</option>
@@ -147,15 +146,15 @@ const History = () => {
             {historyLoading ? (
               <HistoryListSkeleton />
             ) : error ? (
-              <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
-                <p className="text-food-red-700 font-medium">
+              <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                <p className="text-red-600 font-medium">
                   {error instanceof Error ? error.message : "Xatolik yuz berdi"}
                 </p>
               </div>
             ) : history.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">📭</div>
-                <p className="text-food-brown-600 font-medium">
+                <p className="text-stone-600 font-medium">
                   Ma'lumotlar topilmadi
                 </p>
               </div>
@@ -165,22 +164,22 @@ const History = () => {
                   <div
                     key={day.id}
                     onClick={() => handleLoadDateLog(day.date)}
-                    className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-4 border border-food-green-200 hover:border-food-green-400 cursor-pointer transition-all"
+                    className="bg-white rounded-xl p-4 border border-stone-200 hover:border-stone-200 cursor-pointer transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-food-brown-800">
+                        <p className="font-semibold text-stone-900">
                           {formatDate(day.date)}
                         </p>
-                        <p className="text-xs text-food-brown-500 mt-1">
+                        <p className="text-xs text-stone-500 mt-1">
                           {day.meal_count} ta ovqat
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-extrabold text-food-green-600 text-lg">
+                        <p className="font-semibold text-emerald-700 text-lg">
                           {Math.round(day.total_calories)} kkal
                         </p>
-                        <div className="flex gap-2 mt-1 text-xs text-food-brown-600">
+                        <div className="flex gap-2 mt-1 text-xs text-stone-600">
                           <span>🥩 {Math.round(day.total_protein)}g</span>
                           <span>🍞 {Math.round(day.total_carbs)}g</span>
                           <span>🧈 {Math.round(day.total_fat)}g</span>
@@ -199,25 +198,25 @@ const History = () => {
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-bold text-food-brown-700 mb-2">
+                <label className="block text-sm font-semibold text-stone-700 mb-2">
                   Boshlanish sanasi
                 </label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 outline-none text-food-brown-800"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-stone-400 outline-none text-stone-900"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-food-brown-700 mb-2">
+                <label className="block text-sm font-semibold text-stone-700 mb-2">
                   Tugash sanasi
                 </label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border-2 border-food-green-200 focus:border-food-green-500 outline-none text-food-brown-800"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-stone-400 outline-none text-stone-900"
                 />
               </div>
             </div>
@@ -225,14 +224,14 @@ const History = () => {
             <button
               onClick={() => refetchRangeStats()}
               disabled={rangeStatsLoading || !startDate || !endDate}
-              className="w-full bg-gradient-to-r from-food-green-500 to-food-green-600 hover:from-food-green-600 hover:to-food-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-3 rounded-xl transition-all"
+              className="w-full bg-emerald-600 text-white font-semibold py-3 rounded-xl transition-all"
             >
               {rangeStatsLoading ? "Yuklanmoqda..." : "📊 Statistika ko'rish"}
             </button>
 
             {error && (
-              <div className="bg-food-red-50 rounded-xl p-4 border border-food-red-200">
-                <p className="text-food-red-700 font-medium">
+              <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                <p className="text-red-600 font-medium">
                   {error instanceof Error ? error.message : "Xatolik yuz berdi"}
                 </p>
               </div>
@@ -241,30 +240,29 @@ const History = () => {
             {rangeStatsLoading ? (
               <RangeStatsSkeleton />
             ) : rangeStats && (
-              <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-xl p-4 border-2 border-food-orange-200">
-                <h3 className="font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-                  <span>📊</span>
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                <h3 className="font-semibold text-stone-900 mb-3 flex items-center gap-2">
                   {formatDate(rangeStats.start_date)} - {formatDate(rangeStats.end_date)}
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="bg-white rounded-xl p-3 text-center">
                     <div className="text-2xl mb-1">🔥</div>
-                    <div className="font-extrabold text-food-red-600 text-lg">
+                    <div className="font-semibold text-red-600 text-lg">
                       {Math.round(rangeStats.total_calories)}
                     </div>
-                    <div className="text-xs text-food-brown-500">Jami kaloriya</div>
-                    <div className="text-xs text-food-brown-400 mt-1">
+                    <div className="text-xs text-stone-500">Jami kaloriya</div>
+                    <div className="text-xs text-stone-400 mt-1">
                       O'rtacha: {Math.round(rangeStats.avg_calories)}/kun
                     </div>
                   </div>
                   <div className="bg-white rounded-xl p-3 text-center">
                     <div className="text-2xl mb-1">🍽️</div>
-                    <div className="font-extrabold text-food-green-600 text-lg">
+                    <div className="font-semibold text-emerald-700 text-lg">
                       {rangeStats.total_meals}
                     </div>
-                    <div className="text-xs text-food-brown-500">Jami ovqat</div>
-                    <div className="text-xs text-food-brown-400 mt-1">
+                    <div className="text-xs text-stone-500">Jami ovqat</div>
+                    <div className="text-xs text-stone-400 mt-1">
                       {rangeStats.days_count} kun
                     </div>
                   </div>
@@ -273,31 +271,31 @@ const History = () => {
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-white rounded-lg p-2 text-center">
                     <div className="text-sm">🥩</div>
-                    <div className="font-bold text-food-green-600">
+                    <div className="font-semibold text-emerald-700">
                       {Math.round(rangeStats.avg_protein)}g
                     </div>
-                    <div className="text-xs text-food-brown-500">O'rtacha oqsil</div>
+                    <div className="text-xs text-stone-500">O'rtacha oqsil</div>
                   </div>
                   <div className="bg-white rounded-lg p-2 text-center">
                     <div className="text-sm">🍞</div>
-                    <div className="font-bold text-food-yellow-600">
+                    <div className="font-semibold text-amber-700">
                       {Math.round(rangeStats.avg_carbs)}g
                     </div>
-                    <div className="text-xs text-food-brown-500">O'rtacha uglevod</div>
+                    <div className="text-xs text-stone-500">O'rtacha uglevod</div>
                   </div>
                   <div className="bg-white rounded-lg p-2 text-center">
                     <div className="text-sm">🧈</div>
-                    <div className="font-bold text-food-orange-600">
+                    <div className="font-semibold text-amber-700">
                       {Math.round(rangeStats.avg_fat)}g
                     </div>
-                    <div className="text-xs text-food-brown-500">O'rtacha yog'</div>
+                    <div className="text-xs text-stone-500">O'rtacha yog'</div>
                   </div>
                 </div>
 
                 {/* Daily breakdown */}
                 {rangeStats.days.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="font-bold text-food-brown-800 mb-2 text-sm">
+                    <h4 className="font-semibold text-stone-900 mb-2 text-sm">
                       Kunlik tafsilotlar:
                     </h4>
                     <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -305,12 +303,12 @@ const History = () => {
                         <div
                           key={day.id}
                           onClick={() => handleLoadDateLog(day.date)}
-                          className="bg-white rounded-lg p-2 flex items-center justify-between cursor-pointer hover:bg-food-green-50 transition-colors"
+                          className="bg-white rounded-lg p-2 flex items-center justify-between cursor-pointer hover:bg-stone-50 transition-colors"
                         >
-                          <span className="text-xs font-medium text-food-brown-700">
+                          <span className="text-xs font-medium text-stone-700">
                             {formatDate(day.date)}
                           </span>
-                          <span className="text-xs font-bold text-food-green-600">
+                          <span className="text-xs font-semibold text-emerald-700">
                             {Math.round(day.total_calories)} kkal
                           </span>
                         </div>
@@ -342,56 +340,56 @@ const History = () => {
           <div className="space-y-4 pt-3">
             {/* Macros */}
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-gradient-to-br from-food-red-50 to-food-red-100 rounded-2xl p-3 text-center border border-food-red-200">
+              <div className="bg-red-50 rounded-2xl p-3 text-center border border-red-200">
                 <div className="text-lg">🔥</div>
-                <div className="font-extrabold text-food-red-600 text-lg leading-tight">
+                <div className="font-semibold text-red-600 text-lg leading-tight">
                   {Math.round(selectedDayLog.total_calories)}
                 </div>
-                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                <div className="text-[10px] text-stone-500 uppercase tracking-wide font-semibold">
                   kkal
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-food-green-50 to-food-green-100 rounded-2xl p-3 text-center border border-food-green-200">
+              <div className="bg-white rounded-2xl p-3 text-center border border-stone-200">
                 <div className="text-lg">🥩</div>
-                <div className="font-extrabold text-food-green-600 text-lg leading-tight">
+                <div className="font-semibold text-emerald-700 text-lg leading-tight">
                   {Math.round(selectedDayLog.total_protein)}g
                 </div>
-                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                <div className="text-[10px] text-stone-500 uppercase tracking-wide font-semibold">
                   oqsil
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-food-yellow-50 to-food-yellow-100 rounded-2xl p-3 text-center border border-food-yellow-200">
+              <div className="bg-amber-50 rounded-2xl p-3 text-center border border-amber-200">
                 <div className="text-lg">🍞</div>
-                <div className="font-extrabold text-food-yellow-600 text-lg leading-tight">
+                <div className="font-semibold text-amber-700 text-lg leading-tight">
                   {Math.round(selectedDayLog.total_carbs)}g
                 </div>
-                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                <div className="text-[10px] text-stone-500 uppercase tracking-wide font-semibold">
                   uglevod
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-food-orange-50 to-food-orange-100 rounded-2xl p-3 text-center border border-food-orange-200">
+              <div className="bg-amber-50 rounded-2xl p-3 text-center border border-amber-200">
                 <div className="text-lg">🧈</div>
-                <div className="font-extrabold text-food-orange-600 text-lg leading-tight">
+                <div className="font-semibold text-amber-700 text-lg leading-tight">
                   {Math.round(selectedDayLog.total_fat)}g
                 </div>
-                <div className="text-[10px] text-food-brown-500 uppercase tracking-wide font-bold">
+                <div className="text-[10px] text-stone-500 uppercase tracking-wide font-semibold">
                   yog'
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-extrabold text-food-brown-800 mb-3 flex items-center gap-2">
+              <h4 className="font-semibold text-stone-900 mb-3 flex items-center gap-2">
                 <span>🍽️</span>
                 <span>Ovqatlar</span>
-                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-food-green-100 text-food-green-700">
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
                   {selectedDayLog.meals.length}
                 </span>
               </h4>
               {selectedDayLog.meals.length === 0 ? (
-                <div className="bg-food-brown-50 rounded-2xl p-6 text-center">
+                <div className="bg-stone-50 rounded-2xl p-6 text-center">
                   <div className="text-3xl mb-2 opacity-60">🍳</div>
-                  <p className="text-food-brown-500 text-sm font-medium">
+                  <p className="text-stone-500 text-sm font-medium">
                     Bu kunda ovqat qo'shilmagan
                   </p>
                 </div>
@@ -400,14 +398,14 @@ const History = () => {
                   {selectedDayLog.meals.map((meal) => (
                     <div
                       key={meal.id}
-                      className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-2xl p-3 border border-food-green-100"
+                      className="bg-white rounded-2xl p-3 border border-stone-200"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <p className="font-bold text-food-brown-800 capitalize truncate">
+                          <p className="font-semibold text-stone-900 capitalize truncate">
                             {meal.food_name}
                           </p>
-                          <p className="text-xs text-food-brown-500 mt-0.5">
+                          <p className="text-xs text-stone-500 mt-0.5">
                             {meal.weight_grams}g •{" "}
                             {new Date(meal.timestamp).toLocaleTimeString("uz-UZ", {
                               hour: "2-digit",
@@ -416,10 +414,10 @@ const History = () => {
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="font-extrabold text-food-red-600">
+                          <p className="font-semibold text-red-600">
                             {Math.round(meal.calories)}
                           </p>
-                          <p className="text-[10px] text-food-brown-500 font-bold uppercase">
+                          <p className="text-[10px] text-stone-500 font-semibold uppercase">
                             kkal
                           </p>
                         </div>

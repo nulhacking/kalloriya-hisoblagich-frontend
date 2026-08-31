@@ -117,9 +117,9 @@ const DailyLogComponent = ({
 
   const getProgressColor = (current: number, goal: number): string => {
     const percent = (current / goal) * 100;
-    if (percent >= 100) return "bg-food-red-500";
-    if (percent >= 80) return "bg-food-orange-500";
-    return "bg-food-green-500";
+    if (percent >= 100) return "bg-red-500";
+    if (percent >= 80) return "bg-amber-500";
+    return "bg-emerald-600";
   };
 
   const getProgressPercent = (current: number, goal: number): number => {
@@ -136,12 +136,11 @@ const DailyLogComponent = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Bugungi sana */}
-      <div className="text-center mb-4">
-        <h2 className="text-xl md:text-2xl font-extrabold text-food-brown-800 flex items-center justify-center gap-2">
-          <span>📅</span>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-stone-900">
           Bugungi ovqatlanish
         </h2>
-        <p className="text-food-brown-600 text-sm mt-1">
+        <p className="text-stone-500 text-sm mt-0.5">
           {new Date().toLocaleDateString("uz-UZ", {
             weekday: "long",
             year: "numeric",
@@ -152,22 +151,22 @@ const DailyLogComponent = ({
       </div>
 
       {/* Umumiy statistika */}
-      <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-        <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-          <span>📊</span> Kunlik statistika
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
+          Kunlik statistika
         </h3>
 
         {/* Kaloriya progress */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-sm font-bold text-food-brown-700 flex items-center gap-1">
+            <span className="text-sm font-semibold text-stone-700 flex items-center gap-1">
               <span>🔥</span> Kaloriya
             </span>
-            <span className="text-sm font-bold text-food-brown-600">
+            <span className="text-sm font-semibold text-stone-600">
               {Math.round(totalCalories)} / {adjustedGoal} kkal
             </span>
           </div>
-          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-3 bg-stone-200 rounded-full overflow-hidden">
             <div
               className={`h-full ${getProgressColor(
                 totalCalories,
@@ -179,7 +178,7 @@ const DailyLogComponent = ({
             ></div>
           </div>
           {total_activity_calories > 0 && (
-            <p className="text-xs text-food-green-700 mt-1 text-right">
+            <p className="text-xs text-emerald-700 mt-1 text-right">
               + {Math.round(total_activity_calories)} kkal mashq qo'shildi
             </p>
           )}
@@ -188,15 +187,15 @@ const DailyLogComponent = ({
         {/* Boshqa nutrientlar */}
         <div className="grid grid-cols-3 gap-2">
           {/* Oqsil */}
-          <div className="bg-white rounded-xl p-2 text-center border border-food-green-200">
+          <div className="bg-white rounded-xl p-2 text-center border border-stone-200">
             <div className="text-lg">🥩</div>
-            <div className="text-base font-extrabold text-food-green-600">
+            <div className="text-base font-semibold text-emerald-700">
               {Math.round(totalOqsil)}g
             </div>
-            <div className="text-xs text-food-brown-500">
+            <div className="text-xs text-stone-500">
               / {settings.dailyOqsilGoal}g
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
+            <div className="h-1.5 bg-stone-200 rounded-full mt-1 overflow-hidden">
               <div
                 className={`h-full ${getProgressColor(
                   totalOqsil,
@@ -213,15 +212,15 @@ const DailyLogComponent = ({
           </div>
 
           {/* Uglevodlar */}
-          <div className="bg-white rounded-xl p-2 text-center border border-food-yellow-200">
+          <div className="bg-white rounded-xl p-2 text-center border border-amber-200">
             <div className="text-lg">🍞</div>
-            <div className="text-base font-extrabold text-food-yellow-600">
+            <div className="text-base font-semibold text-amber-700">
               {Math.round(totalCarbs)}g
             </div>
-            <div className="text-xs text-food-brown-500">
+            <div className="text-xs text-stone-500">
               / {settings.dailyCarbsGoal}g
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
+            <div className="h-1.5 bg-stone-200 rounded-full mt-1 overflow-hidden">
               <div
                 className={`h-full ${getProgressColor(
                   totalCarbs,
@@ -238,15 +237,15 @@ const DailyLogComponent = ({
           </div>
 
           {/* Yog' */}
-          <div className="bg-white rounded-xl p-2 text-center border border-food-orange-200">
+          <div className="bg-white rounded-xl p-2 text-center border border-amber-200">
             <div className="text-lg">🧈</div>
-            <div className="text-base font-extrabold text-food-orange-600">
+            <div className="text-base font-semibold text-amber-700">
               {Math.round(totalFat)}g
             </div>
-            <div className="text-xs text-food-brown-500">
+            <div className="text-xs text-stone-500">
               / {settings.dailyFatGoal}g
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
+            <div className="h-1.5 bg-stone-200 rounded-full mt-1 overflow-hidden">
               <div
                 className={`h-full ${getProgressColor(
                   totalFat,
@@ -266,39 +265,39 @@ const DailyLogComponent = ({
 
       {/* TDEE va Mashqlar bilan kaloriya balansi */}
       {user?.tdee && (
-        <div className="bg-gradient-to-br from-food-blue-50 to-food-green-50 rounded-2xl p-4 border-2 border-food-blue-200">
-          <h3 className="text-base font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>⚡</span> Kaloriya balansi
+        <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+          <h3 className="text-base font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            Kaloriya balansi
           </h3>
 
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">🔥</div>
-              <div className="font-extrabold text-food-orange-600">
+              <div className="font-semibold text-amber-700">
                 {Math.round(totalBurned)}
               </div>
-              <div className="text-xs text-food-brown-500">TDEE + Mashq</div>
+              <div className="text-xs text-stone-500">TDEE + Mashq</div>
             </div>
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">🍽️</div>
-              <div className="font-extrabold text-food-green-600">
+              <div className="font-semibold text-emerald-700">
                 {Math.round(totalCalories)}
               </div>
-              <div className="text-xs text-food-brown-500">Yegan</div>
+              <div className="text-xs text-stone-500">Yegan</div>
             </div>
             <div className="bg-white rounded-xl p-2">
               <div className="text-lg">{calorieBalance > 0 ? "📉" : "📈"}</div>
               <div
-                className={`font-extrabold ${calorieBalance > 0 ? "text-food-green-600" : "text-food-red-600"}`}
+                className={`font-semibold ${calorieBalance > 0 ? "text-emerald-700" : "text-red-600"}`}
               >
                 {calorieBalance > 0 ? "-" : "+"}
                 {Math.abs(Math.round(calorieBalance))}
               </div>
-              <div className="text-xs text-food-brown-500">Balans</div>
+              <div className="text-xs text-stone-500">Balans</div>
             </div>
           </div>
 
-          <p className="text-xs text-food-brown-600 mt-2 text-center">
+          <p className="text-xs text-stone-600 mt-2 text-center">
             {calorieBalance > 0
               ? `💚 Bugun ${Math.round(calorieBalance)} kkal taqchillik (vazn yo'qotish)`
               : `⚠️ Bugun ${Math.round(-calorieBalance)} kkal ortiqcha (vazn olish)`}
@@ -307,22 +306,22 @@ const DailyLogComponent = ({
       )}
 
       {/* Harakatlar ro'yxati */}
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-blue-100">
+      <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
-            <span>🏃</span> Bugungi harakatlar
+          <h3 className="text-base font-semibold text-stone-900 flex items-center gap-2">
+            Bugungi harakatlar
           </h3>
           <div className="flex gap-2">
             <button
               onClick={() => setShowCustomBurnedModal(true)}
-              className="px-2 py-1.5 bg-food-orange-100 text-food-orange-700 rounded-lg text-xs font-bold hover:bg-food-orange-200 transition-colors"
+              className="px-2 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors"
               title="Maxsus kaloriya qo'shish"
             >
               ✏️ Maxsus
             </button>
             <button
               onClick={() => setShowActivityPicker(true)}
-              className="px-3 py-1.5 bg-food-blue-100 text-food-blue-700 rounded-lg text-sm font-bold hover:bg-food-blue-200 transition-colors"
+              className="px-3 py-1.5 bg-stone-100 text-stone-700 rounded-lg text-sm font-semibold hover:bg-stone-100 transition-colors"
             >
               + Qo'shish
             </button>
@@ -330,23 +329,23 @@ const DailyLogComponent = ({
         </div>
 
         {!activities || activities.length === 0 ? (
-          <div className="text-center py-6 bg-gray-50 rounded-xl dashed-border border-gray-200">
+          <div className="text-center py-6 bg-stone-50 rounded-xl dashed-border border-stone-200">
             <div className="text-3xl mb-2 opacity-50">👟</div>
-            <p className="text-gray-500 text-sm">Hali mashq qo'shilmagan</p>
+            <p className="text-stone-500 text-sm">Hali mashq qo'shilmagan</p>
           </div>
         ) : (
           <div className="space-y-3">
             {activities.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-center gap-3 p-3 bg-food-blue-50 rounded-xl border border-food-blue-200 relative"
+                className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200 relative"
               >
                 <div className="text-2xl">{activity.activity_icon || "🏃"}</div>
                 <div className="flex-1">
-                  <div className="font-bold text-food-brown-800">
+                  <div className="font-semibold text-stone-900">
                     {activity.activity_name}
                   </div>
-                  <div className="text-xs text-food-brown-600">
+                  <div className="text-xs text-stone-600">
                     {activity.duration_minutes} daqiqa
                     {activity.distance_km
                       ? ` • ${activity.distance_km} km`
@@ -354,10 +353,10 @@ const DailyLogComponent = ({
                   </div>
                 </div>
                 <div className="text-right mr-8">
-                  <div className="font-extrabold text-food-orange-600">
+                  <div className="font-semibold text-amber-700">
                     -{Math.round(activity.calories_burned)}
                   </div>
-                  <div className="text-[10px] text-food-brown-500">kkal</div>
+                  <div className="text-[10px] text-stone-500">kkal</div>
                 </div>
                 <button
                   onClick={() => handleDeleteActivity(activity.id)}
@@ -373,14 +372,14 @@ const DailyLogComponent = ({
       </div>
 
       {/* Ovqatlar ro'yxati */}
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-food-green-100">
+      <div className="bg-white backdrop-blur rounded-2xl p-4 border border-stone-200">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-bold text-food-brown-800 flex items-center gap-2">
-            <span>🍽️</span> Bugungi ovqatlar ({meals.length})
+          <h3 className="text-base font-semibold text-stone-900 flex items-center gap-2">
+            Bugungi ovqatlar ({meals.length})
           </h3>
           <button
             onClick={() => setShowCustomConsumedModal(true)}
-            className="px-2 py-1.5 bg-food-green-100 text-food-green-700 rounded-lg text-xs font-bold hover:bg-food-green-200 transition-colors"
+            className="px-2 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition-colors"
             title="Maxsus kaloriya qo'shish"
           >
             ✏️ Maxsus
@@ -390,10 +389,10 @@ const DailyLogComponent = ({
         {meals.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-3">🍳</div>
-            <p className="text-food-brown-600 font-medium">
+            <p className="text-stone-600 font-medium">
               Hali ovqat qo'shilmagan
             </p>
-            <p className="text-food-brown-400 text-sm mt-1">
+            <p className="text-stone-400 text-sm mt-1">
               Bosh sahifadan ovqat tahlil qiling
             </p>
           </div>
@@ -402,7 +401,7 @@ const DailyLogComponent = ({
             {meals.map((meal) => (
               <div
                 key={meal.id}
-                className="bg-gradient-to-r from-food-green-50 to-food-yellow-50 rounded-xl p-3 border border-food-green-200 relative"
+                className="bg-white rounded-xl p-3 border border-stone-200 relative"
               >
                 <div className="flex items-start gap-3">
                   {/* Rasm yoki icon */}
@@ -410,10 +409,10 @@ const DailyLogComponent = ({
                     <img
                       src={meal.imagePreview}
                       alt={meal.food}
-                      className="w-14 h-14 rounded-lg object-cover border-2 border-food-green-200"
+                      className="w-14 h-14 rounded-lg object-cover border border-stone-200"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-lg bg-food-green-200 flex items-center justify-center text-2xl">
+                    <div className="w-14 h-14 rounded-lg bg-emerald-100 flex items-center justify-center text-2xl">
                       🍽️
                     </div>
                   )}
@@ -421,21 +420,21 @@ const DailyLogComponent = ({
                   {/* Ma'lumotlar */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
-                      <h4 className="font-bold text-food-brown-800 capitalize truncate pr-2">
+                      <h4 className="font-semibold text-stone-900 capitalize truncate pr-2">
                         {meal.food}
                       </h4>
-                      <span className="text-xs text-food-brown-500 whitespace-nowrap pr-8">
+                      <span className="text-xs text-stone-500 whitespace-nowrap pr-8">
                         {formatTime(meal.timestamp)}
                       </span>
                     </div>
-                    <p className="text-xs text-food-brown-500 mt-0.5">
+                    <p className="text-xs text-stone-500 mt-0.5">
                       {meal.weight_grams}g
                     </p>
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
-                      <span className="px-2 py-0.5 bg-food-red-100 text-food-red-700 rounded-full text-xs font-bold">
+                      <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-xs font-semibold">
                         🔥 {Math.round(meal.calories)} kkal
                       </span>
-                      <span className="px-2 py-0.5 bg-food-green-100 text-food-green-700 rounded-full text-xs font-medium">
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
                         {Math.round(meal.oqsil)}g oqsil
                       </span>
                     </div>
@@ -444,7 +443,7 @@ const DailyLogComponent = ({
                   {/* O'chirish tugmasi */}
                   <button
                     onClick={() => onDeleteMeal(meal.id)}
-                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-food-red-100 hover:bg-food-red-200 text-food-red-600 flex items-center justify-center transition-colors"
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-100 hover:bg-red-100 text-red-600 flex items-center justify-center transition-colors"
                     title="O'chirish"
                   >
                     <span className="text-sm">✕</span>
@@ -458,12 +457,12 @@ const DailyLogComponent = ({
 
       {/* Qolgan kaloriya */}
       {adjustedGoal - totalCalories > 0 ? (
-        <div className="bg-gradient-to-r from-food-green-100 to-food-green-200 border-2 border-food-green-300 rounded-2xl p-4 text-center">
-          <p className="text-food-green-800 font-bold flex items-center justify-center gap-2">
+        <div className="bg-white border border-stone-200 rounded-2xl p-4 text-center">
+          <p className="text-emerald-700 font-semibold flex items-center justify-center gap-2">
             <span className="text-xl">✨</span>
             <span>
               Yana{" "}
-              <span className="text-food-green-600 text-lg">
+              <span className="text-emerald-700 text-lg">
                 {Math.round(adjustedGoal - totalCalories)}
               </span>{" "}
               kkal yeyishingiz mumkin
@@ -471,12 +470,12 @@ const DailyLogComponent = ({
           </p>
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-food-red-100 to-food-orange-100 border-2 border-food-red-300 rounded-2xl p-4 text-center">
-          <p className="text-food-red-800 font-bold flex items-center justify-center gap-2">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-center">
+          <p className="text-red-600 font-semibold flex items-center justify-center gap-2">
             <span className="text-xl">⚠️</span>
             <span>
               Kunlik limitingiz{" "}
-              <span className="text-food-red-600 text-lg">
+              <span className="text-red-600 text-lg">
                 {Math.round(totalCalories - adjustedGoal)}
               </span>{" "}
               kkal ga oshib ketdi
@@ -507,14 +506,14 @@ const DailyLogComponent = ({
           <div className="flex gap-3">
             <button
               onClick={closeBurnedSheet}
-              className="flex-1 py-3 bg-food-brown-50 text-food-brown-700 rounded-2xl font-bold hover:bg-food-brown-100 transition-colors active:scale-95"
+              className="flex-1 py-3 bg-stone-50 text-stone-700 rounded-2xl font-semibold hover:bg-stone-100 transition-colors active:scale-95"
             >
               Bekor qilish
             </button>
             <button
               onClick={handleAddCustomBurned}
               disabled={!customName.trim() || !customCalories || isSubmitting}
-              className="flex-1 py-3 bg-gradient-to-r from-food-orange-500 to-food-orange-600 text-white rounded-2xl font-bold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+              className="flex-1 py-3 bg-amber-500 text-white rounded-2xl font-semibold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
             >
               {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
             </button>
@@ -522,12 +521,12 @@ const DailyLogComponent = ({
         }
       >
         <div className="space-y-4 pt-2">
-          <p className="text-sm text-food-brown-600">
+          <p className="text-sm text-stone-600">
             Katalogda yo'q mashq yoki harakatingizni qo'lda qo'shing.
           </p>
 
           <div>
-            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+            <label className="block text-sm font-semibold text-stone-700 mb-2">
               Harakat nomi
             </label>
             <input
@@ -535,11 +534,11 @@ const DailyLogComponent = ({
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder="Masalan: Uy mashqi"
-              className="w-full px-4 py-3 border-2 border-food-orange-100 bg-food-orange-50/40 rounded-2xl focus:border-food-orange-400 focus:bg-white outline-none transition-all font-medium"
+              className="w-full px-4 py-3 border border-amber-200 bg-amber-50/40 rounded-2xl focus:border-stone-400 focus:bg-white outline-none transition-all font-medium"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+            <label className="block text-sm font-semibold text-stone-700 mb-2">
               Sarflangan kaloriya (kkal)
             </label>
             <input
@@ -549,7 +548,7 @@ const DailyLogComponent = ({
               placeholder="Masalan: 200"
               min="1"
               max="5000"
-              className="w-full px-4 py-3 border-2 border-food-orange-100 bg-food-orange-50/40 rounded-2xl focus:border-food-orange-400 focus:bg-white outline-none transition-all font-bold text-lg"
+              className="w-full px-4 py-3 border border-amber-200 bg-amber-50/40 rounded-2xl focus:border-stone-400 focus:bg-white outline-none transition-all font-semibold text-lg"
             />
             <div className="flex flex-wrap gap-2 mt-3">
               {[100, 200, 300, 500].map((v) => (
@@ -557,7 +556,7 @@ const DailyLogComponent = ({
                   key={v}
                   type="button"
                   onClick={() => setCustomCalories(String(v))}
-                  className="px-3 py-1.5 rounded-full bg-food-orange-100 text-food-orange-700 text-xs font-bold hover:bg-food-orange-200 transition-colors"
+                  className="px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors"
                 >
                   {v} kkal
                 </button>
@@ -579,14 +578,14 @@ const DailyLogComponent = ({
           <div className="flex gap-3">
             <button
               onClick={closeConsumedSheet}
-              className="flex-1 py-3 bg-food-brown-50 text-food-brown-700 rounded-2xl font-bold hover:bg-food-brown-100 transition-colors active:scale-95"
+              className="flex-1 py-3 bg-stone-50 text-stone-700 rounded-2xl font-semibold hover:bg-stone-100 transition-colors active:scale-95"
             >
               Bekor qilish
             </button>
             <button
               onClick={handleAddCustomConsumed}
               disabled={!customName.trim() || !customCalories || isSubmitting}
-              className="flex-1 py-3 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white rounded-2xl font-bold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+              className="flex-1 py-3 bg-emerald-600 text-white rounded-2xl font-semibold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
             >
               {isSubmitting ? "Qo'shilmoqda..." : "Qo'shish"}
             </button>
@@ -594,12 +593,12 @@ const DailyLogComponent = ({
         }
       >
         <div className="space-y-4 pt-2">
-          <p className="text-sm text-food-brown-600">
+          <p className="text-sm text-stone-600">
             Rasmsiz, qo'lda ovqat yoki ichimlik kaloriyasini qo'shing.
           </p>
 
           <div>
-            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+            <label className="block text-sm font-semibold text-stone-700 mb-2">
               Ovqat nomi
             </label>
             <input
@@ -607,11 +606,11 @@ const DailyLogComponent = ({
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder="Masalan: Shirinlik"
-              className="w-full px-4 py-3 border-2 border-food-green-100 bg-food-green-50/40 rounded-2xl focus:border-food-green-400 focus:bg-white outline-none transition-all font-medium"
+              className="w-full px-4 py-3 border border-stone-200 bg-white rounded-2xl focus:border-stone-400 focus:bg-white outline-none transition-all font-medium"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-food-brown-700 mb-2">
+            <label className="block text-sm font-semibold text-stone-700 mb-2">
               Kaloriya (kkal)
             </label>
             <input
@@ -621,7 +620,7 @@ const DailyLogComponent = ({
               placeholder="Masalan: 150"
               min="1"
               max="5000"
-              className="w-full px-4 py-3 border-2 border-food-green-100 bg-food-green-50/40 rounded-2xl focus:border-food-green-400 focus:bg-white outline-none transition-all font-bold text-lg"
+              className="w-full px-4 py-3 border border-stone-200 bg-white rounded-2xl focus:border-stone-400 focus:bg-white outline-none transition-all font-semibold text-lg"
             />
             <div className="flex flex-wrap gap-2 mt-3">
               {[100, 200, 300, 500].map((v) => (
@@ -629,7 +628,7 @@ const DailyLogComponent = ({
                   key={v}
                   type="button"
                   onClick={() => setCustomCalories(String(v))}
-                  className="px-3 py-1.5 rounded-full bg-food-green-100 text-food-green-700 text-xs font-bold hover:bg-food-green-200 transition-colors"
+                  className="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors"
                 >
                   {v} kkal
                 </button>

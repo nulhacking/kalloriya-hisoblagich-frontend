@@ -127,7 +127,7 @@ const CoachPage = () => {
             </span>
           </button>
           {weeklyOpen && (
-            <div className="p-4 border-t border-stone-100">
+            <div className="p-4 border-t border-stone-200">
               {weekly.isLoading ? (
                 <div className="text-center py-4">
                   <LoadingSpinner size="md" />

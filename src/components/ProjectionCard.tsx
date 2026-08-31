@@ -28,30 +28,30 @@ const ProjectionCard = () => {
   const losing = user.goal_type === "lose";
 
   return (
-    <div className="bg-gradient-to-br from-food-green-50 via-food-yellow-50 to-food-orange-50 rounded-2xl p-4 border-2 border-food-green-200">
+    <div className="bg-white rounded-2xl p-4 border border-stone-200">
       <div className="flex items-start gap-3">
         <span className="text-3xl">{losing ? "🏃" : "💪"}</span>
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-food-brown-500 font-bold uppercase tracking-wider">
+          <div className="text-xs text-stone-500 font-semibold uppercase tracking-wider">
             Prognoz
           </div>
-          <div className="text-base font-extrabold text-food-brown-800 mt-0.5">
+          <div className="text-base font-semibold text-stone-900 mt-0.5">
             {projected ? (
               <>
-                <span className="text-food-green-700">{formatLongDate(projected)}</span> sanasida
+                <span className="text-emerald-700">{formatLongDate(projected)}</span> sanasida
               </>
             ) : (
               "Vazn yozuvi to'planganda prognoz hisoblanadi"
             )}
           </div>
-          <div className="text-sm text-food-brown-700 mt-1">
+          <div className="text-sm text-stone-700 mt-1">
             <b>{current} kg</b> → <b>{target} kg</b>
-            <span className={`ml-2 font-bold ${losing ? "text-food-green-700" : "text-food-orange-700"}`}>
+            <span className={`ml-2 font-semibold ${losing ? "text-emerald-700" : "text-amber-700"}`}>
               ({diffStr})
             </span>
           </div>
           {data.target.delta_kcal !== 0 && (
-            <div className="text-xs text-food-brown-600 mt-1">
+            <div className="text-xs text-stone-600 mt-1">
               Kunlik {data.target.delta_kcal < 0 ? "deficit" : "surplus"}:{" "}
               <b>{Math.abs(data.target.delta_kcal)} kkal</b>
             </div>

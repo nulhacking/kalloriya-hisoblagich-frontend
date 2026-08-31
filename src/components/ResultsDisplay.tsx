@@ -11,6 +11,31 @@ interface ResultsDisplayProps {
   onOpenCoach?: () => void;
 }
 
+/** Bitta oziqa ustuni — raqam katta, yorliq kichik. */
+const NutritionCell = ({
+  label,
+  value,
+  unit,
+}: {
+  label: string;
+  value: number | undefined;
+  unit: string;
+}) => (
+  <div className="px-3 py-2.5">
+    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+      {label}
+    </div>
+    <div className="mt-0.5 flex items-baseline gap-1">
+      <span className="text-lg font-semibold text-stone-900 tabular">
+        {value !== undefined ? Math.round(value) : "—"}
+      </span>
+      {value !== undefined && (
+        <span className="text-xs text-stone-400">{unit}</span>
+      )}
+    </div>
+  </div>
+);
+
 const ResultsDisplay = ({
   results,
   onAddMeal,
@@ -20,13 +45,6 @@ const ResultsDisplay = ({
   const [added, setAdded] = useState(false);
   const toast = useToast();
 
-  const handleAddMeal = () => {
-    if (onAddMeal && !added) {
-      onAddMeal(results);
-      setAdded(true);
-      toast.success("Kunlik hisobga qo'shildi");
-    }
-  };
   const {
     food,
     confidence,
@@ -38,99 +56,62 @@ const ResultsDisplay = ({
     advice,
   } = results;
 
-  const getConfidenceColor = (conf: number): string => {
-    if (conf >= 0.7) return "text-food-green-700 bg-food-green-100 border-food-green-300";
-    if (conf >= 0.4) return "text-food-yellow-700 bg-food-yellow-100 border-food-yellow-300";
-    return "text-food-red-700 bg-food-red-100 border-food-red-300";
+  const handleAddMeal = () => {
+    if (onAddMeal && !added) {
+      onAddMeal(results);
+      setAdded(true);
+      toast.success("Kunlik hisobga qo'shildi");
+    }
   };
 
-  const getConfidenceLabel = (conf: number): string => {
-    if (conf >= 0.7) return "Yuqori";
-    if (conf >= 0.4) return "O'rtacha";
-    return "Past";
-  };
+  // Ishonch darajasi — bitta neytral nishoncha, past bo'lsagina ogohlantiradi.
+  const confidenceTone =
+    confidence >= 0.7
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : confidence >= 0.4
+        ? "bg-stone-100 text-stone-600 border-stone-200"
+        : "bg-amber-50 text-amber-700 border-amber-200";
+  const confidenceLabel =
+    confidence >= 0.7 ? "Yuqori" : confidence >= 0.4 ? "O'rtacha" : "Past";
 
-  interface NutritionItem {
-    label: string;
-    value: number | undefined;
-    unit: string;
-    icon: string;
-    color: string;
-  }
+  const isUnknown = food === "noma'lum" || food === "unknown";
+  const portionLabel = estimated_weight_grams
+    ? `${Math.round(estimated_weight_grams)} g`
+    : "porsiya";
 
-  const nutritionItems: NutritionItem[] = [
-    {
-      label: "Kaloriya",
-      value: nutrition_per_100g.calories,
-      unit: "kkal",
-      icon: "🔥",
-      color: "from-food-red-400 to-food-orange-500",
-    },
-    {
-      label: "Oqsil",
-      value: nutrition_per_100g.oqsil,
-      unit: "g",
-      icon: "🥩",
-      color: "from-food-red-500 to-food-red-600",
-    },
-    {
-      label: "Uglevodlar",
-      value: nutrition_per_100g.carbs,
-      unit: "g",
-      icon: "🍞",
-      color: "from-food-yellow-400 to-food-orange-500",
-    },
-    {
-      label: "Yog'",
-      value: nutrition_per_100g.fat,
-      unit: "g",
-      icon: "🧈",
-      color: "from-food-yellow-500 to-food-yellow-600",
-    },
-  ];
+  const hasTotals = total_nutrition && Object.keys(total_nutrition).length > 0;
+  const hasPer100 = Object.keys(nutrition_per_100g).length > 0;
 
   return (
-    <div className="space-y-4">
-      {/* Food Name and Confidence */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-food-green-500 via-food-green-600 to-food-green-700 rounded-3xl p-5 text-white shadow-xl">
-        <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-food-yellow-300/20 rounded-full blur-3xl"></div>
-        <div className="relative z-10">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="text-3xl md:text-4xl">
-              {food === "noma'lum" || food === "unknown" ? "❓" : "🍽️"}
+    <div className="space-y-3">
+      {/* Sarlavha — nima topildi va qanchalik ishonchli */}
+      <div className="rounded-2xl border border-stone-200 bg-white p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+              Tahlil natijasi
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs uppercase tracking-wider font-bold text-white/80 mb-0.5">
-                Tahlil natijasi
-              </div>
-              <h2 className="text-xl md:text-2xl font-extrabold capitalize leading-tight">
-                {food === "noma'lum" || food === "unknown" ? "Noma'lum ovqat" : food}
-              </h2>
-            </div>
+            <h2 className="text-lg font-semibold text-stone-900 capitalize leading-tight mt-0.5 truncate">
+              {isUnknown ? "Noma'lum ovqat" : food}
+            </h2>
+            {estimated_weight_grams && estimated_weight_grams > 0 && (
+              <p className="text-xs text-stone-500 mt-1">
+                Taxminiy og'irlik:{" "}
+                <span className="tabular">{portionLabel}</span>
+              </p>
+            )}
           </div>
-          {food !== "noma'lum" && food !== "unknown" && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full pl-1 pr-3 py-1">
-                <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-extrabold">
-                  AI
-                </div>
-                <span className="text-sm font-bold">
-                  {Math.round(confidence * 100)}%
-                </span>
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getConfidenceColor(confidence)}`}
-              >
-                {getConfidenceLabel(confidence)} ishonch
-              </span>
-            </div>
+          {!isUnknown && (
+            <span
+              className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${confidenceTone}`}
+            >
+              {confidenceLabel} · {Math.round(confidence * 100)}%
+            </span>
           )}
         </div>
       </div>
 
-      {/* "Yeysizmi?" + yegandan keyingi reja — eng muhim javob, shuning uchun
-          raqamlardan oldin turadi. */}
+      {/* "Yeysizmi?" + yegandan keyingi reja — eng muhim javob, raqamlardan oldin. */}
       {advice && (
         <MealAdviceCard
           advice={advice}
@@ -139,17 +120,98 @@ const ResultsDisplay = ({
         />
       )}
 
-      {/* Ingredients */}
+      {/* Raqamlar — porsiya va 100 g bitta kartada, ikkita bo'limda */}
+      {(hasTotals || hasPer100) && (
+        <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
+          {hasTotals && total_nutrition && (
+            <div>
+              <div className="px-4 pt-3.5 pb-1 text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                Umumiy · {portionLabel}
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-stone-100 border-b border-stone-100">
+                <div className="divide-y divide-stone-100">
+                  <NutritionCell
+                    label="Kaloriya"
+                    value={total_nutrition.calories}
+                    unit="kkal"
+                  />
+                  <NutritionCell
+                    label="Uglevod"
+                    value={total_nutrition.carbs}
+                    unit="g"
+                  />
+                </div>
+                <div className="divide-y divide-stone-100">
+                  <NutritionCell
+                    label="Oqsil"
+                    value={total_nutrition.oqsil}
+                    unit="g"
+                  />
+                  <NutritionCell
+                    label="Yog'"
+                    value={total_nutrition.fat}
+                    unit="g"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {hasPer100 && (
+            <div>
+              <div className="px-4 pt-3.5 pb-1 text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                100 g uchun
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-stone-100">
+                <div className="divide-y divide-stone-100">
+                  <NutritionCell
+                    label="Kaloriya"
+                    value={nutrition_per_100g.calories}
+                    unit="kkal"
+                  />
+                  <NutritionCell
+                    label="Uglevod"
+                    value={nutrition_per_100g.carbs}
+                    unit="g"
+                  />
+                </div>
+                <div className="divide-y divide-stone-100">
+                  <NutritionCell
+                    label="Oqsil"
+                    value={nutrition_per_100g.oqsil}
+                    unit="g"
+                  />
+                  <NutritionCell
+                    label="Yog'"
+                    value={nutrition_per_100g.fat}
+                    unit="g"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!hasPer100 && !hasTotals && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+          <p className="text-sm text-stone-600">
+            Kaloriya ma'lumotlari aniqlanmadi.
+          </p>
+        </div>
+      )}
+
+      {/* Ingredientlar */}
       {ingredients && ingredients.length > 0 && (
-        <div className="bg-gradient-to-br from-food-green-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-green-200">
-          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>🥗</span> Ingredientlar
-          </h3>
-          <div className="flex flex-wrap gap-2">
+        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+          <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-2">
+            Ingredientlar
+          </div>
+          <div className="flex flex-wrap gap-1.5">
             {ingredients.map((ingredient, index) => (
               <span
                 key={index}
-                className="px-3 py-1.5 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white rounded-full text-xs font-bold capitalize shadow-sm"
+                className="px-2.5 py-1 rounded-full border border-stone-200 bg-stone-50 text-xs text-stone-700 capitalize"
               >
                 {ingredient}
               </span>
@@ -158,120 +220,21 @@ const ResultsDisplay = ({
         </div>
       )}
 
-      {/* Estimated Weight */}
-      {estimated_weight_grams && estimated_weight_grams > 0 && (
-        <div className="bg-gradient-to-r from-food-orange-100 to-food-yellow-100 border-2 border-food-orange-300 rounded-2xl p-4">
-          <p className="text-food-brown-800 font-bold text-sm md:text-base flex items-center gap-2">
-            <span className="text-xl">📏</span>
-            Taxminiy og'irlik:{" "}
-            <span className="text-food-orange-600 text-lg">
-              {Math.round(estimated_weight_grams)}g
-            </span>
-          </p>
-        </div>
-      )}
-
-      {/* Total Nutrition */}
-      {total_nutrition && Object.keys(total_nutrition).length > 0 && (
-        <div className="bg-gradient-to-br from-food-orange-50 to-food-yellow-50 rounded-2xl p-4 border-2 border-food-orange-200">
-          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>📊</span>
-            Umumiy ({estimated_weight_grams ? Math.round(estimated_weight_grams) + "g" : "porsiya"})
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: "Kaloriya", value: total_nutrition.calories, unit: "kkal", icon: "🔥" },
-              { label: "Oqsil", value: total_nutrition.oqsil, unit: "g", icon: "🥩" },
-              { label: "Uglevodlar", value: total_nutrition.carbs, unit: "g", icon: "🍞" },
-              { label: "Yog'", value: total_nutrition.fat, unit: "g", icon: "🧈" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="bg-white rounded-xl p-3 text-center border-2 border-food-orange-200 shadow-sm"
-              >
-                <div className="text-2xl mb-1">{item.icon}</div>
-                <div className="text-xl md:text-2xl font-extrabold text-food-green-600">
-                  {item.value !== undefined ? item.value : "N/A"}
-                </div>
-                <div className="text-xs text-food-brown-600 font-bold uppercase">
-                  {item.label}
-                </div>
-                {item.value !== undefined && (
-                  <div className="text-xs text-food-brown-400">{item.unit}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Nutrition per 100g */}
-      {Object.keys(nutrition_per_100g).length > 0 ? (
-        <div className="bg-gradient-to-br from-food-green-50 to-food-green-100 rounded-2xl p-4 border-2 border-food-green-200">
-          <h3 className="text-base md:text-lg font-bold text-food-brown-800 mb-3 flex items-center gap-2">
-            <span>⚖️</span> 100g uchun
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            {nutritionItems.map((item) => (
-              <div
-                key={item.label}
-                className="bg-white rounded-xl p-3 text-center border-2 border-food-green-200 shadow-sm"
-              >
-                <div className="text-2xl mb-1">{item.icon}</div>
-                <div className="text-xl md:text-2xl font-extrabold text-food-green-600">
-                  {item.value !== undefined ? item.value : "N/A"}
-                </div>
-                <div className="text-xs text-food-brown-600 font-bold uppercase">
-                  {item.label}
-                </div>
-                {item.value !== undefined && (
-                  <div className="text-xs text-food-brown-400">{item.unit}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="bg-gradient-to-r from-food-yellow-100 to-food-orange-100 border-2 border-food-yellow-300 rounded-2xl p-4">
-          <p className="text-food-brown-700 font-bold text-sm flex items-center gap-2">
-            <span className="text-xl">⚠️</span>
-            Kaloriya ma'lumotlari mavjud emas.
-          </p>
-        </div>
-      )}
-
-      {/* Note */}
       {note && (
-        <div className="bg-gradient-to-r from-food-green-100 to-food-yellow-100 border-2 border-food-green-300 rounded-2xl p-4">
-          <p className="text-food-brown-700 font-medium text-sm flex items-start gap-2">
-            <span className="text-lg">ℹ️</span>
-            <span>{note}</span>
-          </p>
-        </div>
+        <p className="text-xs text-stone-500 leading-relaxed px-1">{note}</p>
       )}
 
-      {/* Tanovul qildim tugmasi */}
       {onAddMeal && (
         <button
           onClick={handleAddMeal}
           disabled={added}
-          className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
+          className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors active:scale-[0.99] ${
             added
-              ? "bg-gradient-to-r from-food-green-500 to-food-green-600 cursor-default"
-              : "bg-gradient-to-r from-food-orange-500 via-food-orange-600 to-food-red-500 hover:from-food-orange-600 hover:via-food-red-500 hover:to-food-red-600 animate-pulse-glow"
+              ? "bg-stone-100 text-stone-500 cursor-default"
+              : "bg-emerald-600 hover:bg-emerald-700 text-white"
           }`}
         >
-          {added ? (
-            <>
-              <span className="text-xl">✓</span>
-              <span>Kunlik hisobga qo'shildi!</span>
-            </>
-          ) : (
-            <>
-              <span className="text-xl">🍴</span>
-              <span>Tanovul qildim</span>
-            </>
-          )}
+          {added ? "Kunlik hisobga qo'shildi" : "Tanovul qildim"}
         </button>
       )}
     </div>

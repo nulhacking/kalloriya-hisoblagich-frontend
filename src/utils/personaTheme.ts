@@ -2,13 +2,13 @@
  * Har bir murabbiyning vizual imzosi — afishadagi 7 rangli ustunning ilovadagi
  * ko'rinishi. Backend faqat id/nom/emoji yuboradi, ranglar shu yerda.
  *
- * Tailwind sinflari to'liq yozilgan (`from-rose-500` kabi) — JIT faqat manbadagi
+ * Tailwind sinflari to'liq yozilgan (`bg-orange-600` kabi) — JIT faqat manbadagi
  * to'liq nomlarni ko'radi, shuning uchun ularni bo'laklab qurish mumkin emas.
  */
 
 export interface PersonaTheme {
-  /** Karta yuqorisidagi va avatardagi gradient. */
-  gradient: string;
+  /** Avatardagi va sarlavhadagi bitta tekis aksent rangi (gradient emas). */
+  accent: string;
   /** Yumshoq fon — tanlangan kartada. */
   soft: string;
   /** Chegara rangi — tanlangan kartada. */
@@ -20,60 +20,60 @@ export interface PersonaTheme {
 }
 
 const FALLBACK: PersonaTheme = {
-  gradient: "from-food-green-500 to-emerald-600",
-  soft: "bg-food-green-50",
-  border: "border-food-green-300",
-  text: "text-food-green-700",
-  bubble: "bg-food-green-50 border-food-green-100",
+  accent: "bg-emerald-600",
+  soft: "bg-emerald-50",
+  border: "border-emerald-200",
+  text: "text-emerald-700",
+  bubble: "bg-emerald-50 border-emerald-100",
 };
 
 export const PERSONA_THEME: Record<string, PersonaTheme> = {
   motivator: {
-    gradient: "from-orange-500 via-red-500 to-rose-600",
+    accent: "bg-orange-600",
     soft: "bg-orange-50",
-    border: "border-orange-300",
+    border: "border-orange-200",
     text: "text-orange-700",
     bubble: "bg-orange-50 border-orange-100",
   },
   intizomli: {
-    gradient: "from-slate-600 via-slate-700 to-zinc-800",
+    accent: "bg-slate-700",
     soft: "bg-slate-50",
-    border: "border-slate-300",
+    border: "border-slate-200",
     text: "text-slate-700",
     bubble: "bg-slate-50 border-slate-200",
   },
   ilmiy: {
-    gradient: "from-violet-500 via-purple-600 to-indigo-700",
+    accent: "bg-violet-600",
     soft: "bg-violet-50",
-    border: "border-violet-300",
+    border: "border-violet-200",
     text: "text-violet-700",
     bubble: "bg-violet-50 border-violet-100",
   },
   kardio: {
-    gradient: "from-lime-500 via-green-500 to-emerald-600",
+    accent: "bg-lime-600",
     soft: "bg-lime-50",
-    border: "border-lime-300",
+    border: "border-lime-200",
     text: "text-green-700",
     bubble: "bg-lime-50 border-lime-100",
   },
   powerlifting: {
-    gradient: "from-amber-600 via-orange-700 to-stone-800",
+    accent: "bg-amber-600",
     soft: "bg-amber-50",
-    border: "border-amber-300",
+    border: "border-amber-200",
     text: "text-amber-800",
     bubble: "bg-amber-50 border-amber-100",
   },
   kulgu: {
-    gradient: "from-yellow-400 via-amber-500 to-orange-500",
+    accent: "bg-yellow-500",
     soft: "bg-yellow-50",
-    border: "border-yellow-300",
+    border: "border-yellow-200",
     text: "text-amber-700",
     bubble: "bg-yellow-50 border-yellow-100",
   },
   sokin: {
-    gradient: "from-teal-400 via-cyan-500 to-sky-600",
+    accent: "bg-teal-600",
     soft: "bg-teal-50",
-    border: "border-teal-300",
+    border: "border-teal-200",
     text: "text-teal-700",
     bubble: "bg-teal-50 border-teal-100",
   },

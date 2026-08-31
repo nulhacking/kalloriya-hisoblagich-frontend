@@ -1,5 +1,5 @@
 /* Font loaded via preconnect in index.html for better performance */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 
@@ -18,11 +18,22 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #1c1917;
+  background: #fafaf9;
+}
+
+/*
+ * Raqamlar bir xil kenglikda — kaloriya va vazn sonlari yangilanganda
+ * qator "sakramaydi". Statistika ilovasi uchun kichik, lekin sezilarli detal.
+ */
+.tabular,
+table {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
 #root {
@@ -303,19 +314,18 @@ body {
 }
 
 /* Gradient text */
+/* Sarlavha urg'usi — gradient emas, oddiy to'q neytral. */
 .gradient-text-food {
-  background: linear-gradient(135deg, #22c55e 0%, #eab308 50%, #f97316 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1c1917;
+  letter-spacing: -0.01em;
 }
 
-/* Food pattern background */
+/*
+ * Ilgari bu yerda uch rangli fon naqshi bor edi. Minimalistik tizimda fon
+ * tekis (`bg-stone-50`) — sinf orqaga moslik uchun qoldirildi, bo'sh.
+ */
 .food-pattern {
-  background-image: 
-    radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(249, 115, 22, 0.08) 0%, transparent 50%);
+  background-image: none;
 }
 
 /* ============ AI murabbiy suhbati ============ */
@@ -337,7 +347,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 9999px;
-  background-color: #a18072; /* food-brown-600 */
+  background-color: #a18072; /* stone-700 */
   animation: coach-dot 1.1s ease-in-out infinite;
 }
 

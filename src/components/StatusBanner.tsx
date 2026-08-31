@@ -5,10 +5,10 @@ interface StatusBannerProps {
 }
 
 interface BannerContent {
-  emoji: string;
   title: string;
   sub: string;
-  gradient: string;
+  /** Chap chekkadagi ingichka aksent chizig'i — holatni rang bilan aytadi. */
+  accent: string;
   text: string;
 }
 
@@ -23,30 +23,27 @@ function buildBanner(summary: GoalSummary): BannerContent {
     const over = Math.round(net - target);
     if (goal === "gain") {
       return {
-        emoji: "💪",
         title: `+${over} kkal surplus`,
-        sub: "Mushak yig'ish uchun zo'r!",
-        gradient: "from-food-orange-100 to-food-yellow-100",
-        text: "text-food-orange-800",
+        sub: "Mushak yig'ish uchun zo'r",
+        accent: "bg-emerald-600",
+        text: "text-stone-900",
       };
     }
     return {
-      emoji: "⚠️",
       title: `Targetdan ${over} kkal oshdi`,
       sub: "Ertaga biroz mashq qiling",
-      gradient: "from-food-red-100 to-food-orange-100",
-      text: "text-food-red-700",
+      accent: "bg-red-500",
+      text: "text-stone-900",
     };
   }
 
   // Close to target (within 100)
   if (Math.abs(net - target) <= 100) {
     return {
-      emoji: "✅",
       title: "Maqsad yo'lidasiz",
-      sub: "Ajoyib! Aynan shu balansda davom eting",
-      gradient: "from-food-green-100 to-food-green-50",
-      text: "text-food-green-800",
+      sub: "Aynan shu balansda davom eting",
+      accent: "bg-emerald-600",
+      text: "text-stone-900",
     };
   }
 
@@ -54,28 +51,25 @@ function buildBanner(summary: GoalSummary): BannerContent {
   const remaining = Math.round(target - net);
   if (goal === "lose") {
     return {
-      emoji: "🏃",
       title: `${remaining} kkal qoldi`,
       sub: "Deficit holatidasiz — davom eting",
-      gradient: "from-food-green-100 to-food-yellow-50",
-      text: "text-food-green-800",
+      accent: "bg-emerald-600",
+      text: "text-stone-900",
     };
   }
   if (goal === "gain") {
     return {
-      emoji: "🍽️",
       title: `Yana ${remaining} kkal yeng`,
       sub: "Semirish uchun surplus kerak",
-      gradient: "from-food-orange-100 to-food-yellow-100",
-      text: "text-food-orange-800",
+      accent: "bg-amber-500",
+      text: "text-stone-900",
     };
   }
   return {
-    emoji: "💡",
     title: `${remaining} kkal qoldi`,
     sub: "Maqsadga yetish uchun davom eting",
-    gradient: "from-food-yellow-100 to-food-orange-50",
-    text: "text-food-brown-800",
+    accent: "bg-stone-900",
+    text: "text-stone-900",
   };
 }
 
@@ -83,12 +77,12 @@ const StatusBanner = ({ summary }: StatusBannerProps) => {
   if (!summary) return null;
   const b = buildBanner(summary);
   return (
-    <div className={`bg-gradient-to-r ${b.gradient} rounded-2xl p-4 border-2 border-white/60 shadow-sm`}>
-      <div className="flex items-start gap-3">
-        <span className="text-3xl">{b.emoji}</span>
+    <div className="rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="flex items-stretch gap-3">
+        <span className={`w-1 rounded-full shrink-0 ${b.accent}`} aria-hidden />
         <div className="flex-1 min-w-0">
-          <div className={`font-extrabold ${b.text}`}>{b.title}</div>
-          <div className="text-xs text-food-brown-600 mt-0.5">{b.sub}</div>
+          <div className={`text-sm font-semibold ${b.text}`}>{b.title}</div>
+          <div className="text-xs text-stone-500 mt-0.5">{b.sub}</div>
         </div>
       </div>
     </div>

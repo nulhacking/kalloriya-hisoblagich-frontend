@@ -4,20 +4,20 @@ import type { CSSProperties } from "react";
  * Motivator Murabbiy — afishadagi qahramonning vektor portreti.
  *
  * Bitta manba, uchta ishlatilish joyi:
- *   • ilovada — React komponenti (jonli, CSS animatsiyalari bilan);
- *   • stikerda — `scripts/build-coach-stickers.mjs` shu komponentni server-side
- *     render qilib 512×512 PNG chiqaradi (Telegram stiker talabi);
+ * • ilovada — React komponenti (jonli, CSS animatsiyalari bilan);
+ * • stikerda — `scripts/build-coach-stickers.mjs` shu komponentni server-side
+ * render qilib 512×512 PNG chiqaradi (Telegram stiker talabi);
  *
  * Shuning uchun bu yerda hech qanday tashqi rasm, font yoki hook yo'q — faqat
  * sof SVG. Kayfiyat (`mood`) qo'l pozasini, yuz ifodasini va effektlarni
  * almashtiradi; gavda va bosh hamma kayfiyatda bir xil qoladi.
  *
  * Hajm berish uslubi (afishadagi 3D ko'rinishga yaqinlashtirish):
- *   1. barcha teri/mato shakllari BITTA yo'nalishdagi gradient bilan bo'yaladi
- *      (`userSpaceOnUse` — yorug'lik chapdan-yuqoridan, hamma a'zoda bir xil);
- *   2. ustidan yumshoq soya qatlami (blur) — bo'yin ostida, qo'l gavdaga
- *      tutashgan joyda, mayka burmalarida;
- *   3. eng ustida yaltiroq nuqtalar va o'ng qirradagi issiq rim-light.
+ * 1. barcha teri/mato shakllari BITTA yo'nalishdagi gradient bilan bo'yaladi
+ * (`userSpaceOnUse` — yorug'lik chapdan-yuqoridan, hamma a'zoda bir xil);
+ * 2. ustidan yumshoq soya qatlami (blur) — bo'yin ostida, qo'l gavdaga
+ * tutashgan joyda, mayka burmalarida;
+ * 3. eng ustida yaltiroq nuqtalar va o'ng qirradagi issiq rim-light.
  * Har bir a'zo baribir ikki qatlamda chiziladi (kontur + rang), shuning uchun
  * a'zo ichida ortiqcha chok ko'rinmaydi.
  */

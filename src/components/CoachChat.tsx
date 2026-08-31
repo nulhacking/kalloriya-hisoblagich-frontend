@@ -23,7 +23,7 @@ import { type CoachMood } from "./coach/MotivatorArt";
 /* ------------------------------------------------------------------ matn */
 
 const MARK_CLASS: Record<CoachMark, string> = {
-  b: "font-extrabold",
+  b: "font-semibold",
   i: "italic",
   u: "underline",
   code: "font-mono text-[0.92em] bg-black/5 px-1 rounded",
@@ -83,7 +83,7 @@ const TypingBubble = ({ persona }: { persona: CoachPersona }) => (
       size="xs"
       animated
     />
-    <div className="bg-white border-2 border-food-brown-100 rounded-2xl rounded-bl-md px-4 py-3">
+    <div className="bg-white border border-stone-200 rounded-2xl rounded-bl-md px-4 py-3">
       <div className="flex gap-1 items-center">
         <span className="coach-dot" />
         <span className="coach-dot" style={{ animationDelay: "0.15s" }} />
@@ -117,7 +117,7 @@ const Bubble = ({ message, persona, animate, mood, onGrow }: BubbleProps) => {
   if (!isCoach) {
     return (
       <div className="flex justify-end animate-bubble-in">
-        <div className="max-w-[85%] bg-gradient-to-br from-food-green-500 to-food-green-600 text-white rounded-2xl rounded-br-md px-3.5 py-2.5 shadow-sm">
+        <div className="max-w-[85%] bg-emerald-600 text-white rounded-2xl rounded-br-md px-3.5 py-2.5 shadow-sm">
           <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
             {message.content}
           </p>
@@ -146,9 +146,9 @@ const Bubble = ({ message, persona, animate, mood, onGrow }: BubbleProps) => {
           animated={animate}
         />
         <div
-          className={`max-w-[85%] ${theme.bubble} border-2 rounded-2xl rounded-bl-md px-3.5 py-2.5`}
+          className={`max-w-[85%] ${theme.bubble} border rounded-2xl rounded-bl-md px-3.5 py-2.5`}
         >
-          <p className="text-sm leading-relaxed text-food-brown-800 whitespace-pre-wrap break-words">
+          <p className="text-sm leading-relaxed text-stone-900 whitespace-pre-wrap break-words">
             {renderRichText(visible)}
             {!done && <span className="coach-caret" />}
           </p>
@@ -216,10 +216,10 @@ const CoachChat = ({
   };
 
   return (
-    <div className="bg-white/95 rounded-2xl border-2 border-white shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden flex flex-col">
       {/* Sarlavha */}
       <div
-        className={`bg-gradient-to-r ${theme.gradient} px-3 py-2.5 flex items-center gap-2.5`}
+        className={`${theme.accent} px-3 py-2.5 flex items-center gap-2.5`}
       >
         {/* Kayfiyat o'zgarganda avatar qayta "sakrab" chiqadi (key → pop animatsiyasi) */}
         <CoachAvatar
@@ -233,18 +233,18 @@ const CoachChat = ({
           className="coach-mood-pop"
         />
         <div className="flex-1 min-w-0">
-          <div className="text-white font-extrabold text-sm truncate">
+          <div className="text-white font-semibold text-sm truncate">
             {persona.name}
           </div>
           <div className="text-white/85 text-[11px] flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-lime-300 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
             {isSending ? "yozyapti…" : "aloqada"}
           </div>
         </div>
         <button
           type="button"
           onClick={onChangePersona}
-          className="text-white/90 text-[11px] font-bold bg-white/20 hover:bg-white/30 rounded-full px-2.5 py-1.5 transition-colors active:scale-95"
+          className="text-white/90 text-[11px] font-semibold bg-white/20 hover:bg-white/30 rounded-full px-2.5 py-1.5 transition-colors active:scale-95"
         >
           🔄 Almashtirish
         </button>
@@ -252,9 +252,9 @@ const CoachChat = ({
 
       {/* Bepul tanishuv hisoblagichi */}
       {isFreeTrial && !isLocked && (
-        <div className="bg-food-yellow-50 border-b border-food-yellow-200 px-3 py-1.5 text-[11px] text-food-brown-700 font-bold text-center">
+        <div className="bg-amber-50 border-b border-amber-200 px-3 py-1.5 text-[11px] text-stone-700 font-semibold text-center">
           Bepul tanishuv: yana{" "}
-          <span className="text-food-orange-600">{messagesLeft}</span> ta savol
+          <span className="text-amber-700">{messagesLeft}</span> ta savol
         </div>
       )}
 
@@ -271,15 +271,15 @@ const CoachChat = ({
               variant="full"
               personaId={persona.id}
               animated
-              className="w-36 h-36 mb-2 drop-shadow-lg"
+              className="w-36 h-36 mb-2 drop-shadow-sm"
             />
-            <p className="font-extrabold text-food-brown-800">
+            <p className="font-semibold text-stone-900">
               {persona.name} keldi
             </p>
-            <p className="text-sm text-food-brown-600 mt-1">
+            <p className="text-sm text-stone-600 mt-1">
               {persona.tagline}
             </p>
-            <p className="text-xs text-food-brown-500 mt-3">
+            <p className="text-xs text-stone-500 mt-3">
               Savolingizni yozing — u sizning vazningiz, maqsadingiz va bugungi
               kaloriyangizni ko'rib turibdi.
             </p>
@@ -314,7 +314,7 @@ const CoachChat = ({
                 key={question}
                 type="button"
                 onClick={() => submit(question)}
-                className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 ${theme.border} ${theme.soft} ${theme.text} active:scale-95 transition-transform`}
+                className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border ${theme.border} ${theme.soft} ${theme.text} active:scale-95 transition-transform`}
               >
                 💬 {question}
               </button>
@@ -325,14 +325,14 @@ const CoachChat = ({
 
       {/* Yozish maydoni yoki paywall */}
       {isLocked ? (
-        <div className="p-3 border-t-2 border-food-brown-100">{paywall}</div>
+        <div className="p-3 border-t border-stone-200">{paywall}</div>
       ) : (
         <form
           onSubmit={(e) => {
             e.preventDefault();
             submit(draft);
           }}
-          className="p-2.5 border-t-2 border-food-brown-100 flex gap-2 items-end"
+          className="p-2.5 border-t border-stone-200 flex gap-2 items-end"
         >
           <textarea
             value={draft}
@@ -346,12 +346,12 @@ const CoachChat = ({
             rows={1}
             maxLength={700}
             placeholder="Savolingizni yozing…"
-            className="flex-1 resize-none rounded-xl border-2 border-food-brown-100 focus:border-food-green-300 focus:outline-none px-3 py-2 text-sm text-food-brown-800 placeholder:text-food-brown-400 max-h-24"
+            className="flex-1 resize-none rounded-xl border border-stone-200 focus:border-stone-400 focus:outline-none px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 max-h-24"
           />
           <button
             type="submit"
             disabled={!draft.trim() || isSending}
-            className={`w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${theme.gradient} text-white text-lg flex items-center justify-center shadow-sm disabled:opacity-40 active:scale-95 transition-transform`}
+            className={`w-10 h-10 shrink-0 rounded-xl ${theme.accent} text-white text-base flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform`}
             aria-label="Yuborish"
           >
             {isSending ? "…" : "➤"}

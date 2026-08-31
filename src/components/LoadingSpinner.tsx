@@ -2,6 +2,11 @@ interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'
 }
 
+/**
+ * Rang ota elementdan olinadi (`currentColor`): oq fonda to'q, to'q rangli
+ * tugma ichida esa oq bo'lib ko'rinadi — alohida variant kerak emas.
+ */
+
 const LoadingSpinner = ({ size = 'md' }: LoadingSpinnerProps) => {
   const sizeClasses: Record<'sm' | 'md' | 'lg', string> = {
     sm: 'w-4 h-4',
@@ -11,7 +16,7 @@ const LoadingSpinner = ({ size = 'md' }: LoadingSpinnerProps) => {
 
   return (
     <div
-      className={`${sizeClasses[size]} border-2 border-white border-t-transparent rounded-full animate-spin`}
+      className={`${sizeClasses[size]} border-2 border-current/25 border-t-current rounded-full animate-spin`}
     />
   )
 }

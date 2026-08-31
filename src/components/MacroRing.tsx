@@ -3,7 +3,7 @@ interface MacroRingProps {
   emoji: string;
   current: number;
   target: number;
-  color: string;  // hex like "#22c55e"
+  color: string; // hex like "#22c55e"
 }
 
 const MacroRing = ({ label, emoji, current, target, color }: MacroRingProps) => {
@@ -35,8 +35,8 @@ const MacroRing = ({ label, emoji, current, target, color }: MacroRingProps) => 
           {emoji}
         </div>
       </div>
-      <div className="mt-1 text-[11px] font-bold text-food-brown-700">{label}</div>
-      <div className="text-[11px] text-food-brown-500">
+      <div className="mt-1 text-[11px] font-semibold text-stone-700">{label}</div>
+      <div className="text-[11px] text-stone-500">
         {Math.round(current)}/{target}g
       </div>
     </div>

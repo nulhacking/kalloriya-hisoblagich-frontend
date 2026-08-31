@@ -36,26 +36,26 @@ export default function PWAUpdatePrompt() {
 
   return (
     <div className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl border border-food-green-200 p-4 max-w-md mx-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4 max-w-md mx-auto">
         <div className="flex items-start gap-3">
           <div className="text-3xl">🔄</div>
           <div className="flex-1">
-            <h3 className="font-bold text-food-brown-800 mb-1">
+            <h3 className="font-semibold text-stone-900 mb-1">
               Yangi versiya mavjud!
             </h3>
-            <p className="text-sm text-food-brown-600 mb-3">
+            <p className="text-sm text-stone-600 mb-3">
               Ilovaning yangi versiyasi tayyor. Yangilash uchun tugmani bosing.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleUpdate}
-                className="flex-1 bg-gradient-to-r from-food-green-500 to-food-green-600 text-white font-semibold py-2 px-4 rounded-xl hover:from-food-green-600 hover:to-food-green-700 transition-all duration-200 shadow-md"
+                className="flex-1 bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-emerald-600 transition-all duration-200 shadow-sm"
               >
                 Yangilash
               </button>
               <button
                 onClick={handleClose}
-                className="px-4 py-2 text-food-brown-600 hover:bg-food-brown-100 rounded-xl transition-colors"
+                className="px-4 py-2 text-stone-600 hover:bg-stone-100 rounded-xl transition-colors"
               >
                 Keyinroq
               </button>

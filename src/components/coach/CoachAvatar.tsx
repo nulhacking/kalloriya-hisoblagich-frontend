@@ -54,7 +54,7 @@ const CoachAvatar = ({
   className = "",
 }: CoachAvatarProps) => {
   const theme = getPersonaTheme(personaId);
-  const base = `${SIZES[size]} rounded-full bg-gradient-to-br ${theme.gradient} overflow-hidden shrink-0 ${
+  const base = `${SIZES[size]} rounded-full ${theme.accent} overflow-hidden shrink-0 ${
     ring ? "ring-2 ring-white shadow-sm" : ""
   } ${className}`;
 
